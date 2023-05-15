@@ -4,6 +4,11 @@ class ListNode:
         self.val = val
         self.next = next
 
+    def __repr__(self):
+        return f"<ListNode val:{self.val} next:{self.next}>"
+
+    def __str__(self):
+        return f"ListNode: val:{self.val}, next:{self.next}"
 class Solution:
     def swapNodes(self, head: [ListNode], k: int) -> [ListNode]:
 
@@ -35,13 +40,37 @@ class Solution:
 
         return head
 Wynik = Solution()
-head = [1,2,3,4,5]
-k = 2
-Wynik1 = Wynik.swapNodes(head,k)
+# head = [1,2,3,4,5]
+# k = 2
+# Wynik1 = Wynik.swapNodes(head,k)
 
-head = [7,9,6,6,7,8,3,0,9,5]
+list1 = ([7,9,6,6,7,8,3,0,9,5])
+
+def convert_list_to_linked_list(lst):
+    if not lst:
+        return None
+
+    head = ListNode(lst[0])
+    current = head
+
+    for i in range(1, len(lst)):
+        new_node = ListNode(lst[i])
+        current.next = new_node
+        current = new_node
+
+    return head
+
+list1 = [7, 9, 6, 6, 7, 8, 3, 0, 9, 5]
+linked_list = convert_list_to_linked_list(list1)
+
+# Przykład użycia klasy ListNode
+current = linked_list
+while current:
+    print("val: ", current.val," next: ",current.next)
+    current = current.next
+
 k = 5
-Wynik2 = Wynik.swapNodes(head,k)
+# Wynik2 = Wynik.swapNodes(head,k)
 
-print("Wynik1: ",Wynik1)
-print("Wynik2: ",Wynik2)
+# print("Wynik1: ",Wynik1)
+# print("Wynik2: ",Wynik2)

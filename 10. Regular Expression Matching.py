@@ -1,3 +1,4 @@
+import re
 class Solution:
     def isMatch(self, inString: str, inPattern: str) -> bool:
         #s == "mississippi" and p =="mis*is*ip*.": TRUE
@@ -31,6 +32,13 @@ class Solution:
 
         else:
             return False
+
+    class Solution:
+        def isMatch(self, inString: str, inPattern: str) -> bool:
+            resultBool = False
+            resultBool = re.match(inPattern,inString)
+
+            return True
 
 Wynik = Solution()
 print(Wynik.isMatch("aab","c*a*b"))

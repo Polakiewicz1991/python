@@ -51,7 +51,10 @@ class Solution:
             if x % 2 == 0:
                 head2nd = head2nd.next
                 tempVal = head1st.val
-                head1st.val= head2nd.val
+                try:
+                    head1st.val = head2nd.val
+                except AttributeError:
+                    pass
             else:
                 head1st.val = tempVal
                 head2nd = head2nd.next
@@ -66,24 +69,27 @@ class Solution:
     def swapPairsInternet(self, head: ListNode) -> ListNode:
         if (not head) or (not head.next): return head
         node = head.next
-        head.next = self.swapPairs(head.next.next)
+        print("node: ",node)
+        head.next = self.swapPairsInternet(head.next.next)
+        print("head.next: ",head.next)
         node.next = head
+        print("node: ",node)
         return node
 
 Wynik = Solution()
 
 list = [1,2,3,4]
 head = convert_list_to_linked_list(list)
-Wynik1 = Wynik.swapPairs(head)
+Wynik1 = Wynik.swapPairsInternet(head)
 
-list = []
-head = convert_list_to_linked_list(list)
-Wynik2 = Wynik.swapPairs(head)
-
-list = [1]
-head = convert_list_to_linked_list(list)
-Wynik3 = Wynik.swapPairs(head)
+# list = []
+# head = convert_list_to_linked_list(list)
+# Wynik2 = Wynik.swapPairs(head)
+#
+# list = [1]
+# head = convert_list_to_linked_list(list)
+# Wynik3 = Wynik.swapPairs(head)
 
 print("Wynik1:" ,Wynik1)
-print("Wynik2:" ,Wynik2)
-print("Wynik3:" ,Wynik3)
+# print("Wynik2:" ,Wynik2)
+# print("Wynik3:" ,Wynik3)

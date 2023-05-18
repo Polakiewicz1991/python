@@ -1,5 +1,5 @@
 class Solution:
-    def majorityElement(self, nums: list[int]) -> int:
+    def majorityElementSlow(self, nums: list[int]) -> int:
         count = 0
         sum = 0
         lenNums = len(nums) / 2
@@ -7,9 +7,24 @@ class Solution:
             sum += nums.count(i)
             res = i if (nums.count(i) > count) else res
             count = max(count,nums.count(i))
-            if sum >
         return res
 
+    def majorityElement(self, nums: list[int]) -> int:
+        #It works but not on my computer xD
+
+        nums.sort()
+        count = 0
+        sum = 0
+        lenNums = len(nums)
+        i = 0
+        while i < lenNums:
+            numsCount = nums.count(nums[i])
+            # print("numsCount:", numsCount, " i:", i)
+            res = nums[i] if (numsCount > count) else res
+            count = max(count, numsCount)
+            i += numsCount
+        return res
+    
 Wynik = Solution()
 nums1 = [3,2,3]
 Wynik1 = Wynik.majorityElement(nums1)

@@ -1,3 +1,6 @@
+import sys
+
+
 class Solution:
     def maxProfit(self, prices: list[int]) -> int:
         pricesLen = len(prices)
@@ -139,6 +142,26 @@ class Solution:
                 res = max(res,sell - buy)
 
         return res
+
+    def maxProfitInternet(self, prices: list[int]) -> int:
+        # Initialize minimum price to a large value and maximum profit to 0
+        m = sys.maxsize
+        ans = 0
+
+        # Iterate through the prices list
+        for i in range(len(prices)):
+            # Update the minimum price if current price is lower
+            if prices[i] < m:
+                m = prices[i]
+
+            # Calculate profit that could be obtained by selling at current price and buying at minimum price
+            profit = prices[i] - m
+
+            # Update maximum profit if current profit is greater than current maximum profit
+            ans = max(ans, profit)
+
+        # Return the maximum profit
+        return ans
 
 Wynik = Solution()
 prices = [7,1,5,3,6,4]

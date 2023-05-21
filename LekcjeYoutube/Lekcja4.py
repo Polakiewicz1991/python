@@ -9,7 +9,7 @@ if Wiek >=18 and Kasa >= 35:
     print("możesz wejść")
 
 #zwraca true ponieważ and > or
-if True  or False and False
+if True  or False and False:
     print("prawda")
 else:
     print("Fałsz")

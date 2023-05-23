@@ -11,11 +11,13 @@ def LongestCommonPrefix(strs :list[str]) -> str:
     for i in range(0,minlenght):
         print(strs[1:])
         add = True
-        for j in range(0, listlenght - 1):
-            if strs[j][i] == strs[j + 1][i]:
-                add = add
-            else:
-                return StrResult
+        j = 0
+        if minlenght > 1:
+            for j in range(0, listlenght - 1):
+                if strs[j][i] == strs[j + 1][i]:
+                    add = add
+                else:
+                    return StrResult
         if add == True:
             StrResult += strs[j][i]
 
@@ -47,5 +49,7 @@ def longestCommonPrefixinernet2(strs: list[str]) -> str:
 
 
 print(LongestCommonPrefix(["abradowac","abraham","abrakadabra","abraksas","abram"]))
-print(longestCommonPrefixinernet(["abradowac","abram","abrakadabra","abraham","abraksas"]))
-print(longestCommonPrefixinernet2(["abradowac","abram","abrakadabra","abraham","abraksas"]))
+print(LongestCommonPrefix(["abradowac","abram","abrakadabra","abraham","abraksas"]))
+print(LongestCommonPrefix(["abradowac","abram","abrakadabra","abraham","abraksas"]))
+print(LongestCommonPrefix(["a"]))
+

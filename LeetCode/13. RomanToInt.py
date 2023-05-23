@@ -1,5 +1,4 @@
-
-def roman_to_int(iroman: str) -> int:
+def romanToInt3(self, s: str) -> int:
     y = 0
     C = 0
     X = 0
@@ -54,7 +53,7 @@ def roman_to_int(iroman: str) -> int:
     return y
 
 
-def RomanToInt2(Roman: str) -> int:
+def romanToInt2(self, s: str) -> int:
     lista = ('M', 'D', 'C', 'L', 'X', 'V', 'I')
 
     sum = 0
@@ -89,9 +88,32 @@ def RomanToInt2(Roman: str) -> int:
         i += 2
         j = j / 10
 
-    return sum
+    return int(sum)
+
+def romanToInt(s: str) -> int:
+    slownik = {'M' : 1000,'D' : 500,'C' : 100,'L' : 50,'X' : 10,'V' : 5,'I' : 1}
+    sum = 0
+    i = 0
+
+    while i < len(s) - 1:
+        y = (s[i + 1])
+        print(s[i],y)
+        if slownik[s[i]] >= slownik[s[i + 1]]:
+            sum += slownik[s[i]]
+        else:
+            sum -= slownik[s[i]]
+
+        print(sum)
+        i += 1
+    sum += slownik[s[-1]]
 
 
+    return int(sum)
 
-print(roman_to_int("MCMLXIX"))
-print(RomanToInt2("MCMLXIX"))
+
+s = "MCMLXIX"
+print(romanToInt(s))
+s = "MCMXCIV"
+print(romanToInt(s))
+s = "III"
+print(romanToInt(s))

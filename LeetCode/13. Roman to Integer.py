@@ -97,10 +97,6 @@ def RomanToInt2(Roman: str) -> int:
 def RomanToIntInternet(Roman: str) -> int:
     Values = {'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V': 5, 'I': 1}
     sum = 0
-    # print(Roman)
-    # print(len(Roman))
-    # print(range(len(Roman)))
-    #MCMLXXIX
     for i in range(len(Roman)):
         if (i + 1) < len(Roman) and Values[Roman[i+1]] > Values[Roman[i]]:
         #if Values[Roman[i+1]] > Values[Roman[i]] and (i + 1) < len(Roman):
@@ -110,6 +106,7 @@ def RomanToIntInternet(Roman: str) -> int:
         # print(Values[Roman[i]])
         # print(sum)
     return sum
+
 RomanValue: str = input("Podaj liczbę rzymską:" )
 print(roman_to_int(RomanValue))
 print(RomanToInt2(RomanValue))

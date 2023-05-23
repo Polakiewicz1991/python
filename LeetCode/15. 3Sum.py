@@ -57,20 +57,19 @@ class Solution:
             k = len(nums) - 1
             while i <= len(nums) - 3:
                 j = i + 1
-
-                    k = j + 1
-                    numsSum = 0
-        numsSum = 0
-                    while k <= len(nums) - 1:
-                        numsSum = nums[i] + nums[j] + nums[k]
-                        # print("numsSum: ", numsSum)
-                        if numsSum == 0:
-                            auxLust = (nums[i],nums[j],nums[k])
-                            # auxLust.sort()
-                            print("auxLust: ",auxLust)
-                            # if resultList.count(auxLust) == 0:
-                            resultList.add(tuple(auxLust))
-                            # resultList += ([nums[i],nums[j],nums[k]])
+                k = j + 1
+                numsSum = 0
+                numsSum = 0
+                while k <= len(nums) - 1:
+                    numsSum = nums[i] + nums[j] + nums[k]
+                    # print("numsSum: ", numsSum)
+                    if numsSum == 0:
+                        auxLust = (nums[i],nums[j],nums[k])
+                        # auxLust.sort()
+                        print("auxLust: ",auxLust)
+                        # if resultList.count(auxLust) == 0:
+                        resultList.add(tuple(auxLust))
+                        # resultList += ([nums[i],nums[j],nums[k]])
                         k += 1
                         # print(numsSum)
                     j += 1

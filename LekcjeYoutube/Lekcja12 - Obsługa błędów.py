@@ -16,9 +16,7 @@ except (TypeError,ZeroDivisionError):
 except:
     print("Przejęcie innych wyjądków")
 finally: #pojawia sie na końcu, wykona się za każdym razem po try i except, z błędem czy bez
-
-
-print("dalsze instr...")
+    print("dalsze instr...")
 
 try:
     print(x / y)

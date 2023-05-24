@@ -16,7 +16,7 @@ class Solution:
                 res += 1
         return res
 
-    def lengthOfLastWordInternet(self, s: str) -> int:
+    def lengthOfLastWord(self, s: str) -> int:
         print(s.strip())
         print(s.strip().split(" "))
         print(s.strip().split(" ")[-1])

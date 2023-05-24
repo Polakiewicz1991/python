@@ -3,6 +3,8 @@ from flask import Flask, request
 #app = Flask(__name__) => Tworzy aplikację,
 #nazwa zmiennej i pliku powinny być takie same
 #W terminalu należy wskazać ścieżkę :cd C:/Users/P.Polakiewicz/Desktop/PP/Python/python/Udemy/"Your First REST API"
+#pip install flask
+#python.exe -m pip install --upgrade pi
 #jeżeli w ścieżce znajdują się "spację", nazwę folderu należy wziąć w cudzysłów
 
 #aby uruchomić api należy wpisać "flask run", zamknąć api za pomocą CTRL + C
@@ -31,7 +33,7 @@ stores = [
     }
 ]
 
-@app.get("/stores") #htttp://127.0.0.1:5000/store
+@app.get("/stores") #htttp://127.0.0.1:5000/stores
 def get_stores():
     return {"stores": stores}
 
@@ -51,7 +53,7 @@ def create_store():
 
 #zmienna name zostanie przejęta z ścieżki
 # inną opcją jest określnie ścieżki jako: htttp://127.0.0.1:5000/store?name=My store
-@app.post("/store/<string:name>/item")
+@app.post("/store/<string:name>/items")
 def create_item(name):
     request_data = request.get_json()
     for store in stores:
@@ -78,6 +80,8 @@ def get_items_in_store(name):
         if store["name"] == name:
             return {"items": store["items"]}
     return {"message": "Store not found"}, 404
+
+print(stores)
 
 #zainstalować docker desktop
 #utworzyć plick Docker file

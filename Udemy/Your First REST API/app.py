@@ -39,7 +39,11 @@ def get_stores():
 def create_store():
     #funkcja request znajduje się w bibliotece Flask
     request_data = request.get_json()
-    new_store = {"name": request_data["name"], "items": []}
+    new_store = \
+        {
+            "name": request_data["name"],
+            "items": []
+        }
     stores.append(new_store)
     #return 200 -> OK
     #return 201 -> operacja udana
@@ -74,3 +78,16 @@ def get_items_in_store(name):
         if store["name"] == name:
             return {"items": store["items"]}
     return {"message": "Store not found"}, 404
+
+#zainstalować docker desktop
+#utworzyć plick Docker file
+# FROM python:3.10
+# EXPOSE 5000 -> nr portu
+# WORKDIR /app -> nazwa ścieżki
+# RUN pip install flask ->instalacja flaska
+# COPY . .
+# CMD ["flask", "run", "--host", "0.0.0.0"]
+# w terminalu wpisać ścieżkę pliku
+# komenda docker build -t rest-apis-flask-python .
+
+

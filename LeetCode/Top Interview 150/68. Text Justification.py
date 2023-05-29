@@ -14,6 +14,7 @@ class Line():
 
     def split(self):
         for word in self.line:
+            pass
 class Solution(object):
     def fullJustify(self, words, maxWidth):
         lines = list[Line]

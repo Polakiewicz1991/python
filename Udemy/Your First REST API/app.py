@@ -1,5 +1,7 @@
 from flask import Flask, request
-
+from flask_smorest import abort
+from db import items, stores
+import uuid
 #app = Flask(__name__) => Tworzy aplikację,
 #nazwa zmiennej i pliku powinny być takie same
 #W terminalu należy wskazać ścieżkę :cd C:/Users/P.Polakiewicz/Desktop/PP/Python/python/Udemy/"Your First REST API"
@@ -21,67 +23,94 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-stores = [
-    {
-        "name" : "My store",
-        "items": [
-            {
-                "name"  : "Chair",
-                "price" :   15.99
-            }
-        ]
-    }
-]
-
 @app.get("/stores") #htttp://127.0.0.1:5000/stores
 def get_stores():
-    return {"stores": stores}
+    return {"stores": list(stores.values())}
 
 @app.post("/store") #htttp://127.0.0.1:5000/store
 def create_store():
     #funkcja request znajduje się w bibliotece Flask
-    request_data = request.get_json()
-    new_store = \
+    store_data = request.get_json()
+    if (
+        "name" not in store_data
+    ):
+        return abort(
+            400,
+            message= "Ensure that 'name' is included in JSON payload"
+        )
+
+    for store in stores.values():
+        if(
+            store_data["name"] == store["name"]
+        ):
+            return abort(
+                400,
+                message="Store already exist in store"
+            )
+
+    store_id = uuid.uuid4().hex
+    store = \
         {
-            "name": request_data["name"],
-            "items": []
+            **store_data, "id" : store_id
         }
-    stores.append(new_store)
+    stores[store_id] = store
     #return 200 -> OK
     #return 201 -> operacja udana
-    return new_store, 201
+    return store, 201
 
 #zmienna name zostanie przejęta z ścieżki
 # inną opcją jest określnie ścieżki jako: htttp://127.0.0.1:5000/store?name=My store
-@app.post("/store/<string:name>/items")
-def create_item(name):
-    request_data = request.get_json()
-    for store in stores:
-        if store["name"] == name:
-            new_item = {"name": request_data["name"], "price": request_data["price"]}
-            store["items"].append(new_item)
-            return new_item, 201
+@app.post("/items")
+def create_item():
+    #here not only we need to validate data exists,
+    #But also what type of dara it is, Price should be float
+    item_data = request.get_json()
+    if (
+        "store_id" not in item_data
+        or "price" not in item_data
+        or "name" not in item_data
+    ):
+        return abort(
+            404,
+            message= "Ensure that 'store_id', 'price' and 'name' are included in JSON payload"
+        )
+    for item in items.values():
+        if(
+            item_data["name"] == item["name"]
+            and item_data["store_id"] == item["store_id"]
+        ):
+            return abort(
+                404,
+                message="Item already exist in store"
+            )
+
+    item_id = uuid.uuid4().hex
+    item = {**item_data, "item_id" : item_id}
+    items[item_id] = item
+    return item, 201
     #return 404 - not found
-    return {"message": "Store not found"}, 404
 
-@app.get("/store/<string:name>") #htttp://127.0.0.1:5000/store
-def get_store(name):
+@app.get("/items") #htttp://127.0.0.1:5000/stores
+def get_all_items():
+    return {"items": list(items.values())}
+
+@app.get("/store/<string:store_id>") #htttp://127.0.0.1:5000/store
+def get_store(store_id):
     #funkcja request znajduje się w bibliotece Flask
-    for store in stores:
-        if store["name"] == name:
-            return store
-    return {"message": "Store not found"}, 404
+    try:
+        return stores[store_id]
+    except KeyError:
+        return abort(404, message= "Store not found")
 
 
-@app.get("/store/<string:name>/items")
-def get_items_in_store(name):
+@app.get("/item/<string:item_id>")
+def get_items_in_store(item_id):
     #funkcja request znajduje się w bibliotece Flask
-    for store in stores:
-        if store["name"] == name:
-            return {"items": store["items"]}
-    return {"message": "Store not found"}, 404
+    try:
+        return items[item_id]
+    except KeyError:
+        return abort(404, message= "Item not found")
 
-print(stores)
 
 #zainstalować docker desktop
 #utworzyć plick Docker file
@@ -94,4 +123,6 @@ print(stores)
 # w terminalu wpisać ścieżkę pliku
 # komenda docker build -t rest-apis-flask-python .
 
+#należy zainstalwoać pip install python-dotenv
+#aby zainstalować wszystkie biblioteki pip install -r requirements.txt
 

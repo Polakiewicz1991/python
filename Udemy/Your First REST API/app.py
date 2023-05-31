@@ -23,10 +23,6 @@ import uuid
 
 app = Flask(__name__)
 
-@app.get("/stores") #htttp://127.0.0.1:5000/stores
-def get_stores():
-    return {"stores": list(stores.values())}
-
 @app.post("/store") #htttp://127.0.0.1:5000/store
 def create_store():
     #funkcja request znajduje się w bibliotece Flask
@@ -90,6 +86,11 @@ def create_item():
     return item, 201
     #return 404 - not found
 
+@app.get("/stores") #htttp://127.0.0.1:5000/stores
+def get_stores():
+    # return "Hello"
+    return {"stores": list(stores.values())}
+
 @app.get("/items") #htttp://127.0.0.1:5000/stores
 def get_all_items():
     return {"items": list(items.values())}
@@ -104,14 +105,43 @@ def get_store(store_id):
 
 
 @app.get("/item/<string:item_id>")
-def get_items_in_store(item_id):
+def get_item(item_id):
     #funkcja request znajduje się w bibliotece Flask
     try:
         return items[item_id]
     except KeyError:
         return abort(404, message= "Item not found")
 
+@app.delete("/store/<string:store_id>") #htttp://127.0.0.1:5000/store
+def delete_store(store_id):
+    #funkcja request znajduje się w bibliotece Flask
+    try:
+        del(stores[store_id])
+        return {"message" : "Store deleted"}
+    except KeyError:
+        return abort(404, message= "Store not found")
 
+@app.delete("/item/<string:item_id>")
+def delete_item(item_id):
+    #funkcja request znajduje się w bibliotece Flask
+    try:
+        del items[item_id]
+        return {"message" : "Item deleted"}
+    except KeyError:
+        return abort(404, message= "Item not found")
+
+@app.put("/item/<string:item_id>")
+def update_item(item_id):
+    item_data = request.get_json()
+    if "price" not in item_data or "name" not in item_data:
+        abort(400, message = "Bad request. Ensute that name and price are in JSON payload")
+
+    try:
+        item = items[item_id]
+        item |= item_data
+        return item
+    except KeyError:
+        return abort(404, message= "Item not found")
 #zainstalować docker desktop
 #utworzyć plick Docker file
 # FROM python:3.10
@@ -121,7 +151,10 @@ def get_items_in_store(item_id):
 # COPY . .
 # CMD ["flask", "run", "--host", "0.0.0.0"]
 # w terminalu wpisać ścieżkę pliku
-# komenda docker build -t rest-apis-flask-python .
+# komenda kompilacji -> docker build -t rest-apis-flask-python .
+# komenda uruchomienie -> docker run -dp 5000:5000 rest-apis-flask-python
+# komenda uruchomienie ->  docker run -dp 5005:5000 -w /app -v C:\Users\P.Polakiewicz\Desktop\PP\Python\python\Udemy\"Your First REST API"\app rest-apis-flask-python
+
 
 #należy zainstalwoać pip install python-dotenv
 #aby zainstalować wszystkie biblioteki pip install -r requirements.txt

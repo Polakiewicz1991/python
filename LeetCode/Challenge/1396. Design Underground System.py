@@ -17,12 +17,13 @@ class UndergroundSystem:
     def checkOut(self, id: int, stationName: str, t: int) -> None:
         customerStationName = self.customers[id]["stationName"]
         if customerStationName not in self.stationTimes:
-            self.stationTimes[customerStationName] = {stationName : [t - self.customers[id]["checkInTime"]]}
-        else:
-            if stationName not in self.stationTimes[customerStationName]:
-                self.stationTimes[customerStationName][stationName] = [t - self.customers[id]["checkInTime"]]
-            else:
-                self.stationTimes[customerStationName][stationName].append(t - self.customers[id]["checkInTime"])
+            self.stationTimes[customerStationName] = {} #{stationName : [t - self.customers[id]["checkInTime"]]}
+        #else:
+        if stationName not in self.stationTimes[customerStationName]:
+            self.stationTimes[customerStationName][stationName] = [] #[t - self.customers[id]["checkInTime"]]
+        #else:
+        self.stationTimes[customerStationName][stationName].append(t - self.customers[id]["checkInTime"])
+
     def getAverageTime(self, startStation: str, endStation: str) -> float:
         print(startStation," ",endStation, " ", self.stationTimes[startStation])
         if endStation in self.stationTimes[startStation]:

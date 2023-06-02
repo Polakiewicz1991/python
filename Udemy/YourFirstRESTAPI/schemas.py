@@ -11,5 +11,5 @@ class ItemUpdateSchema(Schema):
     price = fields.Float()
 
 class StoreSchema(Schema):
-    id = fields.Str(dump_only=True)  # Oznacza tylko do odczytu, nie może być
-    name = fields.Str(required=True)
+    id = fields.Str(dump_only= True)  # Oznacza tylko do odczytu, nie może być
+    name = fields.Str(required= True)

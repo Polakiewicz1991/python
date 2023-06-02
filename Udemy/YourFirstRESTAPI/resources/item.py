@@ -1,8 +1,8 @@
-from flask import Flask, request
+import uuid
+from DataBase import items
+from schemas import ItemSchema
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
-from db import items, stores
-import uuid
 
 blp = Blueprint("items", __name__, description="Operations on items")
 
@@ -21,10 +21,11 @@ class ItemID(MethodView):
         except KeyError:
             return abort(404, message= "Item not found")
 
-    def put(self,item_id):
-        item_data = request.get_json()
-        if "price" not in item_data or "name" not in item_data:
-            abort(400, message="Bad request. Ensute that name and price are in JSON payload")
+    @blp.arguments(ItemSchema)
+    def put(self,item_data,item_id):
+        # item_data = request.get_json()
+        # if "price" not in item_data or "name" not in item_data:
+        #     abort(400, message="Bad request. Ensute that name and price are in JSON payload")
         try:
             item = items[item_id]
             item |= item_data
@@ -42,19 +43,23 @@ class ItemID(MethodView):
 
 @blp.route("/item")
 class Item(MethodView):
-    def post(self):
+    @blp.arguments(ItemSchema)
+    def post(self,  item_data):
         # here not only we need to validate data exists,
         # But also what type of dara it is, Price should be float
-        item_data = request.get_json()
-        if (
-                "store_id" not in item_data
-                or "price" not in item_data
-                or "name" not in item_data
-        ):
-            return abort(
-                404,
-                message="Ensure that 'store_id', 'price' and 'name' are included in JSON payload"
-            )
+        # item_data = request.get_json() # mozna usunąć ponieważ item_data spawdzane jest za pomocą Marshmallow
+
+        # To zastępujemy przy użyciu Marshmallow
+        # if (
+        #         "store_id" not in item_data
+        #         or "price" not in item_data
+        #         or "name" not in item_data
+        # ):
+        #     return abort(
+        #         404,
+        #         message="Ensure that 'store_id', 'price' and 'name' are included in JSON payload"
+        #     )
+
         for item in items.values():
             if (
                     item_data["name"] == item["name"]

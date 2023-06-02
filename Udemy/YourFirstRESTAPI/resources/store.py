@@ -1,8 +1,9 @@
-from flask import Flask, request
+import uuid
+
+from DataBase import stores
+from schemas import StoreSchema
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
-from db import items, stores
-import uuid
 
 blp = Blueprint("stores", __name__, description="Operations on store")
 
@@ -27,15 +28,16 @@ class StoresID(MethodView):
 
 @blp.route("/store")
 class Store(MethodView):
-    def post(self):
-        store_data = request.get_json()
-        if (
-                "name" not in store_data
-        ):
-            return abort(
-                400,
-                message="Ensure that 'name' is included in JSON payload"
-            )
+    @blp.arguments(StoreSchema)
+    def post(self,store_data):
+        # store_data = request.get_json()
+        # if (
+        #         "name" not in store_data
+        # ):
+        #     return abort(
+        #         400,
+        #         message="Ensure that 'name' is included in JSON payload"
+        #     )
 
         for store in stores.values():
             if (

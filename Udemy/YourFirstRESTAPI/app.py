@@ -1,32 +1,34 @@
-from flask import Flask, request
-from flask_smorest import abort, Api
-from db import items, stores
+import sys
+
+print(sys.path)
+sys.path.append('D:/PP/Programowanie/Python/Udemy/YourFirstRESTAPI')
+from flask import Flask
+from flask_smorest import Api
 from resources.item import blp as ItemsBlueprint
 from resources.store import blp as StoresBlueprint
-import uuid
-#app = Flask(__name__) => Tworzy aplikację,
-#nazwa zmiennej i pliku powinny być takie same
-#W terminalu należy wskazać ścieżkę :cd C:/Users/P.Polakiewicz/Desktop/PP/Python/python/Udemy/"Your First REST API"
-#pip install flask
-#python.exe -m pip install --upgrade pi
-#jeżeli w ścieżce znajdują się "spację", nazwę folderu należy wziąć w cudzysłów
 
-#aby uruchomić api należy wpisać "flask run", zamknąć api za pomocą CTRL + C
-#następnie podgląd zmiennych będzi możliwy za pomocą przeglądarki po wpisaniu adresu http://127.0.0.1:5000/store
+# app = Flask(__name__) => Tworzy aplikację,
+# nazwa zmiennej i pliku powinny być takie same
+# W terminalu należy wskazać ścieżkę :cd C:/Users/P.Polakiewicz/Desktop/PP/Python/python/Udemy/"YourFirstRESTAPI"
+# pip install flask
+# python.exe -m pip install --upgrade pi
+# jeżeli w ścieżce znajdują się "spację", nazwę folderu należy wziąć w cudzysłów
 
-#czym jest  .JSON -> dane zapisane w postaci odpowienio sformatowanego stringa
-#wszystko musi być zawarte w w listach lub słownikach
+# aby uruchomić api należy wpisać "flask run", zamknąć api za pomocą CTRL + C
+# następnie podgląd zmiennych będzi możliwy za pomocą przeglądarki po wpisaniu adresu http://127.0.0.1:5000/store
 
-#sciągnąc Download Insomnia.rest do testowania API
-#1. utworzyć projekt u nas "Your First REST API"
-#2. utworzyć kolekcję HTTP Request
-#3. wpisać adres zapytania "GET" http://127.0.0.1:5000/store
-#4. zczytać dane za pomocą "SEND"
+# czym jest  .JSON -> dane zapisane w postaci odpowienio sformatowanego stringa
+# wszystko musi być zawarte w w listach lub słownikach
+# sciągnąc Download Insomnia.rest do testowania API
+# 1. utworzyć projekt u nas "YourFirstRESTAPI"
+# 2. utworzyć kolekcję HTTP Request
+# 3. wpisać adres zapytania "GET" http://127.0.0.1:5000/store
+# 4. zczytać dane za pomocą "SEND"
 
 app = Flask(__name__)
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["API_TITLE"] = "Stores REST API"
-app.config["API_VERSION"]  = "v1"
+app.config["API_VERSION"] = "v1"
 app.config["OPENAPI_VERSION"] = "3.0.3"
 app.config["OPENAPI_URL_PREFIX"] = "/"
 app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
@@ -157,8 +159,8 @@ api.register_blueprint(StoresBlueprint)
 #     except KeyError:
 #         return abort(404, message= "Item not found")
 # </editor-fold desc="stare">
-#zainstalować docker desktop
-#utworzyć plick Docker file
+# zainstalować docker desktop
+# utworzyć plick Docker file
 # FROM python:3.10
 # EXPOSE 5000 -> nr portu
 # WORKDIR /app -> nazwa ścieżki
@@ -169,9 +171,8 @@ api.register_blueprint(StoresBlueprint)
 # komenda kompilacji -> docker build -t rest-apis-flask-python .
 # komenda uruchomienie -> docker run -dp 5000:5000 rest-apis-flask-python - gotowe API
 # docker volume create app_volume
-# komenda uruchomienie -> docker run -dp 5005:5000 -w /app -v "C:\Users\P.Polakiewicz\Desktop\PP\Python\python\Udemy\Your First REST API:/app" rest-apis-flask-python
-# komenda uruchomienie -> docker run -dp 5005:5000 -w /app -v "D:\PP\Programowanie\Python\Udemy\Your First REST API:/app" rest-apis-flask-python
+# komenda uruchomienie -> docker run -dp 5005:5000 -w /app -v "C:\Users\P.Polakiewicz\Desktop\PP\Python\python\Udemy\YourFirstRESTAPI:/app" rest-apis-flask-python
+# komenda uruchomienie -> docker run -dp 5005:5000 -w /app -v "D:\PP\Programowanie\Python\Udemy\YourFirstRESTAPI:/app" rest-apis-flask-python
 
-#należy zainstalwoać pip install python-dotenv
-#aby zainstalować wszystkie biblioteki pip install -r requirements.txt
-
+# należy zainstalwoać pip install python-dotenv
+# aby zainstalować wszystkie biblioteki pip install -r requirements.txt

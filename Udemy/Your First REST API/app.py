@@ -170,6 +170,7 @@ api.register_blueprint(StoresBlueprint)
 # komenda uruchomienie -> docker run -dp 5000:5000 rest-apis-flask-python - gotowe API
 # docker volume create app_volume
 # komenda uruchomienie -> docker run -dp 5005:5000 -w /app -v "C:\Users\P.Polakiewicz\Desktop\PP\Python\python\Udemy\Your First REST API:/app" rest-apis-flask-python
+# komenda uruchomienie -> docker run -dp 5005:5000 -w /app -v "D:\PP\Programowanie\Python\Udemy\Your First REST API:/app" rest-apis-flask-python
 
 #należy zainstalwoać pip install python-dotenv
 #aby zainstalować wszystkie biblioteki pip install -r requirements.txt

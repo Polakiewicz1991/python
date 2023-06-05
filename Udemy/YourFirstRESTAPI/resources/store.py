@@ -1,9 +1,12 @@
 import uuid
-
-# from db import stores
-from schemas import StoreSchema
+from flask import request
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
+from db import db
+from models import StoreModel
+from schemas import StoreSchema
 
 blp = Blueprint("stores", __name__, description="Operations on store")
 
@@ -39,21 +42,31 @@ class Store(MethodView):
         #         message="Ensure that 'name' is included in JSON payload"
         #     )
 
-        for store in stores.values():
-            if (
-                    store_data["name"] == store["name"]
-            ):
-                return abort(
-                    400,
-                    message="Store already exist in store"
-                )
+        # for store in stores.values():
+        #     if (
+        #             store_data["name"] == store["name"]
+        #     ):
+        #         return abort(
+        #             400,
+        #             message="Store already exist in store"
+        #         )
+        #
+        # store_id = uuid.uuid4().hex
+        # store = \
+        #     {
+        #         **store_data, "id": store_id
+        #     }
+        # stores[store_id] = store
 
-        store_id = uuid.uuid4().hex
-        store = \
-            {
-                **store_data, "id": store_id
-            }
-        stores[store_id] = store
+        store = StoreModel(**store_data)
+        try:
+            db.session.add(store)
+            db.session.commit()
+        except IntegrityError:
+            abort(400, "A store with that name already exists")
+        except SQLAlchemyError:
+            abort(500, "An error occurred while inserting the item")
+
         # return 200 -> OK
         # return 201 -> operacja udana
-        return store, 201
+        return store

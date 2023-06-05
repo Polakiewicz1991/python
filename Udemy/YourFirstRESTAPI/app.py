@@ -1,5 +1,6 @@
 import os
 import sys
+print(sys.path)
 
 from flask import Flask
 from flask_smorest import Api
@@ -53,6 +54,7 @@ def create_app(db_url = None):
     api.register_blueprint(StoresBlueprint)
 
     return app
+
 
 # <editor-fold desc="stare">
 # @app.post("/store") #htttp://127.0.0.1:5000/store

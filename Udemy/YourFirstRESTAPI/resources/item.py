@@ -12,12 +12,14 @@ blp = Blueprint("items", __name__, description="Operations on items")
 
 @blp.route("/items")
 class ItemsList(MethodView):
+    @blp.response(200, ItemSchema(many=True))
     def get(self):
-        return {"items": list(items.values())}
+        return items.values()
 
 
 @blp.route("/item/<string:item_id>")
 class ItemID(MethodView):
+    @blp.response(200, ItemSchema)
     def get(self,item_id):
         #funkcja request znajduje się w bibliotece Flask
         try:
@@ -26,6 +28,7 @@ class ItemID(MethodView):
             return abort(404, message= "Item not found")
 
     @blp.arguments(ItemSchema)
+    @blp.response(200, ItemSchema)
     def put(self,item_data,item_id):
         # item_data = request.get_json()
         # if "price" not in item_data or "name" not in item_data:
@@ -48,6 +51,7 @@ class ItemID(MethodView):
 @blp.route("/item")
 class Item(MethodView):
     @blp.arguments(ItemSchema)
+    @blp.response(201, ItemSchema)
     def post(self,  item_data):
         # <editor-folds> desc ="priv version"
         # here not only we need to validate data exists,

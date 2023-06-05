@@ -1,9 +1,12 @@
+import os
 import sys
 
-print(sys.path)
-sys.path.append('D:/PP/Programowanie/Python/Udemy/YourFirstRESTAPI')
 from flask import Flask
 from flask_smorest import Api
+
+from db import db
+import models
+
 from resources.item import blp as ItemsBlueprint
 from resources.store import blp as StoresBlueprint
 
@@ -25,18 +28,31 @@ from resources.store import blp as StoresBlueprint
 # 3. wpisać adres zapytania "GET" http://127.0.0.1:5000/store
 # 4. zczytać dane za pomocą "SEND"
 
-app = Flask(__name__)
-app.config["PROPAGATE_EXCEPTIONS"] = True
-app.config["API_TITLE"] = "Stores REST API"
-app.config["API_VERSION"] = "v1"
-app.config["OPENAPI_VERSION"] = "3.0.3"
-app.config["OPENAPI_URL_PREFIX"] = "/"
-app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
-app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+def create_app(db_url = None):
+    app = Flask(__name__)
 
-api = Api(app)
-api.register_blueprint(ItemsBlueprint)
-api.register_blueprint(StoresBlueprint)
+    app.config["PROPAGATE_EXCEPTIONS"] = True
+    app.config["API_TITLE"] = "Stores REST API"
+    app.config["API_VERSION"] = "v1"
+    app.config["OPENAPI_VERSION"] = "3.0.3"
+    app.config["OPENAPI_URL_PREFIX"] = "/"
+    app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+    app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL", "sqlite:///data.db")
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
+
+    api = Api(app)
+
+    # @app.app_context()
+    with app.app_context():
+        db.create_all()
+
+    api.register_blueprint(ItemsBlueprint)
+    api.register_blueprint(StoresBlueprint)
+
+    return app
 
 # <editor-fold desc="stare">
 # @app.post("/store") #htttp://127.0.0.1:5000/store

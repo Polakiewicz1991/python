@@ -1,5 +1,5 @@
 import uuid
-from DataBase import items
+# from db import items
 from schemas import ItemSchema
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint

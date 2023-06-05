@@ -1,6 +1,6 @@
 import uuid
 
-from DataBase import stores
+# from db import stores
 from schemas import StoreSchema
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint

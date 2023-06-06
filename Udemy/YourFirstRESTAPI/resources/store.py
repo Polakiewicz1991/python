@@ -14,53 +14,27 @@ blp = Blueprint("stores", __name__, description="Operations on store")
 class StoreList(MethodView):
     @blp.response(200, StoreSchema(many=True))
     def get(self):
-        return stores.values()
+        return StoreModel.query.all()
 
 @blp.route("/store/<string:store_id>")
 class StoresID(MethodView):
     @blp.response(200, StoreSchema)
     def get(self, store_id):
-        try:
-            return stores[store_id]
-        except KeyError:
-            return abort(404, message="Store not found")
+        store = StoreModel.query.get_or_404(store_id)
+        return store
+
     def delete(self, store_id):
-        try:
-            del (stores[store_id])
-            return {"message": "Store deleted"}
-        except KeyError:
-            return abort(404, message="Store not found")
+
+        store = StoreModel.query.get_or_404(store_id)
+        db.session.delete(store)
+        db.session.commit()
+        return {"message": "Store deleted"}
 
 @blp.route("/store")
 class Store(MethodView):
     @blp.arguments(StoreSchema)
     @blp.response(200, StoreSchema)
     def post(self,store_data):
-        # store_data = request.get_json()
-        # if (
-        #         "name" not in store_data
-        # ):
-        #     return abort(
-        #         400,
-        #         message="Ensure that 'name' is included in JSON payload"
-        #     )
-
-        # for store in stores.values():
-        #     if (
-        #             store_data["name"] == store["name"]
-        #     ):
-        #         return abort(
-        #             400,
-        #             message="Store already exist in store"
-        #         )
-        #
-        # store_id = uuid.uuid4().hex
-        # store = \
-        #     {
-        #         **store_data, "id": store_id
-        #     }
-        # stores[store_id] = store
-
         store = StoreModel(**store_data)
         try:
             db.session.add(store)

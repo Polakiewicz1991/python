@@ -9,6 +9,7 @@ class PlainItemSchema(Schema):
 class ItemUpdateSchema(Schema):
     name = fields.Str() #jest opcjonalne
     price = fields.Float()
+    store_id = fields.Int()
 
 class PlainStoreSchema(Schema):
     id = fields.Str(dump_only= True)  # Oznacza tylko do odczytu, nie może być

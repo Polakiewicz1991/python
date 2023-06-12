@@ -2,12 +2,12 @@ def lengthOfLongestSubstring(s: str) -> int:
     lista = []
     ciagZnakow = ""
     i = 0
-    j = 0
 
     while i < (len(s)):
-        # print(i)
         if i == 0:
             ciagZnakow += s[i]
+            if len(s) == 1:
+                lista.append([ciagZnakow, len(ciagZnakow)])
         elif ciagZnakow.count(s[i]) > 0:
             # str(ciagZnakow)
             # print("ciagZnakow: ", ciagZnakow)
@@ -17,7 +17,7 @@ def lengthOfLongestSubstring(s: str) -> int:
         else:
             ciagZnakow += s[i]
         i += 1
-
+    print("ciagZnakow", ciagZnakow, len(ciagZnakow))
     def strLenght(lista :list):
         for i in (lista):
             # print("i[0]: ",i[0])
@@ -46,7 +46,8 @@ def lengthOfLongestSubstring(s: str) -> int:
     # /nowa2 = [i + 2 for i in lista if i < 4]
     print("najdłuższy ciąg znaków bez powtórzenia znaku to: ", lista[maksymalnieIndex][0])
 
-lengthOfLongestSubstring("asdfaghjkaaskqwertxfgfhgjkjlk'poiuytreweazdxcvbnnk.,mn vcgjklo;iluyutyrtdgfchjkjlk.nm,bnvncyuioaaapoiuytrewqasdfghjkl,mnbvcxzaa")
+# lengthOfLongestSubstring("asdfaghjkaaskqwertxfgfhgjkjlk'poiuytreweazdxcvbnnk.,mn vcgjklo;iluyutyrtdgfchjkjlk.nm,bnvncyuioaaapoiuytrewqasdfghjkl,mnbvcxzaa")
+lengthOfLongestSubstring(" ")
 
 
 def lengthOfLongestSubstringInternet(s: str) -> int:
@@ -62,6 +63,6 @@ def lengthOfLongestSubstringInternet(s: str) -> int:
         char_set.add(c)
         max_len = max(max_len, i - start + 1)
     return max_len
-
-h = lengthOfLongestSubstringInternet("asdfaghjkaaskqwertxfgfhgjkjlk'poiuytreweazdxcvbnnk.,mn vcgjklo;iluyutyrtdgfchjkjlk.nm,bnvncyuioaaapoiuytrewqasdfghjkl,mnbvcxzaa")
-print(h)
+#
+# h = lengthOfLongestSubstringInternet("asdfaghjkaaskqwertxfgfhgjkjlk'poiuytreweazdxcvbnnk.,mn vcgjklo;iluyutyrtdgfchjkjlk.nm,bnvncyuioaaapoiuytrewqasdfghjkl,mnbvcxzaa")
+# print(h)

@@ -12,6 +12,8 @@ import models
 
 from resources.item import blp as ItemsBlueprint
 from resources.store import blp as StoresBlueprint
+from resources.tag import blp as TagsBlueprint
+
 
 # app = Flask(__name__) => Tworzy aplikację,
 # nazwa zmiennej i pliku powinny być takie same
@@ -54,6 +56,7 @@ def create_app(db_url = None):
 
     api.register_blueprint(ItemsBlueprint)
     api.register_blueprint(StoresBlueprint)
+    api.register_blueprint(TagsBlueprint)
 
     return app
 

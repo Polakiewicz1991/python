@@ -9,4 +9,4 @@ class StoreModel(db.Model):
     #nullable -> sprawdza, czy wartość zmiennej istnieje (w wypadku null/none zgłasza błąd)
     items = db.relationship("ItemModel", back_populates="store", lazy="dynamic", cascade="all, delete")
     #cascade="all, delete" - sprawi, że wraz z rodzicem(store) zabijamy dzieci(item)
-
+    tags = db.relationship("TagModel",back_populates="store", lazy="dynamic")

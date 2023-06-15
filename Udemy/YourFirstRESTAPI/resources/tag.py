@@ -6,9 +6,15 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from db import db
 from models import TagModel, StoreModel, ItemModel
-from schemas import TagSchema, TagAndItems
+from schemas import TagSchema, TagAndItemsSchema
 
 blp = Blueprint("tags", __name__, description="Operations on tags")
+
+@blp.route("/tags")
+class TagsList(MethodView):
+    @blp.response(200, TagSchema(many=True))
+    def get(self):
+        return TagModel.query.all()
 
 @blp.route("/store/<string:store_id>/tag")
 class TagsInStore(MethodView):
@@ -37,7 +43,11 @@ class LinkTagsToItem(MethodView):
         item = ItemModel.query.get_or_404(item_id)
         tag = TagModel.query.get_or_404(tag_id)
 
+        if item.store.id != tag.store.id:
+            abort(400, message="Make sure item and tag belong to the same store before linking.")
+
         item.tags.append(tag)
+
         try:
             db.session.add(item)
             db.session.commit()
@@ -46,7 +56,7 @@ class LinkTagsToItem(MethodView):
 
         return tag
 
-    @blp.response(201, TagSchema())
+    @blp.response(201, TagAndItemsSchema())
     def delete(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
         tag = TagModel.query.get_or_404(tag_id)
@@ -59,7 +69,7 @@ class LinkTagsToItem(MethodView):
         except SQLAlchemyError:
             abort(500, message="An error occurred while deleting the tag")
 
-        return {"message": f"Item removed from tag {item} - {tag}"}
+        return {"message": f"Item removed from tag '{item.name}' - '{tag.name}'"}
 
 @blp.route("/tag/<string:tag_id>")
 class Tag(MethodView):
@@ -83,7 +93,7 @@ class Tag(MethodView):
         if not tag.items:
             db.session.delete(tag)
             db.session.commit()
-            return {"message" : f"Tag {tag} deleted"}
+            return {"message" : f"Tag '{tag.name}' deleted"}
         else:
             abort(
                 400,

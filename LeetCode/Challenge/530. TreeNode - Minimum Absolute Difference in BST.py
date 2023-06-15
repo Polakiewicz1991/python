@@ -1,5 +1,11 @@
+# ╔════════════════════════════════════╗
+# ║ Drzewo binarne val, left, right    ║
+# ║                                    ║
+# ║                                    ║
+# ╚════════════════════════════════════╝
+
 # Definition for singly-linked list.
-from    typing import Optional
+from typing import Optional
 class TreeNode:
     def __init__(self, val=0, left=None,right=None):
         self.val = val
@@ -31,14 +37,6 @@ def convert_list_to_linked_list(lst):
         j = i
         while j < i*2 + 1:
             print("i", i, "j:", j, 2*j+1, 2*j+2, "next i :", i*2 + 1)
-            # try:
-            #     new_node = TreeNode(lst[2*j+1])
-            #     # new_right = TreeNode(lst[2*j+2])
-            # except IndexError:
-            #     new_node = TreeNode(left=None, right=None)
-                # new_right = TreeNode(None)
-            # current.left = new_left
-            # current.right = new_right
 
             if j % 2 == 0:
                 try:
@@ -69,7 +67,10 @@ def create_tree(nums):
     i = 1
 
     while queue:
+        #W tym miejscy root przypisany jest do node node = root + queue = [None]
         node = queue.pop(0)
+        # print(i, "queue", queue)
+        # print("node", node)
 
         if i < len(nums):
             if nums[i] is not None:
@@ -86,19 +87,38 @@ def create_tree(nums):
     return root
 class Solution:
     def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
-        pass
+        res = 0
+        result = 0
+        def dp(root: Optional[TreeNode],res) -> int:
+            # print(root)
+            res += root.val
+            result = min()
+            # print(res)
+            if root.left != None:
+                dp(root.left,res)
+            # print("lh", res)
+            if root.right != None:
+                # res += root.val
+                dp(root.right,res)
+            print("rh",res)
+
+            return res
+
+        return dp(root,res)
 
 
 
 Wynik = Solution()
 
-list = [4,2,6,1,3]
+# list = [4,2,6,1,3]
+list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ,10 ,11, 12]
 head = create_tree(list)
-print(head)
+# print(head)
 Wynik1 = Wynik.getMinimumDifference(head)
+print("Wynik1", Wynik1)
 
-list = [1,0,48,None,None,12,49]
-head = create_tree(list)
-print(head)
-Wynik1 = Wynik.getMinimumDifference(head)
+# list = [1,0,48,None,None,12,49]
+# head = create_tree(list)
+# print(head)
+# Wynik1 = Wynik.getMinimumDifference(head)
 

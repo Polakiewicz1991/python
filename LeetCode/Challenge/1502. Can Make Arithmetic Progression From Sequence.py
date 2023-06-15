@@ -1,3 +1,6 @@
+# ╔═════════════════════════════════════════════════════╗
+# ║ Czy podana lista jest ułożona w sposób artmetyczny: ║
+# ╚═════════════════════════════════════════════════════╝
 from typing import List
 
 class Solution:

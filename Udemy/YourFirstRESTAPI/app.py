@@ -1,8 +1,8 @@
 import os
 import sys
-sys.path.append("c:/users/user/appdata/local/programs/python/python310")
-sys.path.append("c:/users/user/appdata/local/programs/python/python310/lib/site-packages")
-print(sys.path)
+# sys.path.append("c:/users/user/appdata/local/programs/python/python310")
+# sys.path.append("c:/users/user/appdata/local/programs/python/python310/lib/site-packages")
+# print(sys.path)
 
 from flask import Flask
 from flask_smorest import Api

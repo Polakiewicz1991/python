@@ -16,7 +16,7 @@ class StoreList(MethodView):
     def get(self):
         return StoreModel.query.all()
 
-@blp.route("/store/<string:store_id>")
+@blp.route("/store/<int:store_id>")
 class StoresID(MethodView):
     @blp.response(200, StoreSchema)
     def get(self, store_id):

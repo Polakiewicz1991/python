@@ -4,17 +4,19 @@ import sys
 # sys.path.append("c:/users/user/appdata/local/programs/python/python310/lib/site-packages")
 # print(sys.path)
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+# import passlib biblioteka do haseł
 
 from db import db
+from blocklist import BLOCKLIST
 import models
 
 from resources.item import blp as ItemsBlueprint
 from resources.store import blp as StoresBlueprint
 from resources.tag import blp as TagsBlueprint
-
+from resources.user import blp as UserBlueprint
 
 # app = Flask(__name__) => Tworzy aplikację,
 # nazwa zmiennej i pliku powinny być takie same
@@ -55,6 +57,60 @@ def create_app(db_url = None):
     app.config["JWT_SECRET_KEY"] = "PP"
     jwt = JWTManager(app)
 
+    @jwt.token_in_blocklist_loader
+    def check_if_token_inblocklist(jwt_header, jwt_payload):
+        return jwt_payload["jti"] in BLOCKLIST
+
+    @jwt.additional_claims_loader
+    def add_claims_to_jwt(identity):
+        if identity == 1:
+            return {"is_admin": True}
+        return {"is_admin": False}
+    # do zawartości jwt dodana jest zmienna "is_admin"
+    # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4NzA5NDY2MCwianRpIjoiZTA0YTY1MTgtM2UyNC00NjVmLWFjMmYtMDI0MDBkN2ViNjkyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNjg3MDk0NjYwLCJleHAiOjE2ODcwOTU1NjAsImlzX2FkbWluIjp0cnVlfQ.2IJATAyzZDpsNtJHaYTK5VbsDGeWNsT4C36g0MjcpLM
+    # {
+    #     "fresh": false,
+    #     "iat": 1687094660,
+    #     "jti": "e04a6518-3e24-465f-ac2f-02400d7eb692",
+    #     "type": "access",
+    #     "sub": 1,
+    #     "nbf": 1687094660,
+    #     "exp": 1687095560,
+    #     "is_admin": true
+    # }
+
+    @jwt.revoked_token_loader
+    def revoked_token_loader(jwt_header, jwt_payload):
+        return (
+            jsonify({"message": "The token has been revoked.",
+                     "error": "token_revoked"}),
+            401
+        )
+
+    @jwt.expired_token_loader
+    def expire_token_loader(jwt_header, jwt_payload):
+        return (
+            jsonify({"message": "The token has expired.",
+                     "error": "token_expired"}),
+            401
+        )
+
+    @jwt.invalid_token_loader
+    def invalid_token_loader(error):
+        return (
+            jsonify({"message": "Signature verification failed.",
+                     "error": "invalid_token"}),
+            401
+        )
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return (
+            jsonify({"message": "Signature verification failed.",
+                     "error": "invalid_token"}),
+            401
+        )
+
     # @app.app_context()
     with app.app_context():
         db.create_all()
@@ -62,6 +118,7 @@ def create_app(db_url = None):
     api.register_blueprint(ItemsBlueprint)
     api.register_blueprint(StoresBlueprint)
     api.register_blueprint(TagsBlueprint)
+    api.register_blueprint(UserBlueprint)
 
     return app
 

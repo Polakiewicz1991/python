@@ -39,7 +39,7 @@ class ItemID(MethodView):
         db.session.commit()
         return item
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self,item_id):
         jwt = get_jwt()
         if not jwt.get("is_admin"):

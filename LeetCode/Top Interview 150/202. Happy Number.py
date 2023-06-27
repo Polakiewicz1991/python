@@ -16,17 +16,21 @@ class Solution:
     def isHappy(self, n: int) -> bool:
         dec = 10
         num = []
+        nSet = set()
 
         j = 0
-        while n != 0:
+        while n != 1:
+            if n in nSet:
+                return False
 
-            while n > 10:
+            nSet.add(n)
+            while n > 0:
                 dec = 10
                 # num.clear()
-                if n > dec:
-                    num.append(n % dec)
-                    n = n // dec
-                    print(n,num)
+                # if n > dec:
+                num.append(n % dec)
+                n = n // dec
+                print(n,num)
                 j += 1
             num.append(n % dec)
 
@@ -45,6 +49,6 @@ n = 19#532
 Wynik1 = Wynik.isHappy(n=n)
 print("******\nWynik1", Wynik1, "\n******")
 
-n = 2
+n = 9
 Wynik1 = Wynik.isHappy(n=n)
 print("******\nWynik1", Wynik1, "\n******")

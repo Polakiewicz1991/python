@@ -15,6 +15,8 @@ class Solution:
         resList =  list([intervals[0]])
         while i < len(intervals):
             # print(i, "resList[len(resList)-1][1]:", resList[len(resList)-1][1], "intervals[i-1][0]", intervals[i-1][0])
+            # [[1,4], [0,4]]
+            print(i, "resList[len(resList) - 1]", resList[len(resList) - 1], " intervals[i]",  intervals[i])
             if resList[len(resList) - 1][0] > intervals[i][0]:
                 resList[len(resList) - 1][0] = intervals[i][0]
 

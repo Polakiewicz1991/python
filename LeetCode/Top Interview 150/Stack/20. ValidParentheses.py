@@ -24,11 +24,14 @@ def isValid(s: str) -> bool:
                     print("list[-1]: ",list[-1])
                     print("close index: ",close.index(s[i]))
                     #to samo co (list[-1]) == list(len(list)-1)
-                    if open.index(list[-1]) == close.index(s[i]):
-                        # list.pop(len(list)-1)
-                        list.pop()
-                        # print(list)
-                    else:
+                    try:
+                        if open.index(list[-1]) == close.index(s[i]):
+                            # list.pop(len(list)-1)
+                            list.pop()
+                            # print(list)
+                        else:
+                            return False
+                    except ValueError:
                         return False
                 else:
                     print("add to list")

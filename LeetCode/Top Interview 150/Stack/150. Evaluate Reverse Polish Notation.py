@@ -17,9 +17,30 @@
 from typing import List
 class Solution:
     def evalRPN(self, tokens: List[str]) -> int:
-        pass
+        stock = list()
 
+        for n in tokens:
+            if n.isnumeric() or (len(n) > 1 and n[0] == '-' and n[1:].isnumeric()):
+                stock.append(int(n))
+            else:
+                if n == '+':
+                    stock[-2] = stock[-1] + stock[-2]
+                    stock.pop()
+                elif n == '-':
+                    stock[-2] = stock[-2] - stock[-1]
+                    stock.pop()
+                elif n == '*':
+                    stock[-2] = stock[-1] * stock[-2]
+                    stock.pop()
+                elif n == '/':
+                    stock[-2] = int(stock[-2] / stock[-1])
+                    stock.pop()
+            print(n.isnumeric() or (len(n) > 1 and n[0] == '-' and n[1:].isnumeric()), n, stock)
 
+        return stock[0]
+        # print(tokens[-1])
+        # print(tokens[-2])
+        # print(tokens[-3])
 Wynik = Solution()
 
 tokens = ["2","1","+","3","*"]

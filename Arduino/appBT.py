@@ -1,6 +1,7 @@
 import asyncio
 import bleak
 from bleak import BleakScanner
+# from bleak import BleakClient
 
 
 async def discover():
@@ -9,21 +10,23 @@ async def discover():
 
 async def connect(device_address):
     async with bleak.BleakClient(device_address) as client:
-        data_to_send = "Hello, BLE World!"
         print(f"Łączenie z {device_address}")
 
-        await client.connect()
-        await client.is_connected()
-        print("Połączono")
-        # Przykładowa charakterytyka, która może być dostępna do zapisu na urządzeniu BLE
-        characteristic_uuid = "0000FFE1-0000-1000-8000-00805F9B34FB" #"0000ffe1-0000-1000-8000-00805f9b34fb"
+        await client.connect(timeout = 10)
 
-        # Konwertuj dane na bajty (bytes) przed wysłaniem
-        data_bytes = data_to_send.encode('utf-8')
+        # if await client.is_connected():
+        if (client.connect() == 1):
+            print("Połączono")
+            # Przykładowa charakterytyka, która może być dostępna do zapisu na urządzeniu BLE
+            characteristic_uuid = "0000FFE1-0000-1000-8000-00805F9B34FB" #"0000ffe1-0000-1000-8000-00805f9b34fb"
 
-        # Wysyłanie danych do charakterystyki
-        await client.write_gatt_char(characteristic_uuid, data_bytes)
-        print("wysyłanie")
+            # Konwertuj dane na bajty (bytes) przed wysłaniem
+            data_to_send = "Hello, BLE World!"
+            data_bytes = data_to_send.encode('utf-8')
+
+            # Wysyłanie danych do charakterystyki
+            await client.write_gatt_char(characteristic_uuid, data_bytes)
+            print("wysyłanie")
         await asyncio.sleep(5)  # Przykładowe oczekiwanie przez 5 sekund
 
         await client.disconnect()
@@ -54,5 +57,5 @@ async def main():
 
 if __name__ == "__main__":
 
-    # asyncio.run(main())
-    asyncio.run(connect("D0:39:72:C3:1D:06"))
+    asyncio.run(main())
+    # asyncio.run(connect("D0:39:72:C3:1D:06"))

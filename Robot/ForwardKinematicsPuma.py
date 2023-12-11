@@ -35,24 +35,24 @@ def moveXYZ(x = 0, y = 0, z = 0):
 
 alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7, alpha8 = PI/2, 0, 0, PI/2, -PI/2, PI/2, 0, 0
 
-a1 = 10#(int(input("Podaj odległość między osiami A1 - A2[mm]: ")))
-d1 = 2#(int(input("Podaj przesunięcie między osiami A1 - A2[mm]: ")))
-Fi1 = math.radians(float(input("Podaj kąt A1 [°]: ")))
+a1 = 2#(int(input("Podaj odległość między osiami A1 - A2[mm]: ")))
+d1 = 10#(int(input("Podaj przesunięcie między osiami A1 - A2[mm]: ")))
+Fi1 = math.radians(float(input("Podaj kąt A1 [°]: ")))#PI/2#
 
-Fi2 = math.radians(float(input("Podaj kąt A2 [°]: ")))#PI/4#-PI/4
+Fi2 = PI/4#math.radians(float(input("Podaj kąt A2 [°]: ")))#PI/4
 
 a3 = 10#(int(input("Podaj odległość między osiami A2 - A3[mm]: ")))
 
-Fi4 = math.radians(float(input("Podaj kąt A3 [°]: ")))#PI/4#-PI/4
+Fi4 = PI/4#math.radians(float(input("Podaj kąt A3 [°]: ")))#PI/4#-PI/4
 a4 = 10#(int(input("Podaj odległość między osiami A3 - A4[mm]: ")))
 
 d5 = 2#(int(input("Podaj przesunięcie między osiami A1 - A2[mm]: ")))
 
-Fi5 = math.radians(float(input("Podaj kąt A4 [°]: ")))#PI/4#-PI/4
-Fi6 = math.radians(float(input("Podaj kąt A5 [°]: ")))#PI/4#-PI/4
+Fi5 = PI/4#math.radians(float(input("Podaj kąt A4 [°]: ")))#PI/4#-PI/4
+Fi6 = PI/4#math.radians(float(input("Podaj kąt A5 [°]: ")))#PI/4#-PI/4
 
 d7 = 2#(int(input("Podaj przesunięcie między osiami A1 - A2[mm]: ")))
-Fi8 = math.radians(float(input("Podaj kąt A6 [°]: ")))#PI/4#-PI/4
+Fi8 = PI/4#math.radians(float(input("Podaj kąt A6 [°]: ")))#PI/4#-PI/4
 d8 = 2#(int(input("Podaj przesunięcie między osiami A1 - A2[mm]: ")))
 
 A1 = np.dot(np.dot(rotZ(Fi1),moveXYZ(x=a1,z=d1)),rotX(alpha1))

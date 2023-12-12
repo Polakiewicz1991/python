@@ -1,37 +1,34 @@
+import math
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+from matplotlib.animation import FuncAnimation
 
-from ForwardKinematicsPuma import x0, x1, x2, x3, x4, x5, x6, x7, x8
-from ForwardKinematicsPuma import y0, y1, y2, y3, y4, y5, y6, y7, y8
-from ForwardKinematicsPuma import z0, z1, z2, z3, z4, z5, z6, z7, z8
-from ForwardKinematicsPuma import a1, a3, a4
-
-# Przykładowe dane - wektory jako punkty początkowe (x, y, z) i składowe wektorów (dx, dy, dz)
-x = [x0, x1, x2]#, x3, x4, x5, x6, x7, x8]
-y = [y0, y1, y2]#, y3, y4, y5, y6, y7, y8]
-z = [z0, z1, z2]#, z3, z4, z5, z6, z7, z8]
-
-dx = [x1, x2, x3, x4, x5, x6, x7, x8, 0]
-dy = [x1, x2, x3, x4, x5, x6, x7, x8, 0]
-dz = [x1, x2, x3, x4, x5, x6, x7, x8, 0]
+from ForwardKinematicsPuma import x, y, z, colors
 
 # Rysowanie wektorów 3D
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.quiver(x0, y0, z0, x1, y1, z1, length=a1, normalize=True, color=['r', 'g', 'b'])
-ax.quiver(x1, y1, z1, x2, y2, z2, length=0, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x2, y2, z2, x3, y3, z3, length=0, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x3, y3, z3, x4, y4, z4, length=a3, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x4, y4, z4, x5, y5, z5, length=a4, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x5, y5, z5, x6, y6, z6, length=0, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x6, y6, z5, x7, y7, z7, length=0, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x7, y7, z6, x8, y8, z8, length=0, normalize=True, color=['r', 'g', 'b'])
-# ax.quiver(x8, y8, z8, 0, 0, 0, length=0, normalize=True, color=['r', 'g', 'b'])
+
+a = []
+dx = []
+dy = []
+dz = []
+
+for i in range(len(x) - 1):
+    dx.append(x[i + 1] - x[i])
+    dy.append(y[i + 1] - y[i])
+    dz.append(z[i + 1] - z[i])
+    a.append(math.sqrt(((x[i + 1] - x[i])**2) + ((y[i + 1] - y[i])**2) + ((z[i + 1] - z[i])**2)))
+
+    ax.quiver(x[i], y[i], z[i], dx[i], dy[i], dz[i], length=a[i], normalize=True, color=colors[i])
 
 # Dodawanie etykiet z współrzędnymi na końcu każdego wektora
 for i in range(len(x)):
-    ax.text(x[i] + dx[i], y[i] + dy[i], z[i] + dz[i], f'({x[i] + dx[i]}, {y[i] + dy[i]}, {z[i] + dz[i]})')
+    ax.text(round((x[i]),3), round((y[i]),3), round((z[i]),3), f'({float(round((x[i]),2)):2.2f},'
+                                                               f' {float(round((y[i]),2)):2.2f},'
+                                                               f' {float(round((z[i]),2)):2.2f})')
 
 # Ustawienia osi
 ax.set_xlim([-20, 20])

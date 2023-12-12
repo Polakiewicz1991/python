@@ -5,11 +5,6 @@ from math import cos, sin
 from math import pi as PI
 from sympy import symbols, Eq, solve
 
-def rotXsymbol(alpha):
-    return matrix([ [cos(alpha),        -sin(alpha),        0,              0],
-                    [sin(alpha),        cos(alpha),         0,              0],
-                    [0,                 0,                  1,              0],
-                    [0,                 0,                  0,              1]])
 def rotZ(alpha):
     return matrix([ [cos(alpha),        -sin(alpha),        0,              0],
                     [sin(alpha),        cos(alpha),         0,              0],

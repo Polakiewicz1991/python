@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib.animation import FuncAnimation
 
-from ForwardKinematicsPuma import x, y, z, colors
+from ForwardKinematicsPuma import x, y, z, colors, Fi
 
 # Rysowanie wektorów 3D
 fig = plt.figure()
@@ -26,9 +26,16 @@ for i in range(len(x) - 1):
 
 # Dodawanie etykiet z współrzędnymi na końcu każdego wektora
 for i in range(len(x)):
-    ax.text(round((x[i]),3), round((y[i]),3), round((z[i]),3), f'({float(round((x[i]),2)):2.2f},'
-                                                               f' {float(round((y[i]),2)):2.2f},'
-                                                               f' {float(round((z[i]),2)):2.2f})')
+    if i < len(x) - 1:
+        ax.text(round((x[i]), 3), round((y[i]), 3), round((z[i]), 3), f'({float(round((x[i]),2)):2.2f},'
+                                                                      f' {float(round((y[i]),2)):2.2f},'
+                                                                      f' {float(round((z[i]),2)):2.2f},'
+                                                                      f' {math.degrees(Fi[i])}[°])')
+    else:
+        ax.text(round((x[i]), 3), round((y[i]), 3), round((z[i]), 3), f'({float(round((x[i]), 2)):2.2f},'
+                                                                      f' {float(round((y[i]), 2)):2.2f},'
+                                                                      f' {float(round((z[i]), 2)):2.2f})')
+
 
 # Ustawienia osi
 ax.set_xlim([-20, 20])

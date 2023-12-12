@@ -38,59 +38,34 @@ def Ai(th= 0, d= 0, a= 0, alp= 0):
     return np.dot(np.dot(np.dot(rotZ(th),moveXYZ(z=d)),moveXYZ(x=a)),rotX(alp))
 
 #Pierwsza oś A1
-A10 = Ai(th=0,d=3,a=0,alp=0)
 Fi1 = math.radians(float(input("Podaj kąt A1 [°]: ")))#PI/4
-A1 = rotZ(Fi1)
-A1r = np.dot(A10,A1)
+A1 = Ai(th=Fi1,d=3,a=0,alp=(PI/2))#np.dot(A10,A1)
+A1r = A1
 
 #Druga oś A2
-A20 = Ai(th=0,d=0,a=3,alp=0)
-A21 = Ai(th=(PI/2),d=0,a=2,alp=(PI/2))
-A22 = Ai(th=(PI/2),d=0,a=1,alp=(0))
-A2r = np.dot(np.dot(np.dot(A1r,A20),A21),A22)
 Fi2 = math.radians(float(input("Podaj kąt A2 [°]: ")))
-A2 = rotZ(Fi2)
-A2r = np.dot(A2r,A2)
+A2 = Ai(th=(Fi2 + PI/2),d=0,a=6,alp=(0))
+A2r = np.dot(A1r,A2)
 
 #Trzecia oś A3
-A30 = Ai(th=(0),d=0,a=10,alp=0)
-A3r = np.dot(A2r,A30)
 Fi3= math.radians(float(input("Podaj kąt A3 [°]: ")))
-A3 = rotZ(Fi3)
-A3r = np.dot(A3r,A3)
+A3 = Ai(th=(Fi3),d=0,a=0,alp=(PI/2))
+A3r = np.dot(A2r,A3)
 
 #Czwarta oś A4
-A40 = Ai(th=(PI/2),d=0,a=6,alp=(PI/2))
-A4r = np.dot(A3r,A40)
 Fi4= math.radians(float(input("Podaj kąt A4 [°]: ")))
-A4 = rotZ(Fi4)
-A4r = np.dot(A4r,A4)
-
+A4 = Ai(th=(Fi4),d=6,a=0,alp=(-PI/2))
+A4r = np.dot(A3r,A4)
 
 #Piąta oś A5
-A50 = Ai(th=(0),d=0,a=0,alp=(0))
-A5r = np.dot(A4r,A50)
 Fi5= math.radians(float(input("Podaj kąt A5 [°]: ")))
-A5 = rotZ(Fi5)
-A5r = np.dot(A5r,A5)
+A5 = Ai(th=(Fi5),d=0,a=0,alp=((PI/2)))
+A5r = np.dot(A4r,A5)
 
 #Szósta oś A6
-A60 = Ai(th=(0),d=0,a=2,alp=(0))
-# A51 = Ai(th=(0),d=0,a=2,alp=(0))
-# A41 = Ai(th=(PI/2),d=0,a=0,alp=(PI/2))
-# A42 = Ai(th=(PI/2),d=0,a=0,alp=(0))
-# A4r = np.dot(np.dot(np.dot(A3r,A40),A41),A42)
-
-
-A6r  =np.dot(A5r,A60)
 Fi6= math.radians(float(input("Podaj kąt A6 [°]: ")))
-A6 = rotZ(Fi6)
-A6r = np.dot(A6r,A6)
-
-
-
-
-
+A6 = Ai(th=(Fi6),d=2,a=0,alp=(0))
+A6r = np.dot(A5r,A6)
 
 
 # # Upraszczenie za pomocą simplify
@@ -110,10 +85,11 @@ A6r = np.dot(A6r,A6)
 # calcX = simplified_expression[0][3]
 # print(f"X: {calcX.evalf(subs={a1: 10, a2: 20, Fi1: 0, Fi2: 0})}")
 
-colors = [(1, 0, 0, 1.0), (1, 0.5, 0, 1.0), (1, 1, 0, 1.0), (0, 1, 0, 1.0), (0.5, 0.5, 0, 1.0), (1, 0.5, 0, 1.0), (1, 0.5, 1, 1.0)]
+colors = [(1, 0, 0, 1.0), (1, 0, 0, 1.0), (1, 0, 0, 1.0), (1, 0.5, 0, 1.0), (1, 1, 0, 1.0), (0, 1, 0, 1.0), (0.5, 0.5, 0, 1.0), (1, 0.5, 0, 1.0), (1, 0.5, 1, 1.0)]
 x = [0, A1r[0][3], A2r[0][3], A3r[0][3], A4r[0][3], A5r[0][3], A6r[0][3]]
 y = [0, A1r[1][3], A2r[1][3], A3r[1][3], A4r[1][3], A5r[1][3], A6r[1][3]]
 z = [0, A1r[2][3], A2r[2][3], A3r[2][3], A4r[2][3], A5r[2][3], A6r[2][3]]
+Fi = [Fi1, Fi2, Fi3, Fi4, Fi5, Fi6]
 
 print(x)
 print(y)

@@ -38,9 +38,9 @@ for i in range(len(x)):
 
 
 # Ustawienia osi
-ax.set_xlim([-20, 20])
-ax.set_ylim([-20, 20])
-ax.set_zlim([-20, 20])
+ax.set_xlim([-2200, 2200])
+ax.set_ylim([-2200, 2200])
+ax.set_zlim([-1000, 2200])
 
 # Wyświetlenie wykresu
 plt.title('Rysowanie Wektorów 3D')

@@ -86,6 +86,20 @@ class RobotAxis:
                        [0, 0, 1, self.d],
                        [0, 0, 0, 1]])
 
+    def update_theta(self, new_theta):
+        """
+        Aktualizuje wartość obrotu wokół osi theta.
+        """
+        self.theta = new_theta
+        self.__ct = np.cos(self.theta)
+        self.__st = np.sin(self.theta)
+
+    def update_d(self, new_d):
+        """
+        Aktualizuje wartość odległości między osiami Z.
+        """
+        self.d = new_d
+
     def __str__(self):
         return (f"Oś {self.type}, "
                f"Obrót względem osi Z: {math.degrees(self.theta)} [°]\n"
@@ -142,6 +156,7 @@ class Robot:
             axis.pos['x'] = total_transformation_matrix[0][3]
             axis.pos['y'] = total_transformation_matrix[1][3]
             axis.pos['z'] = total_transformation_matrix[2][3]
+            print(f"zmieniono pozycję na: {axis.pos['x']}, {axis.pos['y']}, {axis.pos['z']}")
 
         if len(self) > 1:
             for i in range(len(self) - 1):

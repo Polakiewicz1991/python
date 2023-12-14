@@ -24,6 +24,11 @@ class RobotAxis:
         self.a = a
         self.alpha = alpha
 
+        #Pozycja osi w przestrzeni kartezjańskiej
+        self.pos = {"x": 0, "y": 0, "z": 0}
+        self.dir = {"x": 0, "y": 0, "z": 0}
+        self.lenght = 0
+    def get_transformation_matrix(self):
         """
         Funkcjie trygonometryczne niezbędne do obliczenia transformaty
         Zmienne prywatne
@@ -33,11 +38,6 @@ class RobotAxis:
         self.__ca = np.cos(self.alpha)
         self.__sa = np.sin(self.alpha)
 
-        #Pozycja osi w przestrzeni kartezjańskiej
-        self.pos = {"x": 0, "y": 0, "z": 0}
-        self.dir = {"x": 0, "y": 0, "z": 0}
-        self.lenght = 0
-    def get_transformation_matrix(self):
         """
         Oblicza macierz transformacji dla danej osi w notacji Denavita-Hartenberga.
         Uproszczona macierz transformacji, wynik rotZ * moveZ * moveX * rotX

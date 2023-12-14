@@ -28,6 +28,7 @@ class RobotAxis:
         self.pos = {"x": 0, "y": 0, "z": 0}
         self.dir = {"x": 0, "y": 0, "z": 0}
         self.lenght = 0
+
     def get_transformation_matrix(self):
         """
         Funkcjie trygonometryczne niezbędne do obliczenia transformaty
@@ -94,6 +95,7 @@ class RobotAxis:
         self.__ct = np.cos(self.theta)
         self.__st = np.sin(self.theta)
 
+
     def update_d(self, new_d):
         """
         Aktualizuje wartość odległości między osiami Z.
@@ -121,6 +123,18 @@ class Robot:
 
     def __getitem__(self, index):
         return self.axes[index]
+
+    def __str__(self):
+
+        strReturn = f"Ilość osi robota {len(self)},\n"
+        for axis in enumerate(self.axes):
+            strReturn = strReturn + f"Obrót wokół osi A{axis[0]+1} = {math.degrees(axis[1].theta):2.2f}[°],\n"
+
+        strReturn += f"Położenie flanszy robota: x:{(self.axes[len(self.axes) - 1].pos['x']):2.2f}, " \
+                     f"y:{(self.axes[len(self.axes) - 1].pos['y']):2.2f}, " \
+                     f"z:{(self.axes[len(self.axes) - 1].pos['y']):2.2f}, "
+
+        return strReturn
 
     def add_axis(self, type, theta, d, a, alpha):
         """
@@ -156,7 +170,7 @@ class Robot:
             axis.pos['x'] = total_transformation_matrix[0][3]
             axis.pos['y'] = total_transformation_matrix[1][3]
             axis.pos['z'] = total_transformation_matrix[2][3]
-            print(f"zmieniono pozycję na: {axis.pos['x']}, {axis.pos['y']}, {axis.pos['z']}")
+            #print(f"zmieniono pozycję na: {axis.pos['x']}, {axis.pos['y']}, {axis.pos['z']}")
 
         if len(self) > 1:
             for i in range(len(self) - 1):

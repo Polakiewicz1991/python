@@ -10,10 +10,11 @@ Fi1, Fi2, Fi3, Fi4, Fi5, Fi6, Fi7, Fi8 = symbols('Fi1 Fi2 Fi3 Fi4 Fi5 Fi6 Fi7 Fi
 d1, d2, d3, d4, d5, d6, d7, d8 = symbols('d1 d2 d3 d4 d5 d6 d7 d8')
 alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7, alpha8 = PI/2, 0, 0, PI/2, -PI/2, PI/2, 0, 0
 def rotX(alpha):
-    return matrix([ [cos(alpha),        -sin(alpha),        0,              0],
-                    [sin(alpha),        cos(alpha),         0,              0],
-                    [0,                 0,                  1,              0],
+    return matrix([ [1,                 0,                  0,              0],
+                    [0,                 cos(alpha),         -sin(alpha),    0],
+                    [0,                 sin(alpha),         cos(alpha),     0],
                     [0,                 0,                  0,              1]])
+
 def rotZ(alpha):
     return matrix([ [cos(alpha),        -sin(alpha),        0,              0],
                     [sin(alpha),        cos(alpha),         0,              0],
@@ -129,6 +130,8 @@ print(f"X: {calcX.evalf(subs={a1: 10, a2: 20, Fi1: 0, Fi2: 0})}")
 x0, y0, z0 = 0, 0, 0
 x1, y1, z1 = A1[0][3], A1[1][3], A1[2][3]
 x2, y2, z2 = A2[0][3], A2[1][3], A2[2][3]
+
+print(simplified_expression[:][3])
 
 Atest = np.dot(moveXYZ(x=a1),moveXYZ(z=a3))
 print(Atest)

@@ -23,15 +23,21 @@ def drawindA3DChart(robot, theraVar):
     ax.set_ylim([-2200, 2200])
     ax.set_zlim([-1000, 2200])
 
+
     # Konfiguracja animacji ruchu
     t_stop = 2.5  # how many seconds to simulate
     history_len = 500  # how many trajectory points to display
     dt = 0.1
     t = np.arange(0, t_stop, dt)  # create a time array from 0..t_stop sampled at dt steps
-    lines = [ax.plot([], [], [])[0] for _ in range(len(t))]
+    lines = [ax.quiver([], [], [], [], [], []) for _ in range(len(t))]
+    transparetnDt = (np.linspace(dt, 1, len(t)))
+    transparetnDt = list(map(lambda _ : _**2,transparetnDt))
+    print(transparetnDt)
 
-
+    # Konfiguracja wyświetlania danych w macierzy
     np.set_printoptions(precision=6, suppress=True)
+
+    # Inicjalizacja macierzy
     dtheta = [] * len(robot)
     robotTrajectory = [Robot] * len(t)
     robotTrajectoryMatrix = np.empty((len(robot), 3, len(t)))
@@ -61,64 +67,58 @@ def drawindA3DChart(robot, theraVar):
         robot.update_axis_theta(axis_index=i, new_theta=robot[i].theta + theraVar[i])
     robot.get_total_transformation_matrix()
 
-    transparetnDt = np.arange(0.1, 1, 0.9 / len(t))
-    transparetnDt = list(map(lambda x: round(x, 3), transparetnDt))
+
+    # transparetnDt = list(map(lambda x: round(x, 3), transparetnDt))
+
 
     for i in range(len(robot)):
-        r, g, b = randrange(0, 2), randrange(0, 2), randrange(0, 2),
-
-        # for dt in range(len(t)):
-        #     robotTrajectoryChaty = ax.quiver(robotTrajectory[dt][i].pos["x"], robotTrajectory[dt][i].pos["y"],
-        #                                      robotTrajectory[dt][i].pos["z"],
-        #                                      robotTrajectory[dt][i].dir["x"], robotTrajectory[dt][i].dir["y"],
-        #                                      robotTrajectory[dt][i].dir["z"],
-        #                                      length=robot[i].lenght, normalize=True, color=(r, g, b, transparetnDt[dt]))
-
         endPos = ax.quiver(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"],
                            robot[i].dir["x"], robot[i].dir["y"], robot[i].dir["z"],
-                           length=robot[i].lenght, normalize=True, color=(r, g, b, 1))
+                           length=robot[i].lenght, normalize=True, color=(r[i], g[i], b[i], 1))
         endText = ax.text(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"], f'({(robot[i].pos["x"]):2.2f},'
                                                                                    f' {(robot[i].pos["y"]):2.2f},'
                                                                                    f' {(robot[i].pos["z"]):2.2f},'
                                                                                    f' {math.degrees(robot[i].theta):2.2f}[°])')
 
-    def animate(i, pos, dir):
-        for line, pos in zip(dir, pos):
-            # NOTE: there is no .set_data() for 3 dim data...
+    def animate(i, pos, dir, lines):
+        for j, (line, pos, dir) in enumerate(zip(lines, pos, dir)):
 
-            line.set_data(pos[0, :i],pos[1, :i])
-            line.set_3d_properties(pos[2, :i])
+            line = ax.quiver(pos[0,i], pos[1,i], pos[2,i], dir[0,i], dir[1,i], dir[2,i],  color=(r[j], g[j], b[j], transparetnDt[i]))
         return lines
 
     ani = animation.FuncAnimation(
-        fig, animate, len(t), fargs=(robotTrajectoryMatrix, lines), interval=100)
+        fig, animate, len(t), fargs=(robotTrajectoryMatrix, robotTrajectoryDirMatrix, lines), interval=100, repeat=False)
     plt.show()
 
 
 def enterRobotRotations():
     Fivar = []
 
-    for i in range(6):
-        try:
-            FiInput = math.radians(
-                float(input(f"Podaj obrót w okół osi A{i + 1} (lub wpisz 'koniec' aby zakończyć): ")))
-            if FiInput == 'koniec':
-                break
+    for i in range(len(robot)):
+        if robot[i].type == "obrotowa":
+            try:
+                FiInput = math.radians(
+                    float(input(f"Podaj obrót w okół osi A{i} (lub wpisz 'koniec' aby zakończyć): ")))
+                if FiInput == 'koniec':
+                    break
 
-            # Dodawanie danych do list
-            Fivar.append(FiInput)
+                # Dodawanie danych do list
+                Fivar.append(FiInput)
 
-        except ValueError:
-            print("Błędne dane. Wprowadź liczby.")
+            except ValueError:
+                print("Błędne dane. Wprowadź liczby.")
+                Fivar.append(0)
+        else:
             Fivar.append(0)
-
     return Fivar
 
 
 if __name__ == "__main__":
     # Wprowadzanie i rysowanie pierwszego zestawu danych
-    theraVar = [0] * 6
     robot = robotKR8R2100HW
+    theraVar = [0] * len(robot)
+    r, g, b = [randrange(0, 2) for _ in range(len(robot))], [randrange(0, 2) for _ in range(len(robot))], [randrange(0, 2) for _ in range(len(robot))]
+
     for axis in robot:
         print(axis)
     print(robot)

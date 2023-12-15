@@ -29,17 +29,13 @@ def drawindA3DChart(robot, theraVar):
     dt = 0.1
     t = np.arange(0, t_stop, dt)  # create a time array from 0..t_stop sampled at dt steps
     lines = [ax.plot([], [], [])[0] for _ in range(len(t))]
-    # trace, = ax.plot([], [], [],'.-', lw=1, ms=2)
-    # time_template = 'time = %.1fs'
-    # time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
+
 
     np.set_printoptions(precision=6, suppress=True)
     dtheta = [] * len(robot)
     robotTrajectory = [Robot] * len(t)
-    robotTrajectoryMatrix = np.empty((len(t), len(robot), 3))
-    robotTrajectoryDirMatrix = np.empty((len(t), len(robot), 3))
-    # trajectoryX, trajectoryY, trajectoryZ = [[] for _ in range(len(robot))], [[] for _ in range(len(robot))], [[] for _ in range(len(robot))]
-    # trajectoryDirX, trajectoryDirY, trajectoryDirZ = [[] for _ in range(len(robot))], [[] for _ in range(len(robot))], [[] for _ in range(len(robot))]
+    robotTrajectoryMatrix = np.empty((len(robot), 3, len(t)))
+    robotTrajectoryDirMatrix = np.empty((len(robot), 3, len(t)))
 
     # Różniczkowanie zmiany kąta robota
     for i in range(len(robot)):
@@ -52,23 +48,13 @@ def drawindA3DChart(robot, theraVar):
             robotTrajectory[dt].update_axis_theta(axis_index=i, new_theta=dtheta[i][dt])
             robotTrajectory[dt].get_total_transformation_matrix()
 
-            robotTrajectoryMatrix[dt][i][0] = robotTrajectory[dt][i].pos['x']  # Pozycja X
-            robotTrajectoryMatrix[dt][i][1] = robotTrajectory[dt][i].pos['y']  # Pozycja Y
-            robotTrajectoryMatrix[dt][i][2] = robotTrajectory[dt][i].pos['z']  # Pozycja Z
+            robotTrajectoryMatrix[i][0][dt] = robotTrajectory[dt][i].pos['x']  # Pozycja X
+            robotTrajectoryMatrix[i][1][dt] = robotTrajectory[dt][i].pos['y']  # Pozycja Y
+            robotTrajectoryMatrix[i][2][dt] = robotTrajectory[dt][i].pos['z']  # Pozycja Z
 
-            robotTrajectoryDirMatrix[dt][i][0] = robotTrajectory[dt][i].dir['x']  # Pozycja X
-            robotTrajectoryDirMatrix[dt][i][1] = robotTrajectory[dt][i].dir['y']  # Pozycja Y
-            robotTrajectoryDirMatrix[dt][i][2] = robotTrajectory[dt][i].dir['z']  # Pozycja Z
-
-            # trajectoryX[i].append(robotTrajectory[dt][i].pos['x'])
-            # trajectoryY[i].append(robotTrajectory[dt][i].pos['y'])
-            # trajectoryZ[i].append(robotTrajectory[dt][i].pos['z'])
-            #
-            # trajectoryDirX[i].append(robotTrajectory[dt][i].dir['x'])
-            # trajectoryDirY[i].append(robotTrajectory[dt][i].dir['y'])
-            # trajectoryDirZ[i].append(robotTrajectory[dt][i].dir['z'])
-
-    print(robotTrajectoryMatrix)
+            robotTrajectoryDirMatrix[i][0][dt] = robotTrajectory[dt][i].dir['x']  # Pozycja X
+            robotTrajectoryDirMatrix[i][1][dt] = robotTrajectory[dt][i].dir['y']  # Pozycja Y
+            robotTrajectoryDirMatrix[i][2][dt] = robotTrajectory[dt][i].dir['z']  # Pozycja Z
 
     # Aktualizaja osi robota
     for i in range(len(robot)):
@@ -77,8 +63,6 @@ def drawindA3DChart(robot, theraVar):
 
     transparetnDt = np.arange(0.1, 1, 0.9 / len(t))
     transparetnDt = list(map(lambda x: round(x, 3), transparetnDt))
-
-    print(transparetnDt)
 
     for i in range(len(robot)):
         r, g, b = randrange(0, 2), randrange(0, 2), randrange(0, 2),
@@ -101,8 +85,9 @@ def drawindA3DChart(robot, theraVar):
     def animate(i, pos, dir):
         for line, pos in zip(dir, pos):
             # NOTE: there is no .set_data() for 3 dim data...
-            line.set_data(pos[:i, :2].T)
-            line.set_3d_properties(pos[:i, 2])
+
+            line.set_data(pos[0, :i],pos[1, :i])
+            line.set_3d_properties(pos[2, :i])
         return lines
 
     ani = animation.FuncAnimation(

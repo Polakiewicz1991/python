@@ -62,8 +62,8 @@ class RobotAxis:
         """
         __ctSymbol = cosSym(thetaSymbol)
         __stSymbol = sinSym(thetaSymbol)
-        __caSymbol = cosSym(thetaSymbol)
-        __saSymbol = sinSym(thetaSymbol)
+        __caSymbol = np.cos(self.alpha)
+        __saSymbol = np.sin(self.alpha)
 
         """
         Oblicza macierz transformacji dla danej osi w notacji Denavita-Hartenberga.
@@ -217,13 +217,20 @@ class Robot:
         print(symbols_list)
 
         for i, axis in enumerate(self.axes):
-            total_symbol_transformation_matrix = np.dot(total_symbol_transformation_matrix, axis.get_transformation_symbol_matrix(symbols_list[i]))
+
+            # TUTAJ ZMIENIAĆ JEŻELI CHCEMY OBLICZYĆ MACIEŻ CAŁEGO ROBOTA
+            # total_symbol_transformation_matrix = np.dot(total_symbol_transformation_matrix, axis.get_transformation_symbol_matrix(symbols_list[i]))
+            total_symbol_transformation_matrix = axis.get_transformation_symbol_matrix(symbols_list[i])
+
             total_symbol_transformation_matrix = matrix(list(map(lambda x: simplify(x), total_symbol_transformation_matrix.flatten()))).reshape(total_symbol_transformation_matrix.shape)
             total_symbol_transformation_matrix = matrix(list(map(lambda x: trigsimp(x), total_symbol_transformation_matrix.flatten()))).reshape(total_symbol_transformation_matrix.shape)
             if i == 0:
                 total_symbol_transformation_matrix = matrix(list(map(lambda x: x.evalf(subs={symbols_list[0]: self.axes[i].theta}), total_symbol_transformation_matrix.flatten()))).reshape(total_symbol_transformation_matrix.shape)
 
+
             print(f"oś {i}")
+            print(axis.get_transformation_symbol_matrix(symbols_list[i]))
+            print(f"oś suma {i}")
             print(total_symbol_transformation_matrix)
 
 
@@ -234,7 +241,7 @@ class Robot:
         #     list(map(lambda x: trigsimp(x), total_symbol_transformation_matrix.flatten()))).reshape(
         #     total_symbol_transformation_matrix.shape)
 
-        print(total_symbol_transformation_matrix)
+        # print(total_symbol_transformation_matrix)
 
         return total_symbol_transformation_matrix
 
@@ -258,11 +265,12 @@ for i in range(6):
 
 
 # Pobieranie macierzy transformacji dla całego robota
-total_transformation_matrix = robotKR8R2100HW.get_total_transformation_matrix()
-total_symbol_transformation_matrix = robotKR8R2100HW.get_symbol_transformation_matrix()
+# total_transformation_matrix = robotKR8R2100HW.get_total_transformation_matrix()
+# total_symbol_transformation_matrix = robotKR8R2100HW.get_symbol_transformation_matrix()
+
 # Wyświetlanie macierzy transformacji
-print("Macierz transformacji dla całego robota:")
-print(total_transformation_matrix)
+# print("Macierz transformacji dla całego robota:")
+# print(total_transformation_matrix)
 
 # for axis in robotKR8R2100HW.axes:
 #     print(axis)

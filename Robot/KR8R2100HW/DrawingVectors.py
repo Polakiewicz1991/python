@@ -1,7 +1,9 @@
 import math
 from random import randrange
+
 import numpy as np
 from numpy import pi
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
@@ -9,7 +11,15 @@ from RobotDefinition import robotKR8R2100HW
 from RobotDefinition import Robot
 import copy
 
+from sympy import symbols, Eq, solve, trigsimp, simplify
+from sympy import sin
+from sympy import cos
 
+from PositionCalculation import pointTCP
+from PositionCalculation import theta1, theta2, theta3, theta4, theta5, theta6
+
+
+theraVar = [0] * len(robotKR8R2100HW)
 def drawindA3DChart(robot, theraVar):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -75,11 +85,22 @@ def drawindA3DChart(robot, theraVar):
         endPos = ax.quiver(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"],
                            robot[i].dir["x"], robot[i].dir["y"], robot[i].dir["z"],
                            length=robot[i].lenght, normalize=True, color=(r[i], g[i], b[i], 1))
-        endText = ax.text(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"], f'({(robot[i].pos["x"]):2.2f},'
-                                                                                   f' {(robot[i].pos["y"]):2.2f},'
-                                                                                   f' {(robot[i].pos["z"]):2.2f},'
-                                                                                   f' {math.degrees(robot[i].theta):2.2f}[°])')
+        # endText = ax.text(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"], f'({(robot[i].pos["x"]):2.2f},'
+        #                                                                            f' {(robot[i].pos["y"]):2.2f},'
+        #                                                                            f' {(robot[i].pos["z"]):2.2f},'
+        #                                                                            f' {math.degrees(robot[i].theta):2.2f}[°])')
+    j = len(robot) - 1
+    endText = ax.text(robot[j].pos["x"], robot[j].pos["y"], robot[j].pos["z"], f'({(robot[j].pos["x"]):2.2f},'
+                                                                               f' {(robot[j].pos["y"]):2.2f},'
+                                                                               f' {(robot[j].pos["z"]):2.2f},'
+                                                                               f' {math.degrees(robot[j].theta):2.2f}[°])')
 
+    resultTCP = [_.evalf(
+        subs={theta1: robot[1].theta, theta2: robot[2].theta, theta3: robot[3].theta,
+              theta4: robot[4].theta, theta5: robot[5].theta, theta6: robot[6].theta})
+        for _ in pointTCP]
+
+    print("resultTCP", resultTCP)
     def animate(i, pos, dir, lines):
         for j, (line, pos, dir) in enumerate(zip(lines, pos, dir)):
 
@@ -88,6 +109,9 @@ def drawindA3DChart(robot, theraVar):
 
     ani = animation.FuncAnimation(
         fig, animate, len(t), fargs=(robotTrajectoryMatrix, robotTrajectoryDirMatrix, lines), interval=100, repeat=False)
+
+
+
     plt.show()
 
 
@@ -116,7 +140,7 @@ def enterRobotRotations():
 if __name__ == "__main__":
     # Wprowadzanie i rysowanie pierwszego zestawu danych
     robot = robotKR8R2100HW
-    theraVar = [0] * len(robot)
+
     r, g, b = [randrange(0, 2) for _ in range(len(robot))], [randrange(0, 2) for _ in range(len(robot))], [randrange(0, 2) for _ in range(len(robot))]
 
     for axis in robot:

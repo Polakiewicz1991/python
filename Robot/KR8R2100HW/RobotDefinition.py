@@ -9,6 +9,8 @@ from sympy import sin as sinSym
 from sympy import cos as cosSym
 
 
+import pickle
+
 class RobotAxis:
     def __init__(self, type, theta, d, a, alpha):
         """
@@ -233,16 +235,6 @@ class Robot:
             print(f"oś suma {i}")
             print(total_symbol_transformation_matrix)
 
-
-        # total_symbol_transformation_matrix = matrix(
-        #     list(map(lambda x: simplify(x), total_symbol_transformation_matrix.flatten()))).reshape(
-        #     total_symbol_transformation_matrix.shape)
-        # total_symbol_transformation_matrix = matrix(
-        #     list(map(lambda x: trigsimp(x), total_symbol_transformation_matrix.flatten()))).reshape(
-        #     total_symbol_transformation_matrix.shape)
-
-        # print(total_symbol_transformation_matrix)
-
         return total_symbol_transformation_matrix
 
 
@@ -263,7 +255,8 @@ for i in range(6):
                              a=robotKR8R2100HConstant["a"][i],
                              alpha=robotKR8R2100HConstant["alpha"][i])
 
-
+with open('robotKR8R2100HW.pkl', 'wb') as file:
+    pickle.dump(robotKR8R2100HW, file)
 # Pobieranie macierzy transformacji dla całego robota
 # total_transformation_matrix = robotKR8R2100HW.get_total_transformation_matrix()
 # total_symbol_transformation_matrix = robotKR8R2100HW.get_symbol_transformation_matrix()

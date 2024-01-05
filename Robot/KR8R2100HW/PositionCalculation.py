@@ -28,5 +28,11 @@ robMatrix = [[-(((-1.0*sin(theta1) + 3.06161699786838e-17*sin(-theta1 + theta2 +
 pointTCP = [robMatrix[0][3], robMatrix[1][3], robMatrix[2][3]]
 
 print(f"x:{robMatrix[0][3]} \n")
-print(f"x:{robMatrix[1][3]} \n")
-print(f"x:{robMatrix[2][3]} \n")
+print(f"y:{robMatrix[1][3]} \n")
+print(f"z:{robMatrix[2][3]} \n")
+
+# solutions = solve(robMatrix[2][3],(theta1, theta2, theta3, theta4, theta5, theta6))
+# # Wyświetl wyniki
+# print("Rozwiązania:")
+# for solution in solutions:
+#     print(solution)

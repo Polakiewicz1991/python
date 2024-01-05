@@ -2,7 +2,7 @@ import math
 from random import randrange
 
 import numpy as np
-from numpy import pi
+from numpy import array as matrix
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -11,15 +11,13 @@ from RobotDefinition import robotKR8R2100HW
 from RobotDefinition import Robot
 import copy
 
-from sympy import symbols, Eq, solve, trigsimp, simplify
-from sympy import sin
-from sympy import cos
-
-from PositionCalculation import pointTCP
+from PositionCalculation import pointTCP, robMatrix
 from PositionCalculation import theta1, theta2, theta3, theta4, theta5, theta6
 
 
 theraVar = [0] * len(robotKR8R2100HW)
+
+
 def drawindA3DChart(robot, theraVar):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -33,6 +31,13 @@ def drawindA3DChart(robot, theraVar):
     ax.set_ylim([-2200, 2200])
     ax.set_zlim([-1000, 2200])
 
+    #Narysowanie wektorów osi układu kartezjaństego
+    ax.text(2200, 0, 0, 'X+')
+    ax.quiver(1,0,0,1,0,0,length=2200, normalize=True, color=(0, 0, 0, 0.1))
+    ax.text(0, 2200, 0, 'Y+')
+    ax.quiver(0,1,0,0,1,0,length=2200, normalize=True, color=(0, 0, 0, 0.1))
+    ax.text(0, 0, 2200, 'Z+')
+    ax.quiver(0,0,1,0,0,1,length=2200, normalize=True, color=(0, 0, 0, 0.1))
 
     # Konfiguracja animacji ruchu
     t_stop = 2.5  # how many seconds to simulate
@@ -42,7 +47,6 @@ def drawindA3DChart(robot, theraVar):
     lines = [ax.quiver([], [], [], [], [], []) for _ in range(len(t))]
     transparetnDt = (np.linspace(dt, 1, len(t)))
     transparetnDt = list(map(lambda _ : _**2,transparetnDt))
-    print(transparetnDt)
 
     # Konfiguracja wyświetlania danych w macierzy
     np.set_printoptions(precision=6, suppress=True)
@@ -77,30 +81,27 @@ def drawindA3DChart(robot, theraVar):
         robot.update_axis_theta(axis_index=i, new_theta=robot[i].theta + theraVar[i])
     robot.get_total_transformation_matrix()
 
-
-    # transparetnDt = list(map(lambda x: round(x, 3), transparetnDt))
-
-
     for i in range(len(robot)):
         endPos = ax.quiver(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"],
                            robot[i].dir["x"], robot[i].dir["y"], robot[i].dir["z"],
                            length=robot[i].lenght, normalize=True, color=(r[i], g[i], b[i], 1))
-        # endText = ax.text(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"], f'({(robot[i].pos["x"]):2.2f},'
-        #                                                                            f' {(robot[i].pos["y"]):2.2f},'
-        #                                                                            f' {(robot[i].pos["z"]):2.2f},'
-        #                                                                            f' {math.degrees(robot[i].theta):2.2f}[°])')
+
+        """
+        Zakomentowane wyświtlanie położenia każdej osi robota w przestrzeni w raz z kątem robota w tej przestrzeni
+        
+        endText = ax.text(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"], f'({(robot[i].pos["x"]):2.2f},'
+                                                                                   f' {(robot[i].pos["y"]):2.2f},'
+                                                                                   f' {(robot[i].pos["z"]):2.2f},'
+                                                                                   f' {math.degrees(robot[i].theta):2.2f}[°])')
+        """
+
+    #Opis położenia punktu TCP robota
     j = len(robot) - 1
-    endText = ax.text(robot[j].pos["x"], robot[j].pos["y"], robot[j].pos["z"], f'({(robot[j].pos["x"]):2.2f},'
+    ax.text(robot[j].pos["x"], robot[j].pos["y"], robot[j].pos["z"], f'({(robot[j].pos["x"]):2.2f},'
                                                                                f' {(robot[j].pos["y"]):2.2f},'
                                                                                f' {(robot[j].pos["z"]):2.2f},'
                                                                                f' {math.degrees(robot[j].theta):2.2f}[°])')
 
-    resultTCP = [_.evalf(
-        subs={theta1: robot[1].theta, theta2: robot[2].theta, theta3: robot[3].theta,
-              theta4: robot[4].theta, theta5: robot[5].theta, theta6: robot[6].theta})
-        for _ in pointTCP]
-
-    print("resultTCP", resultTCP)
     def animate(i, pos, dir, lines):
         for j, (line, pos, dir) in enumerate(zip(lines, pos, dir)):
 
@@ -114,7 +115,24 @@ def drawindA3DChart(robot, theraVar):
 
     plt.show()
 
+def calcRobotData(robot, theraVar):
+    resultTCP = [_.evalf(
+        subs={theta1: robot[1].theta, theta2: robot[2].theta, theta3: robot[3].theta,
+              theta4: robot[4].theta, theta5: robot[5].theta, theta6: robot[6].theta})
+        for _ in pointTCP]
 
+    print("resultTCP", resultTCP)
+
+    # resultMatrix = np.zeros(4,4)
+    for i,line in enumerate(robMatrix):
+        # print(line)
+        resultMatrix = [_.evalf(
+            subs={theta1: robot[1].theta, theta2: robot[2].theta, theta3: robot[3].theta,
+                  theta4: robot[4].theta, theta5: robot[5].theta, theta6: robot[6].theta})
+            if (not isinstance(_, int) and not isinstance(_, float)) else _
+            for _ in line]
+
+        print(f"resultMatrix[{i}]:", resultMatrix)
 def enterRobotRotations():
     Fivar = []
 
@@ -146,6 +164,7 @@ if __name__ == "__main__":
     for axis in robot:
         print(axis)
     print(robot)
+    calcRobotData(robot, theraVar)
     drawindA3DChart(robot, theraVar)
 
     # Aktualizowanie wykresu dla kolejnych zestawów danych
@@ -157,4 +176,5 @@ if __name__ == "__main__":
         theraVar = enterRobotRotations()
         # robotStart = copy.deepcopy(robot)
 
+        calcRobotData(robot, theraVar)
         drawindA3DChart(robot, theraVar)

@@ -1,3 +1,5 @@
+import pickle
+
 import math
 from random import randrange
 
@@ -7,15 +9,12 @@ from numpy import array as matrix
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-from RobotDefinition import robotKR8R2100HW
+# from RobotDefinition import robotKR8R2100HW
 from RobotDefinition import Robot
 import copy
 
 from PositionCalculation import pointTCP, robMatrix
 from PositionCalculation import theta1, theta2, theta3, theta4, theta5, theta6
-
-
-theraVar = [0] * len(robotKR8R2100HW)
 
 
 def drawindA3DChart(robot, theraVar):
@@ -48,9 +47,6 @@ def drawindA3DChart(robot, theraVar):
     transparetnDt = (np.linspace(dt, 1, len(t)))
     transparetnDt = list(map(lambda _ : _**2,transparetnDt))
 
-    # Konfiguracja wyświetlania danych w macierzy
-    np.set_printoptions(precision=6, suppress=True)
-
     # Inicjalizacja macierzy
     dtheta = [] * len(robot)
     robotTrajectory = [Robot] * len(t)
@@ -82,9 +78,9 @@ def drawindA3DChart(robot, theraVar):
     robot.get_total_transformation_matrix()
 
     for i in range(len(robot)):
-        endPos = ax.quiver(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"],
-                           robot[i].dir["x"], robot[i].dir["y"], robot[i].dir["z"],
-                           length=robot[i].lenght, normalize=True, color=(r[i], g[i], b[i], 1))
+        ax.quiver(robot[i].pos["x"], robot[i].pos["y"], robot[i].pos["z"],
+                  robot[i].dir["x"], robot[i].dir["y"], robot[i].dir["z"],
+                  length=robot[i].lenght, normalize=True, color=(r[i], g[i], b[i], 1))
 
         """
         Zakomentowane wyświtlanie położenia każdej osi robota w przestrzeni w raz z kątem robota w tej przestrzeni
@@ -111,8 +107,6 @@ def drawindA3DChart(robot, theraVar):
     ani = animation.FuncAnimation(
         fig, animate, len(t), fargs=(robotTrajectoryMatrix, robotTrajectoryDirMatrix, lines), interval=100, repeat=False)
 
-
-
     plt.show()
 
 def calcRobotData(robot, theraVar):
@@ -123,21 +117,57 @@ def calcRobotData(robot, theraVar):
 
     print("resultTCP", resultTCP)
 
-    # resultMatrix = np.zeros(4,4)
-    for i,line in enumerate(robMatrix):
-        # print(line)
-        resultMatrix = [_.evalf(
-            subs={theta1: robot[1].theta, theta2: robot[2].theta, theta3: robot[3].theta,
-                  theta4: robot[4].theta, theta5: robot[5].theta, theta6: robot[6].theta})
-            if (not isinstance(_, int) and not isinstance(_, float)) else _
-            for _ in line]
+    resultMatrix = np.zeros((4,4))
+    for i,line in enumerate(robot.total_symbol_matrix):
+        for j, cell in enumerate(line):
+            if (not isinstance(robot.total_symbol_matrix[i][j], int) or not isinstance(robot.total_symbol_matrix[i][j], float)):
+                resultMatrix[i][j] = robot.total_symbol_matrix[i][j].evalf(
+                    subs={theta1: robot[1].theta, theta2: robot[2].theta, theta3: robot[3].theta,
+                          theta4: robot[4].theta, theta5: robot[5].theta, theta6: robot[6].theta})
 
-        print(f"resultMatrix[{i}]:", resultMatrix)
+            else:
+                resultMatrix[i][j] = robot.total_symbol_matrix[i][j]
+
+            # if resultMatrix[i][j] > -1.0e-10 and resultMatrix[i][j] < 1.0e-10:
+            #     resultMatrix[i][j] = 0
+
+    print(f"resultMatrix:\n", resultMatrix)
+
+
+    """
+    #Spróbujemy obliczyć wartości dla:
+    #[0 0 1 1300]
+    #[0 -1 0 0]
+    #[1 0 1 1600]
+    
+    from scipy.optimize import fsolve
+    
+    # Definicja funkcji układu równań
+    def equations(vars):
+        x1, x2, x3, x4, x5, x6 = vars
+        # Tutaj wprowadź równania zgodnie z twoimi potrzebami
+        eq1 = x1 + x2 + x3 - 3
+        eq2 = x4 * x5 - x6 - 1
+        # ...
+        eq12 = x1 * x2 - x3 - 2
+    
+        return [eq1, eq2, ..., eq12]
+    
+    # Początkowe przybliżenia dla zmiennych
+    initial_guess = [1, 1, 1, 1, 1, 1]
+    
+    # Rozwiązanie układu równań nieliniowych
+    solution = fsolve(equations, initial_guess)
+    
+    print("Rozwiązanie:", solution)
+    """
+
+
 def enterRobotRotations():
     Fivar = []
 
-    for i in range(len(robot)):
-        if robot[i].type == "obrotowa":
+    for i in range(len(robotKR8R2100HW)):
+        if robotKR8R2100HW[i].type == "obrotowa":
             try:
                 FiInput = math.radians(
                     float(input(f"Podaj obrót w okół osi A{i} (lub wpisz 'koniec' aby zakończyć): ")))
@@ -156,25 +186,37 @@ def enterRobotRotations():
 
 
 if __name__ == "__main__":
+    # Konfiguracja wyświetlania danych w macierzy
+    np.set_printoptions(precision=6, suppress=True)
+
     # Wprowadzanie i rysowanie pierwszego zestawu danych
-    robot = robotKR8R2100HW
+    robotKR8R2100HW = Robot
 
-    r, g, b = [randrange(0, 2) for _ in range(len(robot))], [randrange(0, 2) for _ in range(len(robot))], [randrange(0, 2) for _ in range(len(robot))]
+    #odczytanie danych robota z pliku
+    with open('robotKR8R2100HW.pkl', 'rb') as file:
+        robotKR8R2100HW = pickle.load(file)
 
-    for axis in robot:
-        print(axis)
-    print(robot)
-    calcRobotData(robot, theraVar)
-    drawindA3DChart(robot, theraVar)
+    print(type(robotKR8R2100HW))
+
+    theraVar = [0] * len(robotKR8R2100HW)
+
+    # r, g, b = [randrange(0, 2) for _ in range(len(robotKR8R2100HW))], [randrange(0, 2) for _ in range(len(robotKR8R2100HW))], [randrange(0, 2) for _ in range(len(robotKR8R2100HW))]
+    r, g, b = [[0.5,1,1,0,1,0,0],
+               [1,1,0,1,0.5,0,1],
+               [0.5,0.5,1,1,0.5,1,0]]
+
+    print(robotKR8R2100HW)
+
+    calcRobotData(robotKR8R2100HW, theraVar)
+    drawindA3DChart(robotKR8R2100HW, theraVar)
 
     # Aktualizowanie wykresu dla kolejnych zestawów danych
     while True:
-        kontynuuj = input("Czy chcesz wprowadzić kolejne dane? (tak/nie): ").lower()
-        if kontynuuj != 'tak':
+        kontynuuj = input("Czy chcesz wprowadzić kolejne dane? (y): ").lower()
+        if kontynuuj != 'y':
             break
 
         theraVar = enterRobotRotations()
-        # robotStart = copy.deepcopy(robot)
 
-        calcRobotData(robot, theraVar)
-        drawindA3DChart(robot, theraVar)
+        calcRobotData(robotKR8R2100HW, theraVar)
+        drawindA3DChart(robotKR8R2100HW, theraVar)

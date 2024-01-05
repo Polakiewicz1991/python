@@ -2,14 +2,13 @@ import math
 
 import numpy as np
 from numpy import array as matrix
-from numpy import pi
+
 
 from sympy import symbols, Eq, solve, trigsimp, simplify
 from sympy import sin as sinSym
 from sympy import cos as cosSym
 
 
-import pickle
 
 class RobotAxis:
     def __init__(self, type, theta, d, a, alpha):
@@ -35,6 +34,12 @@ class RobotAxis:
         self.dir = {"x": 0, "y": 0, "z": 0}
         self.lenght = 0
 
+        #Macierze transformacji
+        self.matrix_act = np.identity(4)
+        self.matrix_to_base = np.identity(4)
+        self.symbol_matrix_act = np.identity(4)
+        self.symbol_matrix_to_base = np.identity(4)
+
     def get_transformation_matrix(self):
         """
         Funkcjie trygonometryczne niezbędne do obliczenia transformaty
@@ -51,11 +56,13 @@ class RobotAxis:
         :return: Macierz transformacji 4x4
         """
 
-        return matrix([
+        self.matrix_act = matrix([
             [self.__ct, -self.__st * self.__ca, self.__st * self.__sa, self.a * self.__ct],
             [self.__st, self.__ct * self.__ca, -self.__ct * self.__sa, self.a * self.__st],
             [0, self.__sa, self.__ca, self.d],
             [0, 0, 0, 1]])
+
+        return self.matrix_act
 
     def get_transformation_symbol_matrix(self,thetaSymbol):
         """
@@ -73,11 +80,13 @@ class RobotAxis:
         :return: Macierz transformacji 4x4
         """
 
-        return matrix([
+        self.symbol_matrix_act = matrix([
             [__ctSymbol, -__stSymbol * __caSymbol, __stSymbol * __saSymbol, self.a * __ctSymbol],
             [__stSymbol, __ctSymbol * __caSymbol, -__ctSymbol * __saSymbol, self.a * __stSymbol],
             [0, __saSymbol, __caSymbol, self.d],
             [0, 0, 0, 1]])
+
+        return self.symbol_matrix_act
 
     def rotX(self):
         """
@@ -142,9 +151,12 @@ class RobotAxis:
                f"\tz:{(self.pos['z']):2.2f}\tdir z:{(self.dir['z']):2.2f},\n"
                f"\tdługość wektora:{(self.lenght):2.2f}")
 
+
 class Robot:
     def __init__(self):
         self.axes = [RobotAxis(0,0,0,0,0)]
+        self.total_matrix = np.identity(4)
+        self.total_symbol_matrix = np.identity(4)
 
     def __len__(self):
         return len(self.axes)
@@ -190,14 +202,17 @@ class Robot:
         Oblicza macierz transformacji dla całego robota na podstawie transformacji poszczególnych osi.
         :return: Macierz transformacji 4x4
         """
-        total_transformation_matrix = np.identity(4)
+
+        self.total_matrix = np.identity(4)
 
         for axis in self.axes:
-            total_transformation_matrix = np.dot(total_transformation_matrix, axis.get_transformation_matrix())
+            self.total_matrix = np.dot(self.total_matrix, axis.get_transformation_matrix())
 
-            axis.pos['x'] = total_transformation_matrix[0][3]
-            axis.pos['y'] = total_transformation_matrix[1][3]
-            axis.pos['z'] = total_transformation_matrix[2][3]
+            axis.pos['x'] = self.total_matrix[0][3]
+            axis.pos['y'] = self.total_matrix[1][3]
+            axis.pos['z'] = self.total_matrix[2][3]
+
+            axis.matrix_to_base = self.total_matrix
 
         if len(self) > 1:
             for i in range(len(self) - 1):
@@ -206,66 +221,34 @@ class Robot:
                 self[i].dir['z'] = self[i + 1].pos['z'] - self[i].pos['z']
                 self[i].lenght = (math.sqrt(((self[i].dir['x']) ** 2) + ((self[i].dir['y']) ** 2) + ((self[i].dir['z']) ** 2)))
 
-        return total_transformation_matrix
+        return self.total_matrix
 
     def get_symbol_transformation_matrix(self):
         """
         Oblicza symbolicznej macierz transformacji dla całego robota na podstawie transformacji poszczególnych osi.
         :return: Macierz transformacji 4x4
         """
-        total_symbol_transformation_matrix = np.identity(4)
         symbols_list = [symbols(f'theta{i}') for i in range(len(self))]
 
         print(symbols_list)
 
         for i, axis in enumerate(self.axes):
-
+            axis.get_transformation_symbol_matrix(symbols_list[i])
             # TUTAJ ZMIENIAĆ JEŻELI CHCEMY OBLICZYĆ MACIEŻ CAŁEGO ROBOTA
-            # total_symbol_transformation_matrix = np.dot(total_symbol_transformation_matrix, axis.get_transformation_symbol_matrix(symbols_list[i]))
-            total_symbol_transformation_matrix = axis.get_transformation_symbol_matrix(symbols_list[i])
+            self.total_symbol_matrix = np.dot(self.total_symbol_matrix, axis.get_transformation_symbol_matrix(symbols_list[i]))
+            # total_symbol_transformation_matrix = axis.get_transformation_symbol_matrix(symbols_list[i])
 
-            total_symbol_transformation_matrix = matrix(list(map(lambda x: simplify(x), total_symbol_transformation_matrix.flatten()))).reshape(total_symbol_transformation_matrix.shape)
-            total_symbol_transformation_matrix = matrix(list(map(lambda x: trigsimp(x), total_symbol_transformation_matrix.flatten()))).reshape(total_symbol_transformation_matrix.shape)
+            self.total_symbol_matrix = matrix(list(map(lambda x: simplify(x), self.total_symbol_matrix.flatten()))).reshape(self.total_symbol_matrix.shape)
+            self.total_symbol_matrix = matrix(list(map(lambda x: trigsimp(x), self.total_symbol_matrix.flatten()))).reshape(self.total_symbol_matrix.shape)
             if i == 0:
-                total_symbol_transformation_matrix = matrix(list(map(lambda x: x.evalf(subs={symbols_list[0]: self.axes[i].theta}), total_symbol_transformation_matrix.flatten()))).reshape(total_symbol_transformation_matrix.shape)
+                self.total_symbol_matrix = matrix(list(map(lambda x: x.evalf(subs={symbols_list[0]: self.axes[i].theta}), self.total_symbol_matrix.flatten()))).reshape(self.total_symbol_matrix.shape)
 
+            #Przypisanie macierzy opisującej położenie i oriętacje osi w przestrzeni
+            axis.symbol_matrix_to_base = self.total_symbol_matrix
 
             print(f"oś {i}")
             print(axis.get_transformation_symbol_matrix(symbols_list[i]))
             print(f"oś suma {i}")
-            print(total_symbol_transformation_matrix)
+            print(self.total_symbol_matrix)
 
-        return total_symbol_transformation_matrix
-
-
-# Tworzenie obiektu reprezentującego robota
-robotKR8R2100HW = Robot()
-
-robotKR8R2100HConstant = {"type": [1, 1, 1, 1, 1, 1],
-                          "theta": [0, pi / 2, 0, 0, 0, 0],
-                          "d": [520, 0, 0, 1015, 0, 100],
-                          "a": [160, 980, 220, 0, 0, -50],
-                          "alpha": [pi / 2, 0, pi / 2, -pi / 2, pi / 2, 0]}
-
-# Dodawanie osi do robota
-for i in range(6):
-    robotKR8R2100HW.add_axis(type=robotKR8R2100HConstant["type"][i],
-                             theta=robotKR8R2100HConstant["theta"][i],
-                             d=robotKR8R2100HConstant["d"][i],
-                             a=robotKR8R2100HConstant["a"][i],
-                             alpha=robotKR8R2100HConstant["alpha"][i])
-
-with open('robotKR8R2100HW.pkl', 'wb') as file:
-    pickle.dump(robotKR8R2100HW, file)
-# Pobieranie macierzy transformacji dla całego robota
-# total_transformation_matrix = robotKR8R2100HW.get_total_transformation_matrix()
-# total_symbol_transformation_matrix = robotKR8R2100HW.get_symbol_transformation_matrix()
-
-# Wyświetlanie macierzy transformacji
-# print("Macierz transformacji dla całego robota:")
-# print(total_transformation_matrix)
-
-# for axis in robotKR8R2100HW.axes:
-#     print(axis)
-
-# print(f"Ilość osi robota {len(robotKR8R2100HW)}")
+        return self.total_symbol_matrix

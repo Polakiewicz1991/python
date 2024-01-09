@@ -9,6 +9,7 @@ from numpy import array as matrix
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
 # from RobotDefinition import robotKR8R2100HW
 from RobotDefinition import Robot
 import copy
@@ -134,35 +135,6 @@ def calcRobotData(robot, theraVar):
     print(f"resultMatrix:\n", resultMatrix)
 
 
-    """
-    #Spróbujemy obliczyć wartości dla:
-    #[0 0 1 1300]
-    #[0 -1 0 0]
-    #[1 0 1 1600]
-    
-    from scipy.optimize import fsolve
-    
-    # Definicja funkcji układu równań
-    def equations(vars):
-        x1, x2, x3, x4, x5, x6 = vars
-        # Tutaj wprowadź równania zgodnie z twoimi potrzebami
-        eq1 = x1 + x2 + x3 - 3
-        eq2 = x4 * x5 - x6 - 1
-        # ...
-        eq12 = x1 * x2 - x3 - 2
-    
-        return [eq1, eq2, ..., eq12]
-    
-    # Początkowe przybliżenia dla zmiennych
-    initial_guess = [1, 1, 1, 1, 1, 1]
-    
-    # Rozwiązanie układu równań nieliniowych
-    solution = fsolve(equations, initial_guess)
-    
-    print("Rozwiązanie:", solution)
-    """
-
-
 def enterRobotRotations():
     Fivar = []
 
@@ -196,7 +168,9 @@ if __name__ == "__main__":
     with open('robotKR8R2100HW.pkl', 'rb') as file:
         robotKR8R2100HW = pickle.load(file)
 
-    print(type(robotKR8R2100HW))
+    print(f"Total matrix:\n")
+    print(robotKR8R2100HW.total_symbol_matrix)
+    print(f"\n")
 
     theraVar = [0] * len(robotKR8R2100HW)
 

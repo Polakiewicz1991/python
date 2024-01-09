@@ -1,110 +1,74 @@
 import math
 
 from scipy.optimize import fsolve
+
 from sympy import symbols, Eq, nsolve
+
 from RobotDefinition import Robot
+
 import pickle
+
 import numpy as np
 
-"""
-#Spróbujemy obliczyć wartości dla:
-#[  0   0   1   1300]
-#[  0   -1  0   0]
-#[  1   0   0   1600]
 
-
-[[  nx  sx  ax  dx]
-[   ny  sy  ay  dy]
-[   nz  sz  az  dz]
-[   0   0   0   1]]
-
-[0, 0, 1, 0, -1, 0, 1, 0, 0, 1300, 0, 1600]
-from scipy.optimize import fsolve
-
-# Definicja funkcji układu równań
-def equations(vars):
-    x1, x2, x3, x4, x5, x6 = vars
-    # Tutaj wprowadź równania zgodnie z twoimi potrzebami
-    eq1 = x1 + x2 + x3 - 3
-    eq2 = x4 * x5 - x6 - 1
-    # ...
-    eq12 = x1 * x2 - x3 - 2
-
-    return [eq1, eq2, ..., eq12]
-
-# Początkowe przybliżenia dla zmiennych
-initial_guess = [1, 1, 1, 1, 1, 1]
-
-# Rozwiązanie układu równań nieliniowych
-solution = fsolve(equations, initial_guess)
-
-print("Rozwiązanie:", solution)
-
-
-def equations(vars):
-    theta1, theta2, theta3, theta4, theta5, theta6 = vars
-
-    initPos = [0, 0, 1, 0, -1, 0, 1, 0, 0, 1300, 0, 1600]
-
-    nx = robot.total_symbol_matrix[0][0] - initPos[0]
-    ny = robot.total_symbol_matrix[1][0] - initPos[1]
-    nz = robot.total_symbol_matrix[2][0] - initPos[2]
-    sx = robot.total_symbol_matrix[0][1] - initPos[3]
-    sy = robot.total_symbol_matrix[1][1] - initPos[4]
-    sz = robot.total_symbol_matrix[2][1] - initPos[5]
-    ax = robot.total_symbol_matrix[0][2] - initPos[6]
-    ay = robot.total_symbol_matrix[1][2] - initPos[7]
-    az = robot.total_symbol_matrix[2][2] - initPos[8]
-    dx = robot.total_symbol_matrix[0][3] - initPos[9]
-    dy = robot.total_symbol_matrix[1][3] - initPos[10]
-    dz = robot.total_symbol_matrix[2][3] - initPos[11]
-
-    # return [nx, ny, nz, sx, sy, sz, ax, ay, az, dx, dy, dz]
-    return [nx, sy, az, dx, dy, dz]
-
-startPos = [robot[1].theta, robot[2].theta, robot[3].theta, robot[4].theta, robot[5].theta, robot[6].theta]
-solution = fsolve(equations, startPos)
-
-print("Rozwiązanie:", solution)
-"""
-
+from numpy import array as matrix
 # Konfiguracja wyświetlania danych w macierzy
 np.set_printoptions(precision=6, suppress=True)
 
 # Wprowadzanie i rysowanie pierwszego zestawu danych
 robotKR8R2100HW = Robot
+# Rrot = matrix[4,4]
 
 # odczytanie danych robota z pliku
 with open('robotKR8R2100HW.pkl', 'rb') as file:
     robotKR8R2100HW = pickle.load(file)
+with open('Rrot.pkl', 'rb') as file:
+    Rrot = pickle.load(file)
 
 print(f"Total matrix:")
 print(robotKR8R2100HW.total_symbol_matrix)
+print(robotKR8R2100HW.total_matrix)
 print(f"\n")
-def calc(robot):
+
+print(f"Matrix rotacji:")
+print(Rrot)
+print(f"\n")
+
+def calc(robot,initPos):
     # Definicja zmiennych
     theta1, theta2, theta3, theta4, theta5, theta6 = symbols("theta1 theta2 theta3 theta4 theta5 theta6")
+    alpha, beta, gamma = symbols('alpha beta gamma')
 
-    # Definicja równań
-    initPos = [0, 0, 1, 0, -1, 0, 1, 0, 0, 1300, 0, 1600]
-    # initPos = [0, -1, 0, 1300, 0, 1600]
+    # Pozycja robota
     robPos = [robot[1].theta, robot[2].theta, robot[3].theta, robot[4].theta, robot[5].theta, robot[6].theta]
-    # robPos = [1, -1, 1, 1275, 0, 1665]
-    print(robPos)
+    print("robPos: ", robPos)
 
-    # nx = Eq(robot.total_symbol_matrix[0][0], initPos[0])
-    # ny = Eq(robot.total_symbol_matrix[1][0], initPos[1])
-    # nz = Eq(robot.total_symbol_matrix[2][0], initPos[2])
-    # sx = Eq(robot.total_symbol_matrix[0][1], initPos[3])
-    # sy = Eq(robot.total_symbol_matrix[1][1], initPos[4])
-    # sz = Eq(robot.total_symbol_matrix[2][1], initPos[5])
-    # ax = Eq(robot.total_symbol_matrix[0][2], initPos[6])
-    # ay = Eq(robot.total_symbol_matrix[1][2], initPos[7])
-    # az = Eq(robot.total_symbol_matrix[2][2], initPos[8])
-    # dx = Eq(robot.total_symbol_matrix[0][3], initPos[9])
-    # dy = Eq(robot.total_symbol_matrix[1][3], initPos[10])
-    # dz = Eq(robot.total_symbol_matrix[2][3], initPos[11])
+    #Orientacje robota
+    vectorX = robot.total_matrix[:3, 0]
+    vectorY = robot.total_matrix[:3, 1]
+    vectorZ = robot.total_matrix[:3, 2]
+    print("vectorX: ", vectorX)
+    print("vectorY: ", vectorY)
+    print("vectorZ: ", vectorZ)
 
+    # Wypisanie równań macierzy orientacji
+    Rnx = Rrot[0][0] - initPos[0]
+    Rny = Rrot[1][0] - initPos[1]
+    Rnz = Rrot[2][0] - initPos[2]
+    Rsx = Rrot[0][1] - initPos[3]
+    Rsy = Rrot[1][1] - initPos[4]
+    Rsz = Rrot[2][1] - initPos[5]
+    Rax = Rrot[0][2] - initPos[6]
+    Ray = Rrot[1][2] - initPos[7]
+    Raz = Rrot[2][2] - initPos[8]
+
+    # Lista równań pozycji
+    equations_rot_X = [Rnx, Rny, Rnz]
+    equations_rot_Y = [Rsx, Rsy, Rsz]
+    equations_rot_Z = [Rax, Ray, Raz]
+    equations_rot = [Rnx, Rsy, Raz]
+
+    # Wypisanie równań macierzy robota
     nx = robot.total_symbol_matrix[0][0] - initPos[0]
     ny = robot.total_symbol_matrix[1][0] - initPos[1]
     nz = robot.total_symbol_matrix[2][0] - initPos[2]
@@ -118,49 +82,63 @@ def calc(robot):
     dy = robot.total_symbol_matrix[1][3] - initPos[10]
     dz = robot.total_symbol_matrix[2][3] - initPos[11]
 
-    # nx = robot.total_symbol_matrix[0][0]
-    # ny = robot.total_symbol_matrix[1][0]
-    # nz = robot.total_symbol_matrix[2][0]
-    # sx = robot.total_symbol_matrix[0][1]
-    # sy = robot.total_symbol_matrix[1][1]
-    # sz = robot.total_symbol_matrix[2][1]
-    # ax = robot.total_symbol_matrix[0][2]
-    # ay = robot.total_symbol_matrix[1][2]
-    # az = robot.total_symbol_matrix[2][2]
-    # dx = robot.total_symbol_matrix[0][3]
-    # dy = robot.total_symbol_matrix[1][3]
-    # dz = robot.total_symbol_matrix[2][3]
+    # Lista równań pozycji
+    equations_robot = [nz, sy, ax, dx, dy, dz]
 
-    # Lista równań
-    # equations = [nx, ny, nz, sx, sy, sz, ax, ay, az, dx, dy, dz]
-    equations = [nz, sy, ax, dx, dy, dz]
-
-    vars = robPos
-    # dz.subs({theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]})
-    # print(dz.evalf())
-
-    x = dz.evalf(subs={theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]})
-    print(x)
     # Przekształć równania w funkcję liczbową
-    def equations_numeric(vars):
-        # print("vars", vars)
+    def equations_numeric_robot_pos(vars):
         return [equation.evalf(subs={theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]}) for
-                equation in equations]
+                equation in equations_robot]
+    def equations_numeric_rotation_X(vars):
+        return [equation.evalf(subs={alpha: vars[0], beta: vars[1], gamma: vars[2]}) for
+                equation in equations_rot_X]
+    def equations_numeric_rotation_Y(vars):
+        return [equation.evalf(subs={alpha: vars[0], beta: vars[1], gamma: vars[2]}) for
+                equation in equations_rot_Y]
+    def equations_numeric_rotation_Z(vars):
+        return [equation.evalf(subs={alpha: vars[0], beta: vars[1], gamma: vars[2]}) for
+                equation in equations_rot_Z]
 
-    # Rozwiązanie układu równań
+    def equations_numeric_rotation(vars):
+        return [equation.evalf(subs={alpha: vars[0], beta: vars[1], gamma: vars[2]}) for
+                equation in equations_rot]
 
-    # solution = nsolve(equations, [theta1, theta2, theta3, theta4, theta5, theta6], robPos, prec=35)
-    # print(solution)
-    # print("Rozwiązanie:", solution)
+    # print("equations_numeric_robot_pos(robPos): ",equations_numeric_robot_pos(robPos))
+    #
+    # # Użyj fsolve
+    # numeric_solution = fsolve(equations_numeric_robot_pos, robPos)
+    # print("Numeric Solution robot pos:", numeric_solution)
+    #
+    # for i,num in enumerate(numeric_solution):
+    #     calc = math.degrees(num-robPos[i])%360
+    #     if calc > 180:
+    #         calc -= 360
+    #     print(f"theta{i+1}: ", calc)
 
-    print(equations_numeric(initPos))
+    # Określenie ograniczeń (limity)
+    lower_bounds = [-math.pi, -math.pi, -math.pi]  # dolne limity
+    upper_bounds = [math.pi, math.pi, math.pi]  # górne limity
+    numeric_solution = fsolve(equations_numeric_rotation_X, vectorX, factor=(0.005))
+    print("Numeric Solution vector X:", numeric_solution)
+    for angle in numeric_solution:
+        print("Kąt:",math.degrees(angle))
+    numeric_solution = fsolve(equations_numeric_rotation_Y, vectorY, factor=(0.005))
+    print("Numeric Solution vector Y:", numeric_solution)
+    for angle in numeric_solution:
+        print("Kąt:",math.degrees(angle))
+    numeric_solution = fsolve(equations_numeric_rotation_Z, vectorZ, factor=(0.005))
+    print("Numeric Solution vector Z:", numeric_solution)
+    for angle in numeric_solution:
+        print("Kąt:",math.degrees(angle))
+    numeric_solution = fsolve(equations_numeric_rotation, vectorZ, factor=(0.005))
+    print("Numeric Solution vector diagonal:", numeric_solution)
+    for angle in numeric_solution:
+        print("Kąt:",math.degrees(angle))
 
-    # Użyj fsolve
-    numeric_solution = fsolve(equations_numeric, robPos)
-    print("Numeric Solution:", numeric_solution)
+    print(Rrot[0][2].evalf(subs={alpha: numeric_solution[0], beta: numeric_solution[1], gamma: numeric_solution[2]}))
+    print(Rrot[1][2].evalf(subs={alpha: numeric_solution[0], beta: numeric_solution[1], gamma: numeric_solution[2]}))
+    print(Rrot[2][2].evalf(subs={alpha: numeric_solution[0], beta: numeric_solution[1], gamma: numeric_solution[2]}))
 
-    for i,num in enumerate(numeric_solution):
-        print(f"theta{i+1}: ", math.degrees(num)%360)
-
-
-calc(robotKR8R2100HW)
+initPos = [0, 0, 1, 0, -1, 0, 1, 0, 0, 1300, 0, 1600]
+initPos = [1, 0, 0, 0, 1, 0, 0, 0, 1, 1300, 0, 1600]
+calc(robotKR8R2100HW,initPos)

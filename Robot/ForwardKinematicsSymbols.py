@@ -9,6 +9,9 @@ a1, a2, a3, a4, a5, a6, a7, a8 = symbols('a1 a2 a3 a4 a5 a6 a7 a8')
 Fi1, Fi2, Fi3, Fi4, Fi5, Fi6, Fi7, Fi8 = symbols('Fi1 Fi2 Fi3 Fi4 Fi5 Fi6 Fi7 Fi8')
 d1, d2, d3, d4, d5, d6, d7, d8 = symbols('d1 d2 d3 d4 d5 d6 d7 d8')
 alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7, alpha8 = PI/2, 0, 0, PI/2, -PI/2, PI/2, 0, 0
+
+alpha, beta, gamma = symbols('alpha beta gamma')
+
 def rotX(alpha):
     return matrix([ [1,                 0,                  0,              0],
                     [0,                 cos(alpha),         -sin(alpha),    0],
@@ -35,6 +38,12 @@ def moveXYZ(x = 0, y = 0, z = 0):
 
 
 
+Rx = rotX(alpha)
+Ry = rotY(beta)
+Rz = rotZ(gamma)
+
+Rrot = np.dot(np.dot(Rx,Ry),Rz)
+print("Rrot:", Rrot, "\n")
 
 A1 = np.dot(np.dot(rotZ(Fi1),moveXYZ(x=a1,z=d1)),rotX(alpha1))
 A1  = matrix(list(map(lambda x: simplify(x), A1.flatten()))).reshape(A1.shape)

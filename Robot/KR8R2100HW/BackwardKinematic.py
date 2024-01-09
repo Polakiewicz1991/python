@@ -1,3 +1,5 @@
+import math
+
 from scipy.optimize import fsolve
 from sympy import symbols, Eq, nsolve
 from RobotDefinition import Robot
@@ -87,34 +89,34 @@ def calc(robot):
     initPos = [0, 0, 1, 0, -1, 0, 1, 0, 0, 1300, 0, 1600]
     # initPos = [0, -1, 0, 1300, 0, 1600]
     robPos = [robot[1].theta, robot[2].theta, robot[3].theta, robot[4].theta, robot[5].theta, robot[6].theta]
-    robPos = [1, -1, 1, 1275, 0, 1665]
+    # robPos = [1, -1, 1, 1275, 0, 1665]
     print(robPos)
 
-    nx = Eq(robot.total_symbol_matrix[0][0], initPos[0])
-    ny = Eq(robot.total_symbol_matrix[1][0], initPos[1])
-    nz = Eq(robot.total_symbol_matrix[2][0], initPos[2])
-    sx = Eq(robot.total_symbol_matrix[0][1], initPos[3])
-    sy = Eq(robot.total_symbol_matrix[1][1], initPos[4])
-    sz = Eq(robot.total_symbol_matrix[2][1], initPos[5])
-    ax = Eq(robot.total_symbol_matrix[0][2], initPos[6])
-    ay = Eq(robot.total_symbol_matrix[1][2], initPos[7])
-    az = Eq(robot.total_symbol_matrix[2][2], initPos[8])
-    dx = Eq(robot.total_symbol_matrix[0][3], initPos[9])
-    dy = Eq(robot.total_symbol_matrix[1][3], initPos[10])
-    dz = Eq(robot.total_symbol_matrix[2][3], initPos[11])
+    # nx = Eq(robot.total_symbol_matrix[0][0], initPos[0])
+    # ny = Eq(robot.total_symbol_matrix[1][0], initPos[1])
+    # nz = Eq(robot.total_symbol_matrix[2][0], initPos[2])
+    # sx = Eq(robot.total_symbol_matrix[0][1], initPos[3])
+    # sy = Eq(robot.total_symbol_matrix[1][1], initPos[4])
+    # sz = Eq(robot.total_symbol_matrix[2][1], initPos[5])
+    # ax = Eq(robot.total_symbol_matrix[0][2], initPos[6])
+    # ay = Eq(robot.total_symbol_matrix[1][2], initPos[7])
+    # az = Eq(robot.total_symbol_matrix[2][2], initPos[8])
+    # dx = Eq(robot.total_symbol_matrix[0][3], initPos[9])
+    # dy = Eq(robot.total_symbol_matrix[1][3], initPos[10])
+    # dz = Eq(robot.total_symbol_matrix[2][3], initPos[11])
 
-    # nx = robot.total_symbol_matrix[0][0] - initPos[0]
-    # ny = robot.total_symbol_matrix[1][0] - initPos[1]
-    # nz = robot.total_symbol_matrix[2][0] - initPos[2]
-    # sx = robot.total_symbol_matrix[0][1] - initPos[3]
-    # sy = robot.total_symbol_matrix[1][1] - initPos[4]
-    # sz = robot.total_symbol_matrix[2][1] - initPos[5]
-    # ax = robot.total_symbol_matrix[0][2] - initPos[6]
-    # ay = robot.total_symbol_matrix[1][2] - initPos[7]
-    # az = robot.total_symbol_matrix[2][2] - initPos[8]
-    # dx = robot.total_symbol_matrix[0][3] - initPos[9]
-    # dy = robot.total_symbol_matrix[1][3] - initPos[10]
-    # dz = robot.total_symbol_matrix[2][3] - initPos[11]
+    nx = robot.total_symbol_matrix[0][0] - initPos[0]
+    ny = robot.total_symbol_matrix[1][0] - initPos[1]
+    nz = robot.total_symbol_matrix[2][0] - initPos[2]
+    sx = robot.total_symbol_matrix[0][1] - initPos[3]
+    sy = robot.total_symbol_matrix[1][1] - initPos[4]
+    sz = robot.total_symbol_matrix[2][1] - initPos[5]
+    ax = robot.total_symbol_matrix[0][2] - initPos[6]
+    ay = robot.total_symbol_matrix[1][2] - initPos[7]
+    az = robot.total_symbol_matrix[2][2] - initPos[8]
+    dx = robot.total_symbol_matrix[0][3] - initPos[9]
+    dy = robot.total_symbol_matrix[1][3] - initPos[10]
+    dz = robot.total_symbol_matrix[2][3] - initPos[11]
 
     # nx = robot.total_symbol_matrix[0][0]
     # ny = robot.total_symbol_matrix[1][0]
@@ -133,28 +135,32 @@ def calc(robot):
     # equations = [nx, ny, nz, sx, sy, sz, ax, ay, az, dx, dy, dz]
     equations = [nz, sy, ax, dx, dy, dz]
 
-    # vars = robPos
+    vars = robPos
     # dz.subs({theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]})
     # print(dz.evalf())
 
-
+    x = dz.evalf(subs={theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]})
+    print(x)
     # Przekształć równania w funkcję liczbową
-    # def equations_numeric(vars):
-    #     print("vars", vars)
-    #     return [equation.subs({theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]}) for
-    #             equation in equations]
+    def equations_numeric(vars):
+        # print("vars", vars)
+        return [equation.evalf(subs={theta1: vars[0], theta2: vars[1], theta3: vars[2], theta4: vars[3], theta5: vars[4], theta6: vars[5]}) for
+                equation in equations]
 
     # Rozwiązanie układu równań
 
-    solution = nsolve(equations, [theta1, theta2, theta3, theta4, theta5, theta6], robPos, prec=35)
-    print(solution)
+    # solution = nsolve(equations, [theta1, theta2, theta3, theta4, theta5, theta6], robPos, prec=35)
+    # print(solution)
     # print("Rozwiązanie:", solution)
 
-    # print(equations_numeric(robPos))
+    print(equations_numeric(initPos))
 
     # Użyj fsolve
-    # numeric_solution = fsolve(equations_numeric, robPos)
-    # print("Numeric Solution:", numeric_solution)
+    numeric_solution = fsolve(equations_numeric, robPos)
+    print("Numeric Solution:", numeric_solution)
+
+    for i,num in enumerate(numeric_solution):
+        print(f"theta{i+1}: ", math.degrees(num)%360)
 
 
 calc(robotKR8R2100HW)

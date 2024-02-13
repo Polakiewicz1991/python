@@ -135,14 +135,14 @@ def calcRobotData(robot, theraVar):
     print(f"resultMatrix:\n", resultMatrix)
 
 
-def enterRobotRotations():
+def enterRobotRotations(robot):
     Fivar = []
 
     for i in range(len(robotKR8R2100HW)):
         if robotKR8R2100HW[i].type == "obrotowa":
             try:
                 FiInput = math.radians(
-                    float(input(f"Podaj obrót w okół osi A{i} (lub wpisz 'koniec' aby zakończyć): ")))
+                    float(input(f"Podaj obrót w okół osi A{i}, aktualna pozycja {math.degrees(robot[i].theta)}° (lub wpisz 'koniec' aby zakończyć): ")))
                 if FiInput == 'koniec':
                     break
 
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         if kontynuuj != 'y':
             break
 
-        theraVar = enterRobotRotations()
+        theraVar = enterRobotRotations(robotKR8R2100HW)
 
         calcRobotData(robotKR8R2100HW, theraVar)
         drawindA3DChart(robotKR8R2100HW, theraVar)

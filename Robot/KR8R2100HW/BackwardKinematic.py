@@ -48,10 +48,14 @@ def calc(robot,initPos):
     vectorY = robot.total_matrix[:3, 1]
     vectorZ = robot.total_matrix[:3, 2]
     print("vectorX: ", vectorX)
+    print("vectorX symbolicznie:\n", Rrot[:3, 0])
     print("vectorY: ", vectorY)
+    print("vectorX symbolicznie:\n", Rrot[:3, 1])
     print("vectorZ: ", vectorZ)
+    print("vectorX symbolicznie:\n", Rrot[:3, 2])
 
     # Wypisanie równań macierzy orientacji
+    # Rownanie zapisanie f(x) = ax + b - y
     Rnx = Rrot[0][0] - initPos[0]
     Rny = Rrot[1][0] - initPos[1]
     Rnz = Rrot[2][0] - initPos[2]
@@ -84,6 +88,7 @@ def calc(robot,initPos):
 
     # Lista równań pozycji
     equations_robot = [nz, sy, ax, dx, dy, dz]
+    print(f"\nrównania robota \n{equations_robot}\n")
 
     # Przekształć równania w funkcję liczbową
     def equations_numeric_robot_pos(vars):
@@ -103,33 +108,47 @@ def calc(robot,initPos):
         return [equation.evalf(subs={alpha: vars[0], beta: vars[1], gamma: vars[2]}) for
                 equation in equations_rot]
 
-    # print("equations_numeric_robot_pos(robPos): ",equations_numeric_robot_pos(robPos))
-    #
-    # # Użyj fsolve
-    # numeric_solution = fsolve(equations_numeric_robot_pos, robPos)
-    # print("Numeric Solution robot pos:", numeric_solution)
-    #
-    # for i,num in enumerate(numeric_solution):
-    #     calc = math.degrees(num-robPos[i])%360
-    #     if calc > 180:
-    #         calc -= 360
-    #     print(f"theta{i+1}: ", calc)
+    print("equations_numeric_robot_pos(robPos): ",equations_numeric_robot_pos(robPos))
+
+    # Użyj fsolve
+    numeric_solution = fsolve(equations_numeric_robot_pos, robPos, factor=(0.005))
+    print("Numeric Solution robot pos:", numeric_solution)
+
+    for i,num in enumerate(numeric_solution):
+        calc = math.degrees(num-robPos[i])%360
+        if calc > 180:
+            calc -= 360
+        print(f"theta{i+1}: ", calc)
 
     # Określenie ograniczeń (limity)
     lower_bounds = [-math.pi, -math.pi, -math.pi]  # dolne limity
     upper_bounds = [math.pi, math.pi, math.pi]  # górne limity
+
+    # print("\nRównanie robota")
+    # numeric_solution = fsolve(equations_numeric_robot_pos, equations_robot, factor=(0.005))
+    # print("Numeric Solution vector X:", numeric_solution)
+    # for angle in numeric_solution:
+    #     print("Kąt:",math.degrees(angle))
+
+    print("\nRównanie wektora X")
     numeric_solution = fsolve(equations_numeric_rotation_X, vectorX, factor=(0.005))
     print("Numeric Solution vector X:", numeric_solution)
     for angle in numeric_solution:
         print("Kąt:",math.degrees(angle))
+
+    print("\nRównanie wektora Y")
     numeric_solution = fsolve(equations_numeric_rotation_Y, vectorY, factor=(0.005))
     print("Numeric Solution vector Y:", numeric_solution)
     for angle in numeric_solution:
         print("Kąt:",math.degrees(angle))
+
+    print("\nRównanie wektora Z")
     numeric_solution = fsolve(equations_numeric_rotation_Z, vectorZ, factor=(0.005))
     print("Numeric Solution vector Z:", numeric_solution)
     for angle in numeric_solution:
         print("Kąt:",math.degrees(angle))
+
+    print("\nRównanie wektora po przekątnej orientacji")
     numeric_solution = fsolve(equations_numeric_rotation, vectorZ, factor=(0.005))
     print("Numeric Solution vector diagonal:", numeric_solution)
     for angle in numeric_solution:

@@ -1,3 +1,6 @@
+##############################################################
+# Zapisywanie macierzy obrotów, niezbędna do obliczania oriętacji robota
+
 import numpy as np
 from numpy import array as matrix
 

@@ -47,12 +47,15 @@ def calc(robot,initPos):
     vectorX = robot.total_matrix[:3, 0]
     vectorY = robot.total_matrix[:3, 1]
     vectorZ = robot.total_matrix[:3, 2]
+
     print("vectorX: ", vectorX)
     print("vectorX symbolicznie:\n", Rrot[:3, 0])
+
     print("vectorY: ", vectorY)
-    print("vectorX symbolicznie:\n", Rrot[:3, 1])
+    print("vectorY symbolicznie:\n", Rrot[:3, 1])
+
     print("vectorZ: ", vectorZ)
-    print("vectorX symbolicznie:\n", Rrot[:3, 2])
+    print("vectorZ symbolicznie:\n", Rrot[:3, 2])
 
     # Wypisanie równań macierzy orientacji
     # Rownanie zapisanie f(x) = ax + b - y
@@ -87,7 +90,7 @@ def calc(robot,initPos):
     dz = robot.total_symbol_matrix[2][3] - initPos[11]
 
     # Lista równań pozycji
-    equations_robot = [nz, sy, ax, dx, dy, dz]
+    equations_robot = [nx, sy, az, dx, dy, dz]
     print(f"\nrównania robota \n{equations_robot}\n")
 
     # Przekształć równania w funkcję liczbową
@@ -118,7 +121,7 @@ def calc(robot,initPos):
         calc = math.degrees(num-robPos[i])%360
         if calc > 180:
             calc -= 360
-        print(f"theta{i+1}: ", calc)
+        print(f"pozycja początkowa theta{i+1}: {math.degrees(robPos[i])}, zmiana kąta o {calc}, absolutna pozycja osi {math.degrees(num)}", )
 
     # Określenie ograniczeń (limity)
     lower_bounds = [-math.pi, -math.pi, -math.pi]  # dolne limity
@@ -159,5 +162,5 @@ def calc(robot,initPos):
     print(Rrot[2][2].evalf(subs={alpha: numeric_solution[0], beta: numeric_solution[1], gamma: numeric_solution[2]}))
 
 initPos = [0, 0, 1, 0, -1, 0, 1, 0, 0, 1300, 0, 1600]
-initPos = [1, 0, 0, 0, 1, 0, 0, 0, 1, 1300, 0, 1600]
+initPos = [1, 0, 0, 0, 1, 0, 0, 0, 1, 700, 300, 1000]
 calc(robotKR8R2100HW,initPos)

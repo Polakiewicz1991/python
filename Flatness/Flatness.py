@@ -65,41 +65,50 @@ Z_grid = a * X_grid + b * Y_grid + c
 z_min_limit = 15
 z_max_limit = 18
 
-fig = plt.figure(figsize=(14, 6)) # Większy rozmiar figury
+fig = plt.figure(figsize=(18,6))
 
-# --- Pierwszy wykres: Rzut z góry (widok na płaszczyznę XY) ---
-ax1 = fig.add_subplot(1, 2, 1, projection='3d')
-scat1 = ax1.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1, depthshade=False)
+# Widok z góry (pl. XY)
+ax1 = fig.add_subplot(1, 3, 1, projection='3d')
+scat1 = ax1.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
 ax1.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
-
-ax1.view_init(elev=90, azim=-90) # elewacja = 90° (patrzymy z góry), azymut = -90° (oś Y "do góry")
-ax1.set_title('Widok z góry (płaszczyzna XY)')
+ax1.view_init(elev=90, azim=-90)
+ax1.set_title('Widok z góry (XY)')
+ax1.set_xlim(xlim)
+ax1.set_ylim(ylim)
+ax1.set_zlim(z_min_limit, z_max_limit)
 ax1.set_xlabel('X')
 ax1.set_ylabel('Y')
-ax1.set_zlabel('Wartość Z') # Zamiast 'Wartość Raw' dla ogólności
+ax1.set_zlabel('Z')
 
-ax1.set_xlim(xlim) # Utrzymaj te same limity dla porównania
-ax1.set_ylim(ylim)
-ax1.set_zlim(z_min_limit, z_max_limit) # Ustaw stały zakres Z
-
-# --- Drugi wykres: Rzut z boku (widok na płaszczyznę XZ) ---
-ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-scat2 = ax2.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1, depthshade=False)
+# Widok z boku (pl. XZ)
+ax2 = fig.add_subplot(1, 3, 2, projection='3d')
+scat2 = ax2.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
 ax2.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
-
-ax2.view_init(elev=0, azim=-90) # elewacja = 0° (patrzymy na poziomie), azymut = -90° (patrzymy na płaszczyznę XZ)
-ax2.set_title('Widok z boku (płaszczyzna XZ)')
+ax2.view_init(elev=0, azim=-90)
+ax2.set_title('Widok z boku (XZ)')
+ax2.set_xlim(xlim)
+ax2.set_ylim(ylim)
+ax2.set_zlim(z_min_limit, z_max_limit)
 ax2.set_xlabel('X')
 ax2.set_ylabel('Y')
-ax2.set_zlabel('Wartość Z')
+ax2.set_zlabel('Z')
 
-ax2.set_xlim(xlim) # Utrzymaj te same limity dla porównania
-ax2.set_ylim(ylim)
-ax2.set_zlim(z_min_limit, z_max_limit) # Ustaw stały zakres Z
+# Widok pośredni (ukośny) - np. elewacja 45°, azymut -90°
+ax3 = fig.add_subplot(1, 3, 3, projection='3d')
+scat3 = ax3.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
+ax3.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
+ax3.view_init(elev=45, azim=-45)
+ax3.set_title('Widok pośredni (45° ukośny)')
+ax3.set_xlim(xlim)
+ax3.set_ylim(ylim)
+ax3.set_zlim(z_min_limit, z_max_limit)
+ax3.set_xlabel('X')
+ax3.set_ylabel('Y')
+ax3.set_zlabel('Z')
 
-# Wspólny pasek kolorów dla obu wykresów
-cbar = plt.colorbar(scat1, ax=[ax1, ax2], shrink=0.6, pad=0.05) # Pad dostosowany do 2 subplotów
-cbar.set_label('Odchylenie od płaszczyzny (dodatnie - czerwone, ujemne - niebieskie)')
+# Jeden wspólny pasek kolorów dla wszystkich trzech wykresów
+cbar = plt.colorbar(scat1, ax=[ax1, ax2, ax3], shrink=0.6, pad=0.05)
+cbar.set_label('Odchylenie od płaszczyzny')
 
 # miejsce pod wykresami
 ax_button = plt.axes([0.45, 0.01, 0.1, 0.05])  # [left, bottom, width, height]
@@ -109,6 +118,7 @@ button = Button(ax_button, 'Reset View')
 def reset(event):
     ax1.view_init(elev=90, azim=-90)
     ax2.view_init(elev=0, azim=-90)
+    ax3.view_init(elev=45, azim=-45)
     fig.canvas.draw_idle()
 
 button.on_clicked(reset)

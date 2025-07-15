@@ -94,7 +94,7 @@ try:
             # Wyświetl wyniki
             print("Wyciągnięte wartości:")
             for index,value in enumerate(values):
-                print(f"Wartość wiersza {index + 1}: ",value)
+                print(f"Wartość wiersza {index}: ",value)
                 if index == 3:
                     current = value
                     print(f"Natężenie prądu: {current} [A]")
@@ -104,6 +104,9 @@ try:
                 elif index == 6:
                     weldingTime = value
                     print(f"Czas spawania: {weldingTime} [s]")
+                elif index == 8:
+                    power = value
+                    print(f"Aktualna moc spawania: {power} [kW]")
                 elif index == 65:
                     flow = value
                     print(f"Przepływ cieczy: {flow} [l/min]")
@@ -112,7 +115,7 @@ try:
                     temp = value
                     print(f"Temperatura cieczy: {temp} [°C]")
 
-            save_to_csv([current_time, weldingTime, current, voltage, flow, temp])
+            save_to_csv([current_time, weldingTime,power, current, voltage, flow, temp])
 
         except Exception as e:
             print("Wystąpił błąd:", e)

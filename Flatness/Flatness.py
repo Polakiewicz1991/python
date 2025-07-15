@@ -2,11 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button
+import matplotlib.gridspec as gridspec
 from mpl_toolkits.mplot3d import Axes3D  # konieczne do dodania osi 3D
 
 
-path = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 31"
-name = r"28X2400X1200_ID10_POM1_2023_07_14_09_18_16.txt"
+path = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 4"
+name = r"28X2400X1200_ID30_POM2_2023_07_19_10_55_49.txt"
 filename = path + '\\' + name
 
 # 1. Znajdź linię nagłówka rozpoczynającą się od "Punkty pomiarowe:"
@@ -65,10 +66,15 @@ Z_grid = a * X_grid + b * Y_grid + c
 z_min_limit = 15
 z_max_limit = 18
 
-fig = plt.figure(figsize=(18,6))
+#fig = plt.figure(figsize=(18,6))
+# Tworzymy figurę i definujemy układ gridspec
+fig = plt.figure(figsize=(18, 8))
+gs = gridspec.GridSpec(2, 2, height_ratios=[1, 1])  # 2 wiersze, 2 kolumny; górny wiersz dwukrotnie wyższy
+manager = plt.get_current_fig_manager()
+manager.full_screen_toggle()  # przełącza na pełny ekran
 
 # Widok z góry (pl. XY)
-ax1 = fig.add_subplot(1, 3, 1, projection='3d')
+ax1 = fig.add_subplot(gs[0, 1], projection='3d')
 scat1 = ax1.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
 ax1.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
 ax1.view_init(elev=90, azim=-90)
@@ -81,7 +87,7 @@ ax1.set_ylabel('Y')
 ax1.set_zlabel('Z')
 
 # Widok z boku (pl. XZ)
-ax2 = fig.add_subplot(1, 3, 2, projection='3d')
+ax2 = fig.add_subplot(gs[1, 1], projection='3d')
 scat2 = ax2.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
 ax2.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
 ax2.view_init(elev=0, azim=-90)
@@ -94,7 +100,7 @@ ax2.set_ylabel('Y')
 ax2.set_zlabel('Z')
 
 # Widok pośredni (ukośny) - np. elewacja 45°, azymut -90°
-ax3 = fig.add_subplot(1, 3, 3, projection='3d')
+ax3 = fig.add_subplot(gs[:, 0], projection='3d')
 scat3 = ax3.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
 ax3.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
 ax3.view_init(elev=45, azim=-45)

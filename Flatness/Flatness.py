@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.widgets import Button
 from mpl_toolkits.mplot3d import Axes3D  # konieczne do dodania osi 3D
 
 
@@ -60,20 +61,57 @@ X_grid, Y_grid = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
 # Obliczamy Z na podstawie równania płaszczyzny
 Z_grid = a * X_grid + b * Y_grid + c
 
-# Rysowanie punktów z kolorowaniem heatmapą divergencką (czerwononiebieską)
-fig = plt.figure(figsize=(10,7))
-ax = fig.add_subplot(111, projection='3d')
+# Ustawienie stałego zakresu dla osi Z, jeśli jest potrzebne (z Twojego przykładu)
+z_min_limit = 15
+z_max_limit = 18
 
-scat = ax.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
-# Idealna płaszczyzna odniesienia (przezroczysta)
-ax.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
-# Dodaj pasek kolorów z etykietami
-cbar = plt.colorbar(scat, ax=ax, shrink=0.6, pad=0.1)
-cbar.set_label('Odchylenie od płaszczyzny (dodat nie-czerwone, ujemne-niebieskie)')
-ax.set_zlim(15, 18)
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Wartosc Raw')
-plt.title('Heatmapa odchyleń od płaszczyzny idealnej')
+fig = plt.figure(figsize=(14, 6)) # Większy rozmiar figury
 
+# --- Pierwszy wykres: Rzut z góry (widok na płaszczyznę XY) ---
+ax1 = fig.add_subplot(1, 2, 1, projection='3d')
+scat1 = ax1.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1, depthshade=False)
+ax1.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
+
+ax1.view_init(elev=90, azim=-90) # elewacja = 90° (patrzymy z góry), azymut = -90° (oś Y "do góry")
+ax1.set_title('Widok z góry (płaszczyzna XY)')
+ax1.set_xlabel('X')
+ax1.set_ylabel('Y')
+ax1.set_zlabel('Wartość Z') # Zamiast 'Wartość Raw' dla ogólności
+
+ax1.set_xlim(xlim) # Utrzymaj te same limity dla porównania
+ax1.set_ylim(ylim)
+ax1.set_zlim(z_min_limit, z_max_limit) # Ustaw stały zakres Z
+
+# --- Drugi wykres: Rzut z boku (widok na płaszczyznę XZ) ---
+ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+scat2 = ax2.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1, depthshade=False)
+ax2.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
+
+ax2.view_init(elev=0, azim=-90) # elewacja = 0° (patrzymy na poziomie), azymut = -90° (patrzymy na płaszczyznę XZ)
+ax2.set_title('Widok z boku (płaszczyzna XZ)')
+ax2.set_xlabel('X')
+ax2.set_ylabel('Y')
+ax2.set_zlabel('Wartość Z')
+
+ax2.set_xlim(xlim) # Utrzymaj te same limity dla porównania
+ax2.set_ylim(ylim)
+ax2.set_zlim(z_min_limit, z_max_limit) # Ustaw stały zakres Z
+
+# Wspólny pasek kolorów dla obu wykresów
+cbar = plt.colorbar(scat1, ax=[ax1, ax2], shrink=0.6, pad=0.05) # Pad dostosowany do 2 subplotów
+cbar.set_label('Odchylenie od płaszczyzny (dodatnie - czerwone, ujemne - niebieskie)')
+
+# miejsce pod wykresami
+ax_button = plt.axes([0.45, 0.01, 0.1, 0.05])  # [left, bottom, width, height]
+button = Button(ax_button, 'Reset View')
+
+# Funkcja resetująca widok obu wykresów do wartości domyślnych
+def reset(event):
+    ax1.view_init(elev=90, azim=-90)
+    ax2.view_init(elev=0, azim=-90)
+    fig.canvas.draw_idle()
+
+button.on_clicked(reset)
+
+#plt.tight_layout() # Dopasowanie układu subplots
 plt.show()

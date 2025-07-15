@@ -41,46 +41,27 @@ z = df['Y'].values
 flatness = z.max() - z.min()
 print(f'Płaskość: {flatness:.4f}')
 
-# Dopasowanie płaszczyzny metodą najmniejszych kwadratów
-# Funkcja celu: z = a*x + b*y + c
-A = np.c_[x, y, np.ones(x.shape)]
-coeffs, residuals, rank, s = np.linalg.lstsq(A, z, rcond=None)
+# 3. Dopasowanie płaszczyzny metodą najmniejszych kwadratów: z = a*x + b*y + c
+A = np.c_[x, y, np.ones_like(x)]
+coeffs, _, _, _ = np.linalg.lstsq(A, z, rcond=None)
 a, b, c = coeffs
-
 print(f'Dopasowana płaszczyzna: z = {a:.5f}*x + {b:.5f}*y + {c:.5f}')
 
-# Oblicz wartości płaszczyzny dla punktów pomiarowych
-z_fit = a * x + b * y + c
+# 4. Oblicz wartości płaszczyzny odniesienia w punktach (x,y)
+z_plane = a*x + b*y + c
 
-# Oblicz płaskość jako różnicę max-min odchyleń od płaszczyzny
-flatness = np.max(z - z_fit) - np.min(z - z_fit)
-print(f'Płaskość (odchylenie od dopasowanej płaszczyzny): {flatness:.4f}')
+# 5. Rysowanie obydwu powierzchni na jednej osi 3D
+fig = plt.figure(figsize=(10,7))
+ax = fig.add_subplot(111, projection='3d')
 
-# Rysowanie wykresu 3D z punktami
-fig = plt.figure(figsize=(14, 7))
+# Powierzchnia rzeczywista z pomiarów
+surf_data = ax.plot_trisurf(x, y, z, cmap='viridis', edgecolor='none', alpha=0.8)
 
-# Wykres punktów powierzchni rzeczywistej
-ax1 = fig.add_subplot(121, projection='3d')
-ax1.plot_trisurf(x, y, z, cmap='viridis', edgecolor='none')
-ax1.set_title('Wizualizacja rzeczywistej powierzchni')
-ax1.set_xlabel('X')
-ax1.set_ylabel('Y')
-ax1.set_zlabel('Wartosc Raw')
+# Idealna płaszczyzna odniesienia - narysowana jako przezroczysta powierzchnia
+surf_plane = ax.plot_trisurf(x, y, z_plane, color='red', alpha=0.4, edgecolor='none')
 
-# Wykres dopasowanej płaszczyzny (pierwszy subplot)
-ax2 = fig.add_subplot(122, projection='3d')
-ax2.scatter(x, y, z - z_fit, c='r', label='Odchylenia od płaszczyzny', s=10)
-# Można też narysować samą płaszczyznę jako siatkę:
-# Utwórz siatkę do rysowania płaszczyzny
-x_lin = np.linspace(np.min(x), np.max(x), 50)
-y_lin = np.linspace(np.min(y), np.max(y), 50)
-X_grid, Y_grid = np.meshgrid(x_lin, y_lin)
-Z_grid = a * X_grid + b * Y_grid + c
-ax2.plot_surface(X_grid, Y_grid, Z_grid, alpha=0.5, color='cyan')
-ax2.set_title('Dopasowana płaszczyzna odniesienia + odchylenia')
-ax2.set_xlabel('X')
-ax2.set_ylabel('Y')
-ax2.set_zlabel('Odchylenie')
-
-plt.tight_layout()
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Wartosc Raw i płaszczyzna odniesienia')
+plt.title('Płaskość blachy z dopasowaną płaszczyzną odniesienia')
 plt.show()

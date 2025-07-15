@@ -2,11 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D  # konieczne do dodania osi 3D
-from scipy.interpolate import griddata
 
 
-path = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 37"
-name = r"28X2400X1200_ID29_POM1_2023_07_19_10_32_47.txt"
+path = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 31"
+name = r"28X2400X1200_ID10_POM1_2023_07_14_09_18_16.txt"
 filename = path + '\\' + name
 
 # 1. Znajdź linię nagłówka rozpoczynającą się od "Punkty pomiarowe:"
@@ -54,32 +53,27 @@ z_plane = a*x + b*y + c
 # Obliczanie odchylenia od płaszczyzny
 deviation = z - z_plane  # wartości dodatnie i ujemne
 
-# 1. Definicja regularnej siatki punktów
-xi = np.linspace(x.min(), x.max(), 50)
-yi = np.linspace(y.min(), y.max(), 50)
-X_grid, Y_grid = np.meshgrid(xi, yi)
+xlim = [x.min(), x.max()]
+ylim = [y.min(), y.max()]
+X_grid, Y_grid = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
 
-# 2. Interpolacja wartości deviation na siatkę
-Z_grid = griddata((x, y), deviation, (X_grid, Y_grid), method='cubic')
+# Obliczamy Z na podstawie równania płaszczyzny
+Z_grid = a * X_grid + b * Y_grid + c
 
-# 3. Rysowanie wykresu z powierzchnią zamiast scatter
+# Rysowanie punktów z kolorowaniem heatmapą divergencką (czerwononiebieską)
 fig = plt.figure(figsize=(10,7))
 ax = fig.add_subplot(111, projection='3d')
 
-# Narysuj powierzchnię heatmapy odchyleń
-surf = ax.plot_surface(X_grid, Y_grid, Z_grid, cmap='bwr', edgecolor='none', alpha=0.9)
-
-# Dodaj przezroczystą płaszczyznę dopasowaną (z poprzednich kroków)
-Z_plane = a * X_grid + b * Y_grid + c
-ax.plot_surface(X_grid, Y_grid, Z_plane, color='red', alpha=0.4)
-
-# Dodaj pasek kolorów
-cbar = fig.colorbar(surf, ax=ax, shrink=0.6, pad=0.1)
-cbar.set_label('Odchylenie od płaszczyzny (dodatnie-czerwone, ujemne-niebieskie)')
-
+scat = ax.scatter(x, y, z, c=deviation, cmap='bwr', s=30, vmin=-1, vmax=1)
+# Idealna płaszczyzna odniesienia (przezroczysta)
+ax.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
+# Dodaj pasek kolorów z etykietami
+cbar = plt.colorbar(scat, ax=ax, shrink=0.6, pad=0.1)
+cbar.set_label('Odchylenie od płaszczyzny (dodat nie-czerwone, ujemne-niebieskie)')
+ax.set_zlim(15, 18)
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
-ax.set_zlabel('Odchylenie i płaszczyzna')
-plt.title('Heatmapa odchyleń od płaszczyzny idealnej jako powierzchnia')
+ax.set_zlabel('Wartosc Raw')
+plt.title('Heatmapa odchyleń od płaszczyzny idealnej')
 
 plt.show()

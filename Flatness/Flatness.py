@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D  # konieczne do dodania osi 3D
 
-filename = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 40\28X2400X1200_ID21_POM2_2023_07_17_11_40_40.txt"
+
+path = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 37"
+name = r"28X2400X1200_ID29_POM1_2023_07_19_10_32_47.txt"
+filename = path + '\\' + name
 
 # 1. Znajdź linię nagłówka rozpoczynającą się od "Punkty pomiarowe:"
 header_line = None
@@ -41,27 +44,36 @@ z = df['Y'].values
 flatness = z.max() - z.min()
 print(f'Płaskość: {flatness:.4f}')
 
-# 3. Dopasowanie płaszczyzny metodą najmniejszych kwadratów: z = a*x + b*y + c
+# Dopasowanie płaszczyzny
 A = np.c_[x, y, np.ones_like(x)]
 coeffs, _, _, _ = np.linalg.lstsq(A, z, rcond=None)
 a, b, c = coeffs
-print(f'Dopasowana płaszczyzna: z = {a:.5f}*x + {b:.5f}*y + {c:.5f}')
-
-# 4. Oblicz wartości płaszczyzny odniesienia w punktach (x,y)
 z_plane = a*x + b*y + c
 
-# 5. Rysowanie obydwu powierzchni na jednej osi 3D
+# Obliczanie odchylenia od płaszczyzny
+deviation = z - z_plane  # wartości dodatnie i ujemne
+
+xlim = [x.min(), x.max()]
+ylim = [y.min(), y.max()]
+X_grid, Y_grid = np.meshgrid(np.linspace(*xlim, 10), np.linspace(*ylim, 10))
+
+# Obliczamy Z na podstawie równania płaszczyzny
+Z_grid = a * X_grid + b * Y_grid + c
+
+# Rysowanie punktów z kolorowaniem heatmapą divergencką (czerwononiebieską)
 fig = plt.figure(figsize=(10,7))
 ax = fig.add_subplot(111, projection='3d')
 
-# Powierzchnia rzeczywista z pomiarów
-surf_data = ax.plot_trisurf(x, y, z, cmap='viridis', edgecolor='none', alpha=0.8)
-
-# Idealna płaszczyzna odniesienia - narysowana jako przezroczysta powierzchnia
-surf_plane = ax.plot_trisurf(x, y, z_plane, color='red', alpha=0.4, edgecolor='none')
+scat = ax.scatter(x, y, z, c=deviation, cmap='bwr', s=30)
+# Idealna płaszczyzna odniesienia (przezroczysta)
+ax.plot_surface(X_grid, Y_grid, Z_grid, color='red', alpha=0.4)
+# Dodaj pasek kolorów z etykietami
+cbar = plt.colorbar(scat, ax=ax, shrink=0.6, pad=0.1)
+cbar.set_label('Odchylenie od płaszczyzny (dodatnie-czerwone, ujemne-niebieskie)')
 
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
-ax.set_zlabel('Wartosc Raw i płaszczyzna odniesienia')
-plt.title('Płaskość blachy z dopasowaną płaszczyzną odniesienia')
+ax.set_zlabel('Wartosc Raw')
+plt.title('Heatmapa odchyleń od płaszczyzny idealnej')
+
 plt.show()

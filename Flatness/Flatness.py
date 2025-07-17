@@ -1,4 +1,5 @@
-import streamlit as st
+from flask import Flask, Response
+import io
 
 import pandas as pd
 import numpy as np
@@ -10,8 +11,6 @@ import matplotlib.gridspec as gridspec
 
 from mpl_toolkits.mplot3d import Axes3D  # konieczne do dodania osi 3D
 
-
-st.title("Interaktywny wykres w Streamlit")
 
 path = r"E:\PP\22_0014_0000 - ADAPTSYS Walcarka\Pomiary\Nowe pomiary demonstratorów na walcarce z wykorzystaniem portalu, obrotnicy i kamery. Dane wpisywane przez operatora\Pomiar blachy 9"
 name = r"28BL2406x1206_S4-43_ID186_POM1_2024_02_01_08_32_28.txt"
@@ -154,6 +153,4 @@ button.on_clicked(reset)
 
 #plt.tight_layout() # Dopasowanie układu subplots
 anim = FuncAnimation(fig, update, frames=50, interval=5)
-# plt.show()
-
-st.pyplot(fig)
+plt.show()

@@ -43,9 +43,10 @@ def update_output(contents):
         empty_fig.update_layout(title=f"Błąd wczytywania pliku: {str(e)}")
         return empty_fig, ""
 
-    flatness_value = calculate_flatness(df)
-    fig = create_3d_scatter(df)
-    flatness_text = f"Płaskość powierzchni (max różnica z): {flatness_value:.4f}"
+    flatness_value, coeffs, deviations = calculate_flatness(df)
+    print("coffes:\n", coeffs,'\n')
+    fig = create_3d_scatter(df,coeffs,deviations)
+    flatness_text = f"Płaskość powierzchni (metodą najmniejszych kwadratów: {flatness_value:.4f}"
 
     return fig, flatness_text
 

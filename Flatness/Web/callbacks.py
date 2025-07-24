@@ -132,24 +132,21 @@ def register_callbacks(app):
             err_msg = f"Błąd: {str(e)}"
             return (err_msg,) * 18
 
-
     @app.callback(
-        *[Output(f'val-sReferenceNames_{i}', 'style') for i in range(14)],
+        [Output(f'row_{i}', 'style') for i in range(14)],
         Input('val_CONTROLiSelectedRef', 'data')
     )
-    def update_styles(val_sReferenceNr):
-        style_default = {'height': '40px'}
+    def highlight_selected_row(selected_index):
+        style_default = {}
         style_highlight = {
-            'height': '40px',
             'backgroundColor': '#d0f0c0',
             'border': '2px solid green',
-            'padding': '5px',
             'borderRadius': '4px'
         }
 
         styles = []
         for i in range(14):
-            if i == val_sReferenceNr:
+            if i == selected_index:
                 styles.append(style_highlight)
             else:
                 styles.append(style_default)

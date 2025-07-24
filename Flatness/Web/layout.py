@@ -1,5 +1,15 @@
 from dash import html, dcc
 
+def get_layout():
+    # Zakładki i kontener na content
+    return html.Div([
+        dcc.Tabs(id='tabs', value='tab-wykresy', children=[
+            dcc.Tab(label='Wykresy 3D', value='tab-wykresy'),
+            dcc.Tab(label='Dane komunikacji PLC', value='tab-plc'),
+        ]),
+        html.Div(id='tabs-content', style={'marginTop': '20px'})
+    ])
+
 def get_3d_plots_layout():
     return html.Div([
         html.H2("Wczytaj plik CSV z danymi 3D (x;y;z)"),
@@ -20,16 +30,6 @@ def get_3d_plots_layout():
         ], style={'display': 'flex', 'width': '100%'})
     ])
 
-def get_layout():
-    # Zakładki i kontener na content
-    return html.Div([
-        dcc.Tabs(id='tabs', value='tab-wykresy', children=[
-            dcc.Tab(label='Wykresy 3D', value='tab-wykresy'),
-            dcc.Tab(label='Dane komunikacji PLC', value='tab-plc'),
-        ]),
-        html.Div(id='tabs-content', style={'marginTop': '20px'})
-    ])
-
 def get_plc_layout():
 
     button_with_process_icon = html.Button([
@@ -38,74 +38,77 @@ def get_plc_layout():
     ], style={'display': 'flex', 'alignItems': 'center'}
     , id='btn-CONTROLbActive')
 
-    style_default=({
-        'height': '40px'
-    })
-    style_highlight=({
-        'height': '40px',
-        'backgroundColor': '#d0f0c0',  # jasny zielony np.
-        'border': '2px solid green',
-        'padding': '5px',
-        'borderRadius': '4px'
-    })
+    style_table = {
+        'border': '1px solid black',
+        'borderCollapse': 'collapse',
+        'width': '800px',
+        'tableLayout': 'fixed',
+        'position': 'fixed',
+        'bottom': '10px',
+        'right': '10px'
+    }
+
+    style_td = {'height': '40px'}
 
     return html.Div([
         html.H2("Dane komunikacji PLC"),
         dcc.Interval(id='interval-plc', interval=1000, n_intervals=0),
         dcc.Store(id='val_CONTROLiSelectedRef', data=0),
-        html.Table([
-            html.Thead(html.Tr([
-                html.Th("Lp.", style={'width': '200px'}),
-                html.Th("Wartość", style={'width': '300px'}),
-                html.Th(style={'width': '100px'})
-            ])),
-            html.Tbody([
-                html.Tr([
-                    html.Td(f"{i + 1}.", style={'height': '40px'}),
-                    html.Td(id=f'val-sReferenceNames_{i}'),
-                ]) for i in range(14)
-            ])
-        ], style={
-            'border': '1px solid black',
-            'borderCollapse': 'collapse',
-            'width': '800px',
-            'tableLayout': 'fixed',
-            'position': 'fixed',
-            'bottom': '10px',
-            'right': '10px'
-        }),
-        html.Table([
-            html.Thead(html.Tr([
-                html.Th("Nazwa", style={'width': '200px'}),
-                html.Th("Wartość", style={'width': '300px'}),
-                html.Th(style={'width': '100px'})
-            ])),
-            html.Tbody([
-                html.Tr([
-                    html.Td("sReferenceActive", style={'height': '40px'}),
-                    html.Td(id='val-sReferenceActive', style={'height': '40px'}),
-                    # html.Td(html.Button('Ustaw Referencje', id='btn-CONTROLbActive'),
-                    #         style={'height': '40px', 'textAlign': 'center'})
-                    html.Td(button_with_process_icon)
+
+        html.Div([
+            html.Table([
+                html.Thead(html.Tr([
+                    html.Th("Lp.", style={'width': '20px'}),
+                    html.Th("Wartość", style={'width': '300px'}),
+                    html.Th(style={'width': '100px'})
+                ])),
+                html.Tbody([
+                    html.Tr(
+                        id=f'row_{i}',
+                        children=[
+                            html.Td(f"{i + 1}.", style=style_td),
+                            html.Td(id=f'val-sReferenceNames_{i}', style=style_td)
+                        ]
+                    ) for i in range(14)
                 ]),
-                html.Tr([
-                    html.Td("sReferenceNextToActive", style={'height': '40px'}),
-                    html.Td(id='val-sReferenceNextToActive', style={'height': '40px'}),
-                    html.Td(),  # brak przycisku dla tej zmiennej
-                ]),
-                html.Tr([
-                    html.Td("bBlinker_1000ms", style={'height': '40px'}),
-                    html.Td(id='val-bBlinker_1000ms', style={'height': '40px'}),
-                    html.Td()
+            ], style=(style_table)
+            )
+        ]),
+
+        html.Div([
+            html.Table([
+                html.Thead(html.Tr([
+                    html.Th("Nazwa", style={'width': '200px'}),
+                    html.Th("Wartość", style={'width': '300px'}),
+                    html.Th(style={'width': '100px'})
+                ])),
+                html.Tbody([
+                    html.Tr([
+                        html.Td("sReferenceActive", style={'height': '40px'}),
+                        html.Td(id='val-sReferenceActive', style={'height': '40px'}),
+                        # html.Td(html.Button('Ustaw Referencje', id='btn-CONTROLbActive'),
+                        #         style={'height': '40px', 'textAlign': 'center'})
+                        html.Td(button_with_process_icon)
+                    ]),
+                    html.Tr([
+                        html.Td("sReferenceNextToActive", style={'height': '40px'}),
+                        html.Td(id='val-sReferenceNextToActive', style={'height': '40px'}),
+                        html.Td(),  # brak przycisku dla tej zmiennej
+                    ]),
+                    html.Tr([
+                        html.Td("bBlinker_1000ms", style={'height': '40px'}),
+                        html.Td(id='val-bBlinker_1000ms', style={'height': '40px'}),
+                        html.Td()
+                    ])
                 ])
-            ])
-        ], style={
-            'border': '1px solid black',
-            'borderCollapse': 'collapse',
-            'width': '800px',
-            'tableLayout': 'fixed',
-            'position': 'fixed',
-            'bottom': '10px',    # 10px od dołu okna
-            'left': '10px'       # 10px od lewej krawędzi okna
-            })
+            ], style={
+                'border': '1px solid black',
+                'borderCollapse': 'collapse',
+                'width': '800px',
+                'tableLayout': 'fixed',
+                'position': 'fixed',
+                'bottom': '10px',    # 10px od dołu okna
+                'left': '10px'       # 10px od lewej krawędzi okna
+                })
+        ])
     ])

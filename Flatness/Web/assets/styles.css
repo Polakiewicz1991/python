@@ -1,0 +1,6 @@
+.highlighted-cell {
+    background-color: #d0f0c0;
+    border: 2px solid green;
+    padding: 5px;
+    border-radius: 4px;
+}

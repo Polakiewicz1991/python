@@ -38,9 +38,21 @@ def get_plc_layout():
     ], style={'display': 'flex', 'alignItems': 'center'}
     , id='btn-CONTROLbActive')
 
+    style_default=({
+        'height': '40px'
+    })
+    style_highlight=({
+        'height': '40px',
+        'backgroundColor': '#d0f0c0',  # jasny zielony np.
+        'border': '2px solid green',
+        'padding': '5px',
+        'borderRadius': '4px'
+    })
+
     return html.Div([
         html.H2("Dane komunikacji PLC"),
         dcc.Interval(id='interval-plc', interval=1000, n_intervals=0),
+        dcc.Store(id='val_CONTROLiSelectedRef', data=0),
         html.Table([
             html.Thead(html.Tr([
                 html.Th("Lp.", style={'width': '200px'}),
@@ -49,22 +61,9 @@ def get_plc_layout():
             ])),
             html.Tbody([
                 html.Tr([
-                    html.Td("1.", style={'height': '40px'}),
-                    html.Td(id='val-sReferenceNames', style={'height': '40px'}),
-                    # html.Td(html.Button('Ustaw Referencje', id='btn-CONTROLbActive'),
-                    #         style={'height': '40px', 'textAlign': 'center'})
-                    html.Td(button_with_process_icon)
-                ]),
-                html.Tr([
-                    html.Td("sReferenceNextToActive", style={'height': '40px'}),
-                    html.Td(id='val-sReferenceNextToActive', style={'height': '40px'}),
-                    html.Td(),  # brak przycisku dla tej zmiennej
-                ]),
-                html.Tr([
-                    html.Td("bBlinker_1000ms", style={'height': '40px'}),
-                    html.Td(id='val-bBlinker_1000ms', style={'height': '40px'}),
-                    html.Td()
-                ])
+                    html.Td(f"{i + 1}.", style={'height': '40px'}),
+                    html.Td(id=f'val-sReferenceNames_{i}'),
+                ]) for i in range(14)
             ])
         ], style={
             'border': '1px solid black',
@@ -72,8 +71,8 @@ def get_plc_layout():
             'width': '800px',
             'tableLayout': 'fixed',
             'position': 'fixed',
-            'bottom': '10px',    # 10px od dołu okna
-            'right': '10px'       # 10px od lewej krawędzi okna
+            'bottom': '10px',
+            'right': '10px'
         }),
         html.Table([
             html.Thead(html.Tr([

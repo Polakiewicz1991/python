@@ -3,7 +3,7 @@ import pyads
 from datetime import datetime
 
 # connect to the PLC
-plc = pyads.Connection('10.18.120.42.1.1', 851)
+plc = pyads.Connection('5.103.232.148.1.1', 851)
 
 # open the connection
 plc.open()

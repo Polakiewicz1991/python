@@ -102,19 +102,60 @@ def register_callbacks(app):
         Output('val-sReferenceActive', 'children'),
         Output('val-sReferenceNextToActive', 'children'),
         Output('val-bBlinker_1000ms', 'children'),
+        Output('val-sReferenceNames', 'children'),
         Input('interval-plc', 'n_intervals')
     )
     def update_plc_values(n):
+        val_sReferenceNames = []
         try:
             with pyads.Connection(PLC_AMS_ID, PLC_PORT) as plc:
                 val_sRefActive = plc.read_by_name('GVL_Reference.sReferenceActive', pyads.PLCTYPE_STRING)
                 val_sRefNextToActive = plc.read_by_name('GVL_Reference.sReferenceNextToActive', pyads.PLCTYPE_STRING)
+                for i in range(14):  # 0 do 13
+                    var_name = f'GVL_Reference.sReferenceNames[{i}]'
+                    val = plc.read_by_name(var_name, pyads.PLCTYPE_STRING)
+                    val_sReferenceNames.append(val)
+
+                print("val_sReferenceNames: ", val_sReferenceNames)
                 val_bool = plc.read_by_name('MAIN.bBlinker_1000ms', pyads.PLCTYPE_BOOL)
                 print(f"{val_sRefActive}, {val_sRefNextToActive}, str({val_bool})")
-            return val_sRefActive, val_sRefNextToActive, str(val_bool)
+            return val_sRefActive, val_sRefNextToActive, str(val_bool), val_sReferenceNames
         except Exception as e:
             err_msg = f"Błąd: {str(e)}"
-            return err_msg, err_msg, err_msg
+            return err_msg, err_msg, err_msg, err_msg
+
+    @app.callback(
+        Output('val-sReferenceNames_0', 'children'),
+        Output('val-sReferenceNames_1', 'children'),
+        Output('val-sReferenceNames_2', 'children'),
+        Output('val-sReferenceNames_3', 'children'),
+        Output('val-sReferenceNames_4', 'children'),
+        Output('val-sReferenceNames_5', 'children'),
+        Output('val-sReferenceNames_6', 'children'),
+        Output('val-sReferenceNames_7', 'children'),
+        Output('val-sReferenceNames_8', 'children'),
+        Output('val-sReferenceNames_9', 'children'),
+        Output('val-sReferenceNames_10', 'children'),
+        Output('val-sReferenceNames_11', 'children'),
+        Output('val-sReferenceNames_12', 'children'),
+        Output('val-sReferenceNames_13', 'children'),
+        Input('interval-plc', 'n_intervals')
+    )
+    def update_reference_names(n):
+        val_sReferenceNames = []
+        try:
+            with pyads.Connection(PLC_AMS_ID, PLC_PORT) as plc:
+                for i in range(14):  # 0 do 13
+                    var_name = f'GVL_Reference.sReferenceNames[{i}]'
+                    val = plc.read_by_name(var_name, pyads.PLCTYPE_STRING)
+                    val_sReferenceNames.append(val)
+
+                print("val_sReferenceNames: ", val_sReferenceNames)
+
+            return tuple(val_sReferenceNames)
+        except Exception as e:
+            err_msg = f"Błąd: {str(e)}"
+            return err_msg, err_msg, err_msg, err_msg
 
     @app.callback(
         Output('btn-CONTROLbActive', 'n_clicks'),  # resetujemy kliknięcia, by można było ponownie kliknąć

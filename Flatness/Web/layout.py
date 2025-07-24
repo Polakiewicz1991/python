@@ -43,14 +43,14 @@ def get_plc_layout():
         dcc.Interval(id='interval-plc', interval=1000, n_intervals=0),
         html.Table([
             html.Thead(html.Tr([
-                html.Th("Nazwa", style={'width': '200px'}),
+                html.Th("Lp.", style={'width': '200px'}),
                 html.Th("Wartość", style={'width': '300px'}),
                 html.Th(style={'width': '100px'})
             ])),
             html.Tbody([
                 html.Tr([
-                    html.Td("sReferenceActive", style={'height': '40px'}),
-                    html.Td(id='val-sReferenceActive', style={'height': '40px'}),
+                    html.Td("1.", style={'height': '40px'}),
+                    html.Td(id='val-sReferenceNames', style={'height': '40px'}),
                     # html.Td(html.Button('Ustaw Referencje', id='btn-CONTROLbActive'),
                     #         style={'height': '40px', 'textAlign': 'center'})
                     html.Td(button_with_process_icon)

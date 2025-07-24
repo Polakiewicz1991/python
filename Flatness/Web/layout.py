@@ -20,19 +20,6 @@ def get_3d_plots_layout():
         ], style={'display': 'flex', 'width': '100%'})
     ])
 
-def get_plc_data_layout():
-    # Przykładowy widok danych PLC - możesz tu podstawić własne komponenty
-    return html.Div([
-        html.H2("Dane komunikacji PLC"),
-        html.Table([
-            html.Thead(html.Tr([html.Th("Adres"), html.Th("Stan"), html.Th("Wartość")])),
-            html.Tbody([
-                html.Tr([html.Td("GP3000H-DUPS-01"), html.Td("OK"), html.Td("123.45")]),
-                html.Tr([html.Td("PLC2"), html.Td("Błąd połączenia"), html.Td("-")]),
-            ])
-        ], style={'border': '1px solid black', 'borderCollapse': 'collapse', 'width': '50%'})
-    ])
-
 def get_layout():
     # Zakładki i kontener na content
     return html.Div([
@@ -44,24 +31,82 @@ def get_layout():
     ])
 
 def get_plc_layout():
+
+    button_with_process_icon = html.Button([
+        html.Img(src="/assets/processColor.svg", alt="process", style={'height': '20px', 'marginRight': '8px'}),
+        "Aktywuj"
+    ], style={'display': 'flex', 'alignItems': 'center'}
+    , id='btn-CONTROLbActive')
+
     return html.Div([
         html.H2("Dane komunikacji PLC"),
         dcc.Interval(id='interval-plc', interval=1000, n_intervals=0),
         html.Table([
-            html.Thead(html.Tr([html.Th("Nazwa"), html.Th("Wartość")])),
+            html.Thead(html.Tr([
+                html.Th("Nazwa", style={'width': '200px'}),
+                html.Th("Wartość", style={'width': '300px'}),
+                html.Th(style={'width': '100px'})
+            ])),
             html.Tbody([
                 html.Tr([
-                    html.Td("sReferenceActive"),
-                    html.Td(id='val-sReferenceActive')
+                    html.Td("sReferenceActive", style={'height': '40px'}),
+                    html.Td(id='val-sReferenceActive', style={'height': '40px'}),
+                    # html.Td(html.Button('Ustaw Referencje', id='btn-CONTROLbActive'),
+                    #         style={'height': '40px', 'textAlign': 'center'})
+                    html.Td(button_with_process_icon)
                 ]),
                 html.Tr([
-                    html.Td("sReferenceNextToActive"),
-                    html.Td(id='val-sReferenceNextToActive')
+                    html.Td("sReferenceNextToActive", style={'height': '40px'}),
+                    html.Td(id='val-sReferenceNextToActive', style={'height': '40px'}),
+                    html.Td(),  # brak przycisku dla tej zmiennej
                 ]),
                 html.Tr([
-                    html.Td("bBlinker_1000ms"),
-                    html.Td(id='val-bBlinker_1000ms')
+                    html.Td("bBlinker_1000ms", style={'height': '40px'}),
+                    html.Td(id='val-bBlinker_1000ms', style={'height': '40px'}),
+                    html.Td()
                 ])
             ])
-        ], style={'border': '1px solid black', 'borderCollapse': 'collapse', 'width': '40%', 'marginTop': '10px'})
+        ], style={
+            'border': '1px solid black',
+            'borderCollapse': 'collapse',
+            'width': '800px',
+            'tableLayout': 'fixed',
+            'position': 'fixed',
+            'bottom': '10px',    # 10px od dołu okna
+            'right': '10px'       # 10px od lewej krawędzi okna
+        }),
+        html.Table([
+            html.Thead(html.Tr([
+                html.Th("Nazwa", style={'width': '200px'}),
+                html.Th("Wartość", style={'width': '300px'}),
+                html.Th(style={'width': '100px'})
+            ])),
+            html.Tbody([
+                html.Tr([
+                    html.Td("sReferenceActive", style={'height': '40px'}),
+                    html.Td(id='val-sReferenceActive', style={'height': '40px'}),
+                    # html.Td(html.Button('Ustaw Referencje', id='btn-CONTROLbActive'),
+                    #         style={'height': '40px', 'textAlign': 'center'})
+                    html.Td(button_with_process_icon)
+                ]),
+                html.Tr([
+                    html.Td("sReferenceNextToActive", style={'height': '40px'}),
+                    html.Td(id='val-sReferenceNextToActive', style={'height': '40px'}),
+                    html.Td(),  # brak przycisku dla tej zmiennej
+                ]),
+                html.Tr([
+                    html.Td("bBlinker_1000ms", style={'height': '40px'}),
+                    html.Td(id='val-bBlinker_1000ms', style={'height': '40px'}),
+                    html.Td()
+                ])
+            ])
+        ], style={
+            'border': '1px solid black',
+            'borderCollapse': 'collapse',
+            'width': '800px',
+            'tableLayout': 'fixed',
+            'position': 'fixed',
+            'bottom': '10px',    # 10px od dołu okna
+            'left': '10px'       # 10px od lewej krawędzi okna
+            })
     ])

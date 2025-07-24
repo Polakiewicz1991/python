@@ -1,13 +1,15 @@
 from dash import Input, Output, State, ctx, no_update
 import plotly.graph_objs as go
 
+import time
+import threading
 import pyads
 
 from data_handler import parse_csv
 from flatness_calculator import calculate_flatness
 from plot3d import create_3d_scatter, create_3d_scatter_top
 
-from layout import get_3d_plots_layout, get_plc_data_layout, get_plc_layout
+from layout import get_3d_plots_layout, get_plc_layout
 
 default_camera = dict(
     up=dict(x=0, y=0, z=1),
@@ -86,6 +88,16 @@ def register_callbacks(app):
     PLC_AMS_ID = '5.103.232.148.1.1'
     PLC_PORT = pyads.PORT_TC3PLC1
 
+    def momentary_write(plc_var):
+        print("plc_var: ", plc_var)
+        try:
+            with pyads.Connection(PLC_AMS_ID, PLC_PORT) as plc:
+                plc.write_by_name(plc_var, True, pyads.PLCTYPE_BOOL)
+                time.sleep(0.3)  # 300 ms przytrzymania
+                plc.write_by_name(plc_var, False, pyads.PLCTYPE_BOOL)
+        except Exception as e:
+            print("Błąd momentary_write:", e)
+
     @app.callback(
         Output('val-sReferenceActive', 'children'),
         Output('val-sReferenceNextToActive', 'children'),
@@ -103,3 +115,13 @@ def register_callbacks(app):
         except Exception as e:
             err_msg = f"Błąd: {str(e)}"
             return err_msg, err_msg, err_msg
+
+    @app.callback(
+        Output('btn-CONTROLbActive', 'n_clicks'),  # resetujemy kliknięcia, by można było ponownie kliknąć
+        Input('btn-CONTROLbActive', 'n_clicks'),
+        prevent_initial_call=True
+    )
+    def handle_btn_srefactive(n_clicks):
+        if n_clicks:
+            threading.Thread(target=momentary_write, args=('GVL_Reference.CONTROL.bActivate',), daemon=True).start()
+        return 0  # reset clicks

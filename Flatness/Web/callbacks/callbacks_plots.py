@@ -5,7 +5,7 @@ from Flatness.Web.data_handler import parse_csv
 from Flatness.Web.flatness_calculator import calculate_flatness
 from Flatness.Web.plot3d import create_3d_scatter, create_3d_scatter_top
 
-from Flatness.Web.layouts.layout import get_3d_plots_layout, get_plc_layout
+from Flatness.Web.layouts.layout_plots import get_3d_plots_layout
 
 default_camera = dict(
     up=dict(x=0, y=0, z=1),
@@ -19,18 +19,6 @@ default_camera2 = dict(
 )
 
 def register_callbacks(app):
-
-    # Callback do zmiany zakładek i renderowania ich zawartości
-    @app.callback(
-        Output('tabs-content', 'children'),
-        Input('tabs', 'value')
-    )
-    def render_tab_content(tab):
-        if tab == 'tab-wykresy':
-            return get_3d_plots_layout()
-        elif tab == 'tab-plc':
-            return get_plc_layout()
-        return "Nieznana zakładka"
 
     # Callback do aktualizacji wykresów (dane 3D) - działa tylko gdy aktywna jest zakładka wykresów
     @app.callback(

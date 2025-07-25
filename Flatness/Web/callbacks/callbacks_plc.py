@@ -1,5 +1,4 @@
 from dash import Input, Output, State, ctx, no_update
-import plotly.graph_objs as go
 
 import time
 import threading

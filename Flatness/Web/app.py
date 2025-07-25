@@ -1,6 +1,6 @@
 from dash import Dash
 from Flatness.Web.layouts.main_layout import get_layout
-#from Flatness.Web.callbacks import callbacks
+from Flatness.Web.callbacks.callback_tabs import register_callbacks as register_callbacks_tabs
 from Flatness.Web.callbacks.callbacks_plots import register_callbacks as register_callbacks_plots
 from Flatness.Web.callbacks.callbacks_plc import register_callbacks as register_callbacks_plc
 
@@ -9,6 +9,7 @@ app.title = "Wykres 3D - CSV & Płaskość"
 
 app.layout = get_layout()  # teraz to layout z zakładkami
 
+register_callbacks_tabs(app)
 register_callbacks_plots(app)
 register_callbacks_plc(app)
 

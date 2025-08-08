@@ -5,7 +5,7 @@ import threading
 import pyads
 
 def register_callbacks(app):
-    PLC_AMS_ID = '5.103.232.148.1.1'
+    PLC_AMS_ID = '192.168.1.50.1.1'
     PLC_PORT = pyads.PORT_TC3PLC1
 
     def momentary_write(plc_var):
@@ -21,9 +21,9 @@ def register_callbacks(app):
     @app.callback(
         Output('val-sReferenceActive', 'children'),
         Output('val-sReferenceNextToActive', 'children'),
-        Output('val-bBlinker_1000ms', 'children'),
+        #Output('val-bBlinker_1000ms', 'children'),
         *[Output(f'val-sReferenceNames_{i}', 'children') for i in range(14)],
-        Output('val_CONTROLiSelectedRef', 'data'),
+        Output('val_CONTROLiReferenceShow', 'data'),
         Input('interval-plc', 'n_intervals')
     )
     def update_plc_values(n):
@@ -32,7 +32,7 @@ def register_callbacks(app):
             with pyads.Connection(PLC_AMS_ID, PLC_PORT) as plc:
                 val_sRefActive = plc.read_by_name('GVL_Reference.sReferenceActive', pyads.PLCTYPE_STRING)
                 val_sRefNextToActive = plc.read_by_name('GVL_Reference.sReferenceNextToActive', pyads.PLCTYPE_STRING)
-                val_CONTROLiSelectedRef = plc.read_by_name('GVL_Reference.CONTROL.iSelectedRef', pyads.PLCTYPE_INT)
+                val_CONTROLiReferenceShow = plc.read_by_name('GVL_Reference.CONTROL.iReferenceShow', pyads.PLCTYPE_INT)
                 val_bool = plc.read_by_name('MAIN.bBlinker_1000ms', pyads.PLCTYPE_BOOL)
                 print(f"{val_sRefActive}, {val_sRefNextToActive}, str({val_bool})")
 
@@ -42,19 +42,19 @@ def register_callbacks(app):
                     val_sReferenceNames.append(val or '')
 
                 print("val_sReferenceNames: ", val_sReferenceNames)
-                print("val_CONTROLiSelectedRef: ",val_CONTROLiSelectedRef)
+                print("val_CONTROLiReferenceShow: ",val_CONTROLiReferenceShow)
 
-            return val_sRefActive, val_sRefNextToActive, str(val_bool), *val_sReferenceNames, val_CONTROLiSelectedRef
+            return val_sRefActive, val_sRefNextToActive, *val_sReferenceNames, val_CONTROLiReferenceShow
         except Exception as e:
             import traceback
             print("Błąd w update_plc_values:", str(e))
             traceback.print_exc()
             err_msg = f"Błąd: {str(e)}"
-            return (err_msg,) * 18
+            return (err_msg,) * 17
 
     @app.callback(
         [Output(f'row_{i}', 'style') for i in range(14)],
-        Input('val_CONTROLiSelectedRef', 'data')
+        Input('val_CONTROLiReferenceShow', 'data')
     )
     def highlight_selected_row(selected_index):
         style_default = {}
@@ -62,6 +62,7 @@ def register_callbacks(app):
             'backgroundColor': '#d0f0c0',
             'border': '2px solid green',
             'borderRadius': '4px'
+
         }
 
         styles = []
@@ -77,7 +78,27 @@ def register_callbacks(app):
         Input('btn-CONTROLbActive', 'n_clicks'),
         prevent_initial_call=True
     )
-    def handle_btn_srefactive(n_clicks):
+    def handle_btn_bRefActive(n_clicks):
         if n_clicks:
             threading.Thread(target=momentary_write, args=('GVL_Reference.CONTROL.bActivate',), daemon=True).start()
+        return 0  # reset clicks
+
+    @app.callback(
+        Output('btn-CONTROLbDisplayUp', 'n_clicks'),  # resetujemy kliknięcia, by można było ponownie kliknąć
+        Input('btn-CONTROLbDisplayUp', 'n_clicks'),
+        prevent_initial_call=True
+    )
+    def handle_btn_bDisplayUp(n_clicks):
+        if n_clicks:
+            threading.Thread(target=momentary_write, args=('GVL_Reference.CONTROL.bDisplayUp',), daemon=True).start()
+        return 0  # reset clicks
+
+    @app.callback(
+        Output('btn-CONTROLbDisplayDown', 'n_clicks'),  # resetujemy kliknięcia, by można było ponownie kliknąć
+        Input('btn-CONTROLbDisplayDown', 'n_clicks'),
+        prevent_initial_call=True
+    )
+    def handle_btn_bDisplayDown(n_clicks):
+        if n_clicks:
+            threading.Thread(target=momentary_write, args=('GVL_Reference.CONTROL.bDisplayDown',), daemon=True).start()
         return 0  # reset clicks

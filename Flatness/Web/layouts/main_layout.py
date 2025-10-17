@@ -1,15 +1,15 @@
 from dash import html, dcc
 from Flatness.Web.layouts.translations import translations
-from Flatness.Web.layouts.layout_plc import get_plc_layout
+
 
 def get_layout():
     return html.Div([
-        # Kontener flex - w wierszu obok siebie
+        html.Div(id='tabs-container', children=[
+            dcc.Tabs(id='tabs', value='tab-wykresy', children=[])
+        ]),
+        # Pasek zakładek + język
         html.Div([
-            dcc.Tabs(id='tabs', value='tab-wykresy', children=[
-                dcc.Tab(label='Wykresy 3D', value='tab-wykresy'),
-                dcc.Tab(label='Dane komunikacji PLC', value='tab-plc'),
-            ], style={'flexGrow': '1'}),  # rozszerz zakładki na ile się da
+            html.Div(id='tabs-container'),  # <-- tu będą dynamiczne zakładki
 
             dcc.Dropdown(
                 id='language-selector',
@@ -23,17 +23,16 @@ def get_layout():
                 style={
                     'width': '150px',
                     'marginLeft': '20px',
-                    'alignSelf': 'center'  # wyśrodkowanie pionowe w linii
+                    'alignSelf': 'center'
                 }
             )
         ], style={
             'display': 'flex',
-            'alignItems': 'center',  # pionowe wyrównanie do środka
-            'gap': '20px',  # odstęp między zakładkami a dropdownem
-            'marginBottom': '20px'  # odstęp od treści pod spodem
+            'alignItems': 'center',
+            'gap': '20px',
+            'marginBottom': '20px'
         }),
 
-        # Kontener na treść zakładek
+        # Zawartość zakładek
         html.Div(id='tabs-content')
     ])
-

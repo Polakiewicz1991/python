@@ -5,7 +5,8 @@ import threading
 import pyads
 
 def register_callbacks(app):
-    PLC_AMS_ID = '192.168.1.50.1.1'
+    #PLC_AMS_ID = '192.168.1.50.1.1'
+    PLC_AMS_ID = '192.168.1.254.1.1'
     PLC_PORT = pyads.PORT_TC3PLC1
 
     def momentary_write(plc_var):
@@ -24,6 +25,11 @@ def register_callbacks(app):
         #Output('val-bBlinker_1000ms', 'children'),
         *[Output(f'val-sReferenceNames_{i}', 'children') for i in range(14)],
         Output('val_CONTROLiReferenceShow', 'data'),
+        Output('val_MAPsName', 'children'),
+        Output('val_MAPstTableParamiSYSTEM', 'children'),
+        Output('val_MAPstTableParamrDIMENSION_X', 'children'),
+        Output('val_MAPstTableParamrDIMENSION_Y', 'children'),
+        Output('val_MAPstTableParamrDIMENSION_Z', 'children'),
         Input('interval-plc', 'n_intervals')
     )
     def update_plc_values(n):
@@ -33,8 +39,18 @@ def register_callbacks(app):
                 val_sRefActive = plc.read_by_name('GVL_Reference.sReferenceActive', pyads.PLCTYPE_STRING)
                 val_sRefNextToActive = plc.read_by_name('GVL_Reference.sReferenceNextToActive', pyads.PLCTYPE_STRING)
                 val_CONTROLiReferenceShow = plc.read_by_name('GVL_Reference.CONTROL.iReferenceShow', pyads.PLCTYPE_INT)
-                val_bool = plc.read_by_name('MAIN.bBlinker_1000ms', pyads.PLCTYPE_BOOL)
-                print(f"{val_sRefActive}, {val_sRefNextToActive}, str({val_bool})")
+                val_MAPsName = plc.read_by_name('GVL_Reference.MAP.sName', pyads.PLCTYPE_STRING)
+                val_MAPstTableParamiSYSTEM = plc.read_by_name('GVL_Reference.MAP.stTableParam.iSYSTEM',
+                                                                   pyads.PLCTYPE_INT)
+                val_MAPstTableParamrDIMENSION_X = plc.read_by_name('GVL_Reference.MAP.stTableParam.rDIMENSION_X',
+                                                                   pyads.PLCTYPE_REAL)
+                val_MAPstTableParamrDIMENSION_Y = plc.read_by_name('GVL_Reference.MAP.stTableParam.rDIMENSION_Y',
+                                                                   pyads.PLCTYPE_REAL)
+                val_MAPstTableParamrDIMENSION_Z = plc.read_by_name('GVL_Reference.MAP.stTableParam.rDIMENSION_Z',
+                                                                   pyads.PLCTYPE_REAL)
+
+                #val_bool = plc.read_by_name('MAIN.bBlinker_1000ms', pyads.PLCTYPE_BOOL)
+                print(f"{val_sRefActive}, {val_sRefNextToActive}") #, str({val_bool})")
 
                 for i in range(14):  # 0 do 13
                     var_name = f'GVL_Reference.sReferenceNames[{i}]'
@@ -44,13 +60,14 @@ def register_callbacks(app):
                 print("val_sReferenceNames: ", val_sReferenceNames)
                 print("val_CONTROLiReferenceShow: ",val_CONTROLiReferenceShow)
 
-            return val_sRefActive, val_sRefNextToActive, *val_sReferenceNames, val_CONTROLiReferenceShow
+            return (val_sRefActive, val_sRefNextToActive, *val_sReferenceNames, val_CONTROLiReferenceShow, val_MAPsName,
+                    val_MAPstTableParamiSYSTEM, val_MAPstTableParamrDIMENSION_X, val_MAPstTableParamrDIMENSION_Y, val_MAPstTableParamrDIMENSION_Z)
         except Exception as e:
             import traceback
             print("Błąd w update_plc_values:", str(e))
             traceback.print_exc()
             err_msg = f"Błąd: {str(e)}"
-            return (err_msg,) * 17
+            return (err_msg,) * 22
 
     @app.callback(
         [Output(f'row_{i}', 'style') for i in range(14)],

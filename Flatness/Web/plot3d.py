@@ -71,8 +71,8 @@ def create_3d_scatter(df,coeffs,deviations):
     fig.update_layout(
         margin=dict(l=0, r=0, b=0, t=40),       # 14. Marginesy wykresu: left, right, bottom zero, top 40 px dla tytułu
         scene=dict(                             # 15. Konfiguracja "scene" - układu osi 3D
-            xaxis_title='X',                    # 16. Etykieta osi X
-            yaxis_title='Y',
+            xaxis_title='Y',                    # 16. Etykieta osi X
+            yaxis_title='X',
             zaxis_title='Z',
             aspectmode = 'manual',
             aspectratio = dict(x=1, y=2, z=1)
@@ -130,8 +130,8 @@ def create_3d_scatter_top(df,coeffs,deviations):
     fig.update_layout(
         margin=dict(l=0, r=0, b=0, t=40),       # 14. Marginesy wykresu: left, right, bottom zero, top 40 px dla tytułu
         scene=dict(                             # 15. Konfiguracja "scene" - układu osi 3D
-            xaxis_title='X',                    # 16. Etykieta osi X
-            yaxis_title='Y',
+            xaxis_title='Y',                    # 16. Etykieta osi X
+            yaxis_title='X',
             zaxis_title='Z',
             aspectmode = 'manual',
             aspectratio = dict(x=1, y=2, z=1),

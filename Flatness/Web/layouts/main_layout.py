@@ -4,12 +4,12 @@ from Flatness.Web.layouts.translations import translations
 
 def get_layout():
     return html.Div([
-        html.Div(id='tabs-container', children=[
-            dcc.Tabs(id='tabs', value='tab-wykresy', children=[])
-        ]),
+        # html.Div(id='tabs-container', children=[
+        #     dcc.Tabs(id='tabs', value='tab-wykresy', children=[])
+        # ]),
         # Pasek zakładek + język
         html.Div([
-            html.Div(id='tabs-container'),  # <-- tu będą dynamiczne zakładki
+            html.Div(id='tabs-container', children=[dcc.Tabs(id='tabs', value='tab-wykresy', children=[])]),  # <-- tu będą dynamiczne zakładki
 
             dcc.Dropdown(
                 id='language-selector',

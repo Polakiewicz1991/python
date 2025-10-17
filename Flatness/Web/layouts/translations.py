@@ -15,6 +15,9 @@ translations = {
         'btn_activate': "Aktywuj",
         'btn_up': "W górę",
         'btn_down': "W dół",
+        'upload_csv': "Wczytaj plik CSV z danymi 3D (x;y;z)",
+        'browse_upload': "Przeglądaj i załaduj CSV",
+        'reset_view': "Resetuj widok"
     },
     'de': {
         'reference_name': "Referenzname:",
@@ -32,6 +35,9 @@ translations = {
         'btn_activate': "Aktivieren",
         'btn_up': "Nach\noben",
         'btn_down': "Nach\nunten",
+        'upload_csv': "CSV-Datei mit 3D-Daten hochladen (x;y;z)",
+        'browse_upload': "Durchsuchen und CSV hochladen",
+        'reset_view': "Ansicht zurücksetzen"
     },
     'en': {
         'reference_name': "Reference name:",
@@ -49,5 +55,8 @@ translations = {
         'btn_activate': "Activate",
         'btn_up': "Up",
         'btn_down': "Down",
+        'upload_csv': "Upload CSV file with 3D data (x;y;z)",
+        'browse_upload': "Browse and upload CSV",
+        'reset_view': "Reset view"
     }
 }

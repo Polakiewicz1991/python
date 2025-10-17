@@ -1,14 +1,17 @@
 from dash import html, dcc
+from Flatness.Web.layouts.translations import translations
 
 def get_3d_plots_layout(lang='pl'):
+    tr = translations.get(lang, translations['pl'])
+
     return html.Div([
-        html.H2("Wczytaj plik CSV z danymi 3D (x;y;z)"),
+        html.H2(tr['upload_csv']),
         html.Div([
             dcc.Upload(
                 id='upload-data',
-                children=html.Button('Przeglądaj i załaduj CSV')
+                children=html.Button(tr['browse_upload'])
             ),
-            html.Button("Resetuj widok", id='reset-view-btn', n_clicks=0)
+            html.Button(tr['reset_view'], id='reset-view-btn', n_clicks=0)
         ], style={'display': 'flex', 'gap': '10px', 'alignItems': 'center', 'marginBottom': '20px'}),
         html.Div(id='flatness-output', style={'fontWeight': 'bold', 'marginBottom': '20px'}),
         html.Div([

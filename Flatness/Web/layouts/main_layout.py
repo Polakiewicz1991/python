@@ -1,4 +1,6 @@
 from dash import html, dcc
+from Flatness.Web.layouts.translations import translations
+from Flatness.Web.layouts.layout_plc import get_plc_layout
 
 def get_layout():
     return html.Div([
@@ -12,9 +14,9 @@ def get_layout():
             dcc.Dropdown(
                 id='language-selector',
                 options=[
-                    {'label': 'Polski', 'value': 'pl'},
-                    {'label': 'Deutsch', 'value': 'de'},
-                    {'label': 'English', 'value': 'en'}
+                    {'label': '🇵🇱 Polski', 'value': 'pl'},
+                    {'label': '🇩🇪 Deutsch', 'value': 'de'},
+                    {'label': '🇬🇧 English', 'value': 'en'}
                 ],
                 value='pl',
                 clearable=False,
@@ -34,3 +36,4 @@ def get_layout():
         # Kontener na treść zakładek
         html.Div(id='tabs-content')
     ])
+

@@ -1,6 +1,6 @@
 from dash import html, dcc
 
-def get_3d_plots_layout():
+def get_3d_plots_layout(lang='pl'):
     return html.Div([
         html.H2("Wczytaj plik CSV z danymi 3D (x;y;z)"),
         html.Div([

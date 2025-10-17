@@ -1,9 +1,11 @@
 from dash import html, dcc
-from Flatness.Web.layouts.buttons import button_with_process_icon, button_with_up_icon, button_with_down_icon
+from Flatness.Web.layouts.buttons import get_buttons
 from Flatness.Web.layouts.translations import translations
 
 def get_plc_layout(lang='pl'):
     tr = translations.get(lang, translations['pl'])
+
+    button_with_process_icon, button_with_up_icon, button_with_down_icon = get_buttons(lang)
 
     style_table_referenceNames = {
         'border': '1px solid black',
@@ -48,13 +50,6 @@ def get_plc_layout(lang='pl'):
         'marginBottom': '20px',
     }
 
-    container_referenceNames_style = {
-        'display': 'flex',
-        'flexDirection': 'row',
-        'alignItems': 'flex-start',
-        'gap': '10px',
-    }
-
     buttons_column_style = {
         'display': 'flex',
         'flexDirection': 'column',
@@ -71,17 +66,8 @@ def get_plc_layout(lang='pl'):
         'marginTop': '20px',
     }
 
-    button_style = {
-        'width': '100px',
-        'height': '100px',
-        'padding': '5px',
-        'border': '1px solid #ccc',
-        'backgroundColor': '#f8f8f8',
-        'cursor': 'pointer',
-    }
-
     return html.Div([
-        html.H2("Dane komunikacji PLC", style={'marginBottom': '20px'}),
+        html.H2(tr['tab_plc'], style={'marginBottom': '20px'}),
 
         dcc.Interval(id='interval-plc', interval=1000, n_intervals=0),
         dcc.Store(id='val_CONTROLiReferenceShow', data=0),
@@ -89,19 +75,19 @@ def get_plc_layout(lang='pl'):
         # Dwie tabele referencji obok siebie
         html.Div([
             html.Table([
-                html.Thead(html.Tr([html.Th("Aktywna referencja", style={'width': '300px', 'fontSize': '18px'})])),
+                html.Thead(html.Tr([html.Th(tr['active_reference'], style={'width': '300px', 'fontSize': '18px'})])),
                 html.Tbody([
                     html.Tr([
-                        html.Td(id='val-sReferenceActive', style={'height': '40px', 'fontSize': '24px'})
+                        html.Td(id='val-sReferenceActive', style=style_td)
                     ])
                 ])
             ], style=style_table_referenceActive),
 
             html.Table([
-                html.Thead(html.Tr([html.Th("Następna referencja", style={'width': '300px', 'fontSize': '18px'})])),
+                html.Thead(html.Tr([html.Th(tr['next_reference'], style={'width': '300px', 'fontSize': '18px'})])),
                 html.Tbody([
                     html.Tr([
-                        html.Td(id='val-sReferenceNextToActive', style={'height': '40px', 'fontSize': '24px'})
+                        html.Td(id='val-sReferenceNextToActive', style=style_td)
                     ])
                 ])
             ], style=style_table_referenceNextToActive),
@@ -113,8 +99,8 @@ def get_plc_layout(lang='pl'):
             html.Div([
                 html.Table([
                     html.Thead(html.Tr([
-                        html.Th("Lp.", style={'width': '30px', 'fontSize': '18px'}),
-                        html.Th("Wartość", style={'width': '580px', 'fontSize': '18px'}),
+                        html.Th(tr['lp'], style={'width': '30px', 'fontSize': '18px'}),
+                        html.Th(tr['value'], style={'width': '580px', 'fontSize': '18px'}),
                     ])),
                     html.Tbody([
                         html.Tr(id=f'row_{i}',
@@ -135,20 +121,15 @@ def get_plc_layout(lang='pl'):
             # Prawa część: nowa tabela z podanymi polami
             html.Table([
                 html.Thead(html.Tr([
-                    html.Th(tr['reference_name'].upper(), style={'width': '300px', 'fontSize': '18px'}),
-                    html.Th("", style={'width': '300px', 'fontSize': '18px'}),  # pusta kolumna nagłówka
+                    html.Th(tr['selected_reference'], style={'width': '300px','fontSize': '18px'}),
+                    html.Th("", style={'width': '300px','fontSize': '18px'}),
                 ])),
                 html.Tbody([
-                    html.Tr(
-                        [html.Td(tr['reference_name'], style=style_td), html.Td(id='val_MAPsName', style=style_td)]),
-                    html.Tr(
-                        [html.Td("System:", style=style_td), html.Td(id='val_MAPstTableParamiSYSTEM', style=style_td)]),
-                    html.Tr([html.Td(tr['length'], style=style_td),
-                             html.Td(id='val_MAPstTableParamrDIMENSION_X', style=style_td)]),
-                    html.Tr([html.Td(tr['width'], style=style_td),
-                             html.Td(id='val_MAPstTableParamrDIMENSION_Y', style=style_td)]),
-                    html.Tr([html.Td(tr['height'], style=style_td),
-                             html.Td(id='val_MAPstTableParamrDIMENSION_Z', style=style_td)]),
+                    html.Tr([html.Td(tr['reference_name'], style=style_td), html.Td(id='val_MAPsName', style=style_td)]),
+                    html.Tr([html.Td(tr['system'], style=style_td), html.Td(id='val_MAPstTableParamiSYSTEM', style=style_td)]),
+                    html.Tr([html.Td(tr['length'], style=style_td), html.Td(id='val_MAPstTableParamrDIMENSION_X', style=style_td)]),
+                    html.Tr([html.Td(tr['width'], style=style_td), html.Td(id='val_MAPstTableParamrDIMENSION_Y', style=style_td)]),
+                    html.Tr([html.Td(tr['height'], style=style_td), html.Td(id='val_MAPstTableParamrDIMENSION_Z', style=style_td)]),
                 ])
             ], style=style_table_map_right),
         ], style=right_side_container_style),

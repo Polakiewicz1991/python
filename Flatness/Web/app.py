@@ -1,5 +1,6 @@
-from dash import Dash
+from dash import Dash, html, dcc, Input, Output
 from Flatness.Web.layouts.main_layout import get_layout
+from Flatness.Web.layouts.layout_plc import get_plc_layout
 from Flatness.Web.callbacks.callback_tabs import register_callbacks as register_callbacks_tabs
 from Flatness.Web.callbacks.callbacks_plots import register_callbacks as register_callbacks_plots
 from Flatness.Web.callbacks.callbacks_plc import register_callbacks as register_callbacks_plc

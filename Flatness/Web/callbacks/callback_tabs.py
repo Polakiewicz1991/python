@@ -7,11 +7,12 @@ def register_callbacks(app):
     # Callback do zmiany zakładek i renderowania ich zawartości
     @app.callback(
         Output('tabs-content', 'children'),
-        Input('tabs', 'value')
+        Input('tabs', 'value'),
+        Input('language-selector', 'value')
     )
-    def render_tab_content(tab):
+    def render_tab_content(tab, lang):
         if tab == 'tab-wykresy':
-            return get_3d_plots_layout()
+            return get_3d_plots_layout(lang=lang)  # jeśli get_3d_plots_layout obsługuje język
         elif tab == 'tab-plc':
-            return get_plc_layout()
+            return get_plc_layout(lang=lang)
         return "Nieznana zakładka"

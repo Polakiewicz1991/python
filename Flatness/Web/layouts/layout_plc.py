@@ -115,10 +115,14 @@ def get_plc_layout(lang='pl'):
                             html.Th(tr['value'], style=th_style),
                         ])),
                         html.Tbody([
-                            html.Tr([
-                                html.Td(f"{i + 1}.", style=td_style),
-                                html.Td(id=f'val-sReferenceNames_{i}', style=td_style),
-                            ]) for i in range(14)
+                            html.Tr(
+                                id=f'reference_row_{i}',  # <<< unikalne ID dla każdego wiersza
+                                children=[
+                                    html.Td(f"{i + 1}.", style=td_style),
+                                    html.Td(id=f'val-sReferenceNames_{i}', style=td_style),
+                                ],
+                                style=td_style
+                            ) for i in range(14)
                         ])
                     ], style=table_style)
                 ], style={**card_style, 'flex': '1'}),

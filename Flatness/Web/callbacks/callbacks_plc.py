@@ -69,25 +69,37 @@ def register_callbacks(app):
             err_msg = f"Błąd: {str(e)}"
             return (err_msg,) * 22
 
+    # liczba wierszy w tabeli
+    ROW_COUNT = 14
+
     @app.callback(
-        [Output(f'row_{i}', 'style') for i in range(14)],
+        [Output(f'reference_row_{i}', 'style') for i in range(ROW_COUNT)],
         Input('val_CONTROLiReferenceShow', 'data')
     )
-    def highlight_selected_row(selected_index):
-        style_default = {}
-        style_highlight = {
-            'backgroundColor': '#d0f0c0',
-            'border': '2px solid green',
-            'borderRadius': '4px'
+    def highlight_active_row(active_index):
+        # styl podstawowy (wszystkie wiersze)
+        base_style = {
+            'padding': '8px 12px',
+            'fontSize': '16px',
+            'borderBottom': '1px solid #eee',
+            'height': '40px',
+            'backgroundColor': 'white'
+        }
 
+        # styl aktywnego wiersza
+        active_style = {
+            **base_style,
+            'backgroundColor': '#e6f7ff',  # delikatny niebieski
+            'borderLeft': '4px solid #1890ff',
+            'fontWeight': '600',
         }
 
         styles = []
-        for i in range(14):
-            if i == selected_index:
-                styles.append(style_highlight)
+        for i in range(ROW_COUNT):
+            if active_index == i:
+                styles.append(active_style)
             else:
-                styles.append(style_default)
+                styles.append(base_style)
         return styles
 
     @app.callback(

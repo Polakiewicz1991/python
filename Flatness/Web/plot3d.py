@@ -22,15 +22,6 @@ def create_3d_scatter(df,coeffs,deviations):
         x=X, # 2. Współrzędne X punktów - pobierane jako tablica numpy
         y=Y, # 3. Współrzędne y punktów - pobierane jako tablica numpy
         z=Z, # 4. Współrzędne z punktów - pobierane jako tablica numpy
-        #mode='markers',   # 5. Tryb wyświetlania punktów – same znaczniki (markery), bez linii
-        # marker=dict(        # 6. Parametry znaczników (markerów)
-        #     size=5,         # 7. Rozmiar każdego punktu na wykresie
-        #     color=deviations,      # 8. Kolor punktów określany przez wartości deviations
-        #     colorscale=[
-        #         [0, 'blue'],  # kolor dla minimalnej wartości (0)
-        #         [0.5, 'white'],  # kolor dla minimalnej wartości (0)
-        #         [1, 'red']  # kolor dla maksymalnej wartości (1)
-        #     ],
         colorscale=[
             [0, 'blue'],  # kolor dla minimalnej wartości (0)
             [0.5, 'white'],  # kolor dla minimalnej wartości (0)
@@ -104,15 +95,6 @@ def create_3d_scatter_top(df,coeffs,deviations):
         x=X, # 2. Współrzędne X punktów - pobierane jako tablica numpy
         y=Y, # 3. Współrzędne y punktów - pobierane jako tablica numpy
         z=Z, # 4. Współrzędne z punktów - pobierane jako tablica numpy
-        #mode='markers',   # 5. Tryb wyświetlania punktów – same znaczniki (markery), bez linii
-        # marker=dict(        # 6. Parametry znaczników (markerów)
-        #     size=5,         # 7. Rozmiar każdego punktu na wykresie
-        #     color=deviations,      # 8. Kolor punktów określany przez wartości deviations
-        #     colorscale=[
-        #         [0, 'blue'],  # kolor dla minimalnej wartości (0)
-        #         [0.5, 'white'],  # kolor dla minimalnej wartości (0)
-        #         [1, 'red']  # kolor dla maksymalnej wartości (1)
-        #     ],
         colorscale=[
             [0, 'blue'],  # kolor dla minimalnej wartości (0)
             [0.5, 'white'],  # kolor dla minimalnej wartości (0)

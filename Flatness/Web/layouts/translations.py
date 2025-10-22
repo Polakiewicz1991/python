@@ -21,12 +21,14 @@ translations = {
         #layout_plots
         'browse_upload': "Przeglądaj i załaduj CSV",
         'reset_view': "Resetuj widok",
+        'select_folder': '📁 Wybierz folder',
         'flatness_value': 'Płaskość powierzchni (metodą najmniejszych kwadratów):',
         'upload_csv': 'Wczytaj plik CSV, aby wyświetlić wykres',
         'file_load_error': 'Błąd wczytywania pliku',
         'no_csv_files': 'Brak plików CSV w folderze',
         'no_data': 'Brak danych do wyświetlenia',
         'generic_error': 'Błąd',
+        #charts
         'chart_main': 'Wykres 3D powierzchni',
         'chart_top': 'Widok z góry',
         'chart_side_x1': 'Bok X1',
@@ -56,6 +58,7 @@ translations = {
         #layout_plots
         'browse_upload': "Browse and upload CSV",
         'reset_view': "Reset view",
+        'select_folder': '📁 Choose a folder',
         'upload_csv': 'Upload a CSV file to display the chart',
         'file_load_error': 'Error loading file',
         'no_csv_files': 'No CSV files found in the folder',
@@ -91,6 +94,7 @@ translations = {
         # layout_plots
         'browse_upload': "Durchsuchen und CSV hochladen",
         'reset_view': "Ansicht zurücksetzen",
+        'select_folder': '📁 Ordner auswählen',
         'upload_csv': 'CSV-Datei hochladen, um das Diagramm anzuzeigen',
         'file_load_error': 'Fehler beim Laden der Datei',
         'no_csv_files': 'Keine CSV-Dateien im Ordner gefunden',

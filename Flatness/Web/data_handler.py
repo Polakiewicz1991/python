@@ -2,7 +2,8 @@ import pandas as pd
 import io
 import base64
 import os
-
+import tkinter as tk
+from tkinter import filedialog
 
 def parse_csv(contents_or_path, sep=';'):
     # jeśli dane pochodzą z uploadu Dash (base64)
@@ -23,3 +24,10 @@ def parse_csv(contents_or_path, sep=';'):
     # df = df.dropna()  # np. usunięcie pustych wierszy
 
     return df
+
+# def choose_folder():
+#     print("test")
+#     root = tk.Tk()
+#     root.withdraw()
+#     folder = filedialog.askdirectory(title="Wybierz folder z plikami CSV")
+#     return folder

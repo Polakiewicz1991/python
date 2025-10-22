@@ -21,7 +21,26 @@ default_camera2 = dict(
     eye=dict(x=1, y=0, z=3)
 )
 
+DEFAULT_FOLDER_PATH = r"E:\PP\23_0005_0000 - Portal pomiarowy do stołów\Dokumentacja"
+
+
 def register_callbacks(app):
+    @app.callback(
+        Output('interval-update', 'interval'),
+        Input('refresh-interval', 'value')
+    )
+    def update_refresh_interval(seconds):
+        return seconds * 1000  # sekundy → ms
+
+    @app.callback(
+        Output('current-folder-label', 'children'),
+        Input('select-folder-btn', 'n_clicks'),
+        State('folder-input', 'value'),
+        prevent_initial_call=True
+    )
+    def select_folder(n_clicks, folder_input):
+        return folder_input
+
     @app.callback(
         Output('chart_plate', 'figure'),
         Output('chart_side_X1', 'figure'),

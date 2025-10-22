@@ -4,6 +4,8 @@ from Flatness.Web.layouts.translations import translations
 def get_3d_plots_layout(lang='pl'):
     tr = translations.get(lang, translations['pl'])
 
+    DEFAULT_FOLDER_PATH = r"E:\PP\23_0005_0000 - Portal pomiarowy do stołów\Dokumentacja"
+
     # --- Style bazowe spójne z layoutem PLC ---
     card_style = {
         'backgroundColor': '#ffffff',
@@ -37,8 +39,48 @@ def get_3d_plots_layout(lang='pl'):
         'fontWeight': '500',
     }
 
+    # --- Dropdown dla częstotliwości ---
+    refresh_dropdown = dcc.Dropdown(
+        id='refresh-interval',
+        options=[
+            {'label': f'{v} s', 'value': v} for v in [1, 2, 5, 10, 15, 30, 60]
+        ],
+        value=30,  # domyślnie 30 sekund
+        clearable=False,
+        style={'width': '100px'}
+    )
+
+    # przycisk do wyboru folderu
+    folder_button = html.Button(
+        tr.get('select_folder', '📁 Wybierz folder'),
+        id='select-folder-btn',
+        n_clicks=0,
+        style=button_style
+    )
+
+    # pole tekstowe z aktualną ścieżką
+    folder_input = dcc.Input(
+        id='folder-input',
+        type='text',
+        value=DEFAULT_FOLDER_PATH,  # np. wczytanie domyślnej ścieżki
+        style={'width': '400px'}
+    )
+
+    folder_label = html.Div(
+        id='current-folder-label',
+        children=DEFAULT_FOLDER_PATH,
+        style={
+            'marginLeft': '10px',
+            'fontSize': '14px',
+            'color': '#555',
+            'maxWidth': '600px',
+            'overflow': 'hidden',
+            'textOverflow': 'ellipsis',
+            'whiteSpace': 'nowrap'
+        }
+    )
+
     return html.Div([
-        # Nagłówek sekcji
         html.H2(
             tr['upload_csv'],
             style={
@@ -48,13 +90,11 @@ def get_3d_plots_layout(lang='pl'):
                 'textAlign': 'left',
             }
         ),
-        dcc.Interval(
-            id='interval-update',
-            interval=30 * 1000,  # 30 sekund w milisekundach
-            n_intervals=0
-        ),
 
-        # Sekcja upload + reset
+        # 🟡 Interval (będzie aktualizowany przez dropdown)
+        dcc.Interval(id='interval-update', interval=30 * 1000, n_intervals=0),
+
+        # 🔷 Sekcja upload + reset + refresh + folder
         html.Div([
             dcc.Upload(
                 id='upload-data',
@@ -70,11 +110,22 @@ def get_3d_plots_layout(lang='pl'):
                 n_clicks=0,
                 style=button_style
             ),
+            html.Div([
+                html.Span("⏱ ", style={'marginRight': '4px'}),
+                refresh_dropdown
+            ], style={'display': 'flex', 'alignItems': 'center', 'gap': '5px'}),
+
+            html.Div([
+                folder_input,
+                folder_button
+                #folder_label
+            ], style={'display': 'flex', 'alignItems': 'center', 'gap': '8px'})
         ], style={
             'display': 'flex',
             'gap': '14px',
             'alignItems': 'center',
             'marginBottom': '25px',
+            'flexWrap': 'wrap'
         }),
 
         # Wynik płaskości
@@ -88,36 +139,25 @@ def get_3d_plots_layout(lang='pl'):
             }
         ),
 
-        # Sekcja wykresów 3-kolumnowa
+        # --- Sekcja wykresów ---
         html.Div([
-            # Lewa kolumna – zdublowane małe wykresy
             html.Div([
-                html.Div([
-                    dcc.Graph(id='chart_side_X1', style={'height': '295px', 'width': '100%'})
-                ], style={**card_style, 'marginBottom': '10px'}),
-                html.Div([
-                    dcc.Graph(id='chart_side_Y1', style={'height': '295px', 'width': '100%'})
-                ], style=card_style)
+                html.Div([dcc.Graph(id='chart_side_X1', style={'height': '295px', 'width': '100%'})],
+                         style={**card_style, 'marginBottom': '10px'}),
+                html.Div([dcc.Graph(id='chart_side_Y1', style={'height': '295px', 'width': '100%'})],
+                         style=card_style)
             ], style={'flex': '1', 'display': 'flex', 'flexDirection': 'column', 'marginRight': '15px'}),
 
-            # Środkowa kolumna – główny wykres
             html.Div([
-                html.Div([
-                    dcc.Graph(
-                        id='chart_plate',
-                        style={'height': '600px', 'width': '100%'}
-                    )
-                ], style=card_style)
+                html.Div([dcc.Graph(id='chart_plate', style={'height': '600px', 'width': '100%'})],
+                         style=card_style)
             ], style={'flex': '3'}),
 
-            # Prawa kolumna – oryginalne małe wykresy
             html.Div([
-                html.Div([
-                    dcc.Graph(id='chart_side_X2', style={'height': '295px', 'width': '100%'})
-                ], style={**card_style, 'marginBottom': '10px'}),
-                html.Div([
-                    dcc.Graph(id='chart_side_Y2', style={'height': '295px', 'width': '100%'})
-                ], style=card_style)
+                html.Div([dcc.Graph(id='chart_side_X2', style={'height': '295px', 'width': '100%'})],
+                         style={**card_style, 'marginBottom': '10px'}),
+                html.Div([dcc.Graph(id='chart_side_Y2', style={'height': '295px', 'width': '100%'})],
+                         style=card_style)
             ], style={'flex': '1', 'display': 'flex', 'flexDirection': 'column', 'marginLeft': '15px'}),
         ], style={
             'display': 'flex',

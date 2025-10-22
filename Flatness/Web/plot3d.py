@@ -1,7 +1,12 @@
 import plotly.graph_objs as go
 import numpy as np
 
-def create_3d_scatter(df,coeffs,deviations):
+from Flatness.Web.layouts.translations import translations
+
+def create_3d_scatter(df,coeffs,deviations, lang='pl', view='main'):
+    # wybór tytułu zależnie od widoku
+    tr = translations.get(lang, translations['pl'])
+    title = tr.get(f'chart_{view}', tr['chart_main'])
 
     a, b, c = coeffs
 
@@ -68,13 +73,16 @@ def create_3d_scatter(df,coeffs,deviations):
             aspectmode = 'manual',
             aspectratio = dict(x=1, y=2, z=1)
         ),
-        title='Interaktywny wykres 3D'          # 19. Tytuł całego wykresu
+        title=title          # 19. Tytuł całego wykresu
     )
 
     # 20. Zwracamy gotową figurę Plotly, którą można wyświetlić w przeglądarce/komponentach Dash
     return fig
 
-def create_3d_scatter_top(df,coeffs,deviations):
+def create_3d_scatter_top(df,coeffs,deviations, lang='pl', view='main'):
+    # wybór tytułu zależnie od widoku
+    tr = translations.get(lang, translations['pl'])
+    title = tr.get(f'chart_{view}', tr['chart_main'])
 
     a, b, c = coeffs
 
@@ -121,7 +129,7 @@ def create_3d_scatter_top(df,coeffs,deviations):
                 eye=dict(x=0, y=0, z=2.5)  # Kamera patrzy z góry na płaszczyznę XY
             )
         ),
-        title='Interaktywny wykres 3D'          # 19. Tytuł całego wykresu
+        title=title          # 19. Tytuł całego wykresu
     )
 
     # 20. Zwracamy gotową figurę Plotly, którą można wyświetlić w przeglądarce/komponentach Dash

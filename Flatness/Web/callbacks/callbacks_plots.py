@@ -42,6 +42,21 @@ def register_callbacks(app):
         return folder_input
 
     @app.callback(
+        Output('interval-update', 'disabled'),
+        Output('interval-toggle-btn', 'children'),
+        Input('interval-toggle-btn', 'n_clicks'),
+        State('interval-update', 'disabled'),
+        prevent_initial_call=True
+    )
+    def toggle_interval(n_clicks, disabled):
+        # Jeśli disabled=True -> Startujemy, ustawiamy disabled=False
+        if disabled:
+            return False, "Stop"
+        else:
+            return True, "Start"
+
+
+    @app.callback(
         Output('chart_plate', 'figure'),
         Output('chart_side_X1', 'figure'),
         Output('chart_side_Y1', 'figure'),

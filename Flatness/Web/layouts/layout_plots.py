@@ -77,7 +77,7 @@ def get_3d_plots_layout(lang='pl'):
     )
 
     # Interval Dash
-    interval = dcc.Interval(id='interval-update', interval=30*1000, n_intervals=0)
+    interval = dcc.Interval(id='interval-update', interval=1000, n_intervals=0, disabled=True)
 
     # 🔷 Upload + Reset (górny wiersz)
     top_row = html.Div([

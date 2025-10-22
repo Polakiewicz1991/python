@@ -22,7 +22,6 @@ def parse_csv(contents_or_path, sep=';'):
 
     # opcjonalnie: walidacja kolumn, typów, usuwanie NULL
     # df = df.dropna()  # np. usunięcie pustych wierszy
-
     return df
 
 # def choose_folder():

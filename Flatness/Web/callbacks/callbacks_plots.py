@@ -5,7 +5,7 @@ import glob
 
 from Flatness.Web.data_handler import parse_csv
 from Flatness.Web.flatness_calculator import calculate_flatness
-from Flatness.Web.plot3d import create_3d_scatter, create_3d_scatter_top
+from Flatness.Web.plot3d import create_3d_scatter, create_3d_scatter_no_bar
 from Flatness.Web.layouts.translations import translations
 
 from Flatness.Web.layouts.layout_plots import get_3d_plots_layout
@@ -25,12 +25,12 @@ DEFAULT_FOLDER_PATH = r"E:\PP\23_0005_0000 - Portal pomiarowy do stołów\Dokume
 
 
 def register_callbacks(app):
-    @app.callback(
-        Output('interval-update', 'interval'),
-        Input('refresh-interval', 'value')
-    )
-    def update_refresh_interval(seconds):
-        return seconds * 1000  # sekundy → ms
+    # @app.callback(
+    #     Output('interval-update', 'interval'),
+    #     Input('refresh-interval', 'value')
+    # )
+    # def update_refresh_interval(seconds):
+    #     return seconds * 1000  # sekundy → ms
 
     @app.callback(
         Output('current-folder-label', 'children'),
@@ -43,17 +43,21 @@ def register_callbacks(app):
 
     @app.callback(
         Output('interval-update', 'disabled'),
+        Output('interval-update', 'interval'),
         Output('interval-toggle-btn', 'children'),
         Input('interval-toggle-btn', 'n_clicks'),
+        Input('refresh-interval', 'value'),
         State('interval-update', 'disabled'),
         prevent_initial_call=True
     )
-    def toggle_interval(n_clicks, disabled):
-        # Jeśli disabled=True -> Startujemy, ustawiamy disabled=False
+    def toggle_interval(n_clicks, refresh_value, disabled):
+        interval_ms = refresh_value * 1000 if refresh_value else 30_000
         if disabled:
-            return False, "Stop"
+            # Start
+            return False, interval_ms, "Stop"
         else:
-            return True, "Start"
+            # Stop
+            return True, interval_ms, "Start"
 
 
     @app.callback(
@@ -134,10 +138,10 @@ def register_callbacks(app):
         flatness_value, coeffs, deviations = calculate_flatness(df)
 
         fig_main = create_3d_scatter(df, coeffs, deviations, lang=lang, view='main')
-        fig_sideX1 = create_3d_scatter(df, coeffs, deviations, lang=lang, view='side_x1')
-        fig_sideY1 = create_3d_scatter(df, coeffs, deviations, lang=lang, view='side_y1')
-        fig_sideX2 = create_3d_scatter(df, coeffs, deviations, lang=lang, view='side_x2')
-        fig_sideY2 = create_3d_scatter(df, coeffs, deviations, lang=lang, view='side_y2')
+        fig_sideX1 = create_3d_scatter_no_bar(df, coeffs, deviations, lang=lang, view='side_x1')
+        fig_sideY1 = create_3d_scatter_no_bar(df, coeffs, deviations, lang=lang, view='side_y1')
+        fig_sideX2 = create_3d_scatter_no_bar(df, coeffs, deviations, lang=lang, view='side_x2')
+        fig_sideY2 = create_3d_scatter_no_bar(df, coeffs, deviations, lang=lang, view='side_y2')
 
         fig_main.update_layout(scene_camera=default_camera)
         fig_sideX1.update_layout(scene_camera=default_camera2)

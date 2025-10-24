@@ -8,7 +8,7 @@ translations = {
         'length': "Długość:",
         'width': "Szerokość:",
         'height': "Wysokość:",
-        'active_reference': "Aktywna referencmeanja",
+        'active_reference': "Aktywna referencja",
         'next_reference': "Następna referencja",
         'lp': "Lp.",
         'value': "Wartość",

@@ -33,11 +33,12 @@ def read_csv_to_nested_dict(file_path):
                 array_data[var_name].append((row_idx, col_idx, value))
                 continue
 
+            # Try numeric conversion
             if value.replace('.', '', 1).isdigit():
                 value = float(value) if '.' in value else int(value)
 
+            # Handle nested structures
             parts = full_key.split('.')
-
             if parts[0].startswith("st"):
                 current = data
                 for part in parts[:-1]:
@@ -46,9 +47,9 @@ def read_csv_to_nested_dict(file_path):
                     current = current[part]
                 current[parts[-1]] = value
             else:
-                key_name = parts[-1]
-                data[key_name] = value
+                data[parts[-1]] = value
 
+    # Convert collected 2D arrays
     for name, entries in array_data.items():
         max_row = max(i for i, _, _ in entries)
         max_col = max(j for _, j, _ in entries)
@@ -63,13 +64,13 @@ def read_csv_to_nested_dict(file_path):
 def read_all_csv_in_folder(folder_path):
     all_data = {}
     for filename in os.listdir(folder_path):
-        if filename.lower().endswith('.csv'):
+        if filename.lower().endswith(".csv"):
             file_path = os.path.join(folder_path, filename)
             all_data[filename] = read_csv_to_nested_dict(file_path)
     return all_data
 
 
-def flatten_dict(d, parent_key='', sep='.'):
+def flatten_dict(d, parent_key="", sep="."):
     """Flatten nested dictionaries for tabular display"""
     items = []
     for k, v in d.items():

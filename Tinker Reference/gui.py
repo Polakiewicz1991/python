@@ -168,7 +168,10 @@ class CSVCompareApp:
             )
             self.checkbox_states[item_id] = False
 
+        # --- Tutaj dodajemy bind na edycję ---
         self.tree.bind("<Button-1>", self.toggle_checkbox)
+        self.tree.bind("<Double-1>", self.edit_cell)
+
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         # Aktualizacja statusu
@@ -313,3 +316,28 @@ class CSVCompareApp:
 
         except Exception as e:
             messagebox.showerror("Błąd zapisu", f"❌ Wystąpił błąd podczas zapisu:\n{e}")
+
+    def edit_cell(self, event):
+        """Pozwala edytować wartość w tabeli po dwukliku."""
+        row_id = self.tree.identify_row(event.y)
+        col = self.tree.identify_column(event.x)
+
+        if not row_id or col == "#1":  # Nie edytujemy kolumny Select
+            return
+
+        x, y, width, height = self.tree.bbox(row_id, col)
+        value = self.tree.set(row_id, column=col)
+
+        # Entry do edycji
+        entry = tk.Entry(self.tree)
+        entry.place(x=x, y=y, width=width, height=height)
+        entry.insert(0, value)
+        entry.focus()
+
+        def save_edit(event=None):
+            new_val = entry.get()
+            self.tree.set(row_id, column=col, value=new_val)
+            entry.destroy()
+
+        entry.bind("<Return>", save_edit)
+        entry.bind("<FocusOut>", save_edit)

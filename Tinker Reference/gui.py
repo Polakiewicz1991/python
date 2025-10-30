@@ -309,17 +309,12 @@ class CSVCompareApp:
                             f"Skopiowano {copied} zmiennych z {base_col} do pozostałych plików.")
 
     def save_changes(self):
-        """
-        Zapisuje pełne pliki CSV: zachowujemy wszystkie zmienne w self.all_data,
-        ale aktualizujemy wartości na podstawie tego, co jest obecnie w Treeview.
-        Dzięki temu ukryte wiersze (filtr 'ukryj identyczne') nie zostaną utracone.
-        """
         if not self.selected_files:
             messagebox.showwarning("Brak plików", "Nie wybrano żadnych plików do zapisu.")
             return
 
         try:
-            # 1) Odbuduj "pełny" DataFrame (bez filtrów) z self.all_data dla wybranych plików
+            # 1) Odbuduj pełny DataFrame z self.all_data
             base_file = self.selected_files[0]
             base_flat_full = flatten_dict(self.all_data.get(base_file, {}))
             full_df = pd.DataFrame(list(base_flat_full.items()), columns=["Variable", base_file])
@@ -331,27 +326,36 @@ class CSVCompareApp:
 
             full_df = full_df.fillna("")
 
-            # 2) Przygotuj słowniki do zapisu (inicjalizowane z pełnego DF)
-            file_value_maps = {}  # filename -> {variable: value}
+            # 2) Przygotuj słowniki do zapisu
+            file_value_maps = {}
             for col in full_df.columns[1:]:
                 file_value_maps[col] = dict(zip(full_df["Variable"], full_df[col].astype(str)))
 
-            # 3) Przejdź po wierszach obecnych w Treeview i zaktualizuj tylko te zmienne
-            for row_id in self.tree.get_children():
-                vals = list(self.tree.item(row_id, "values"))
+            # 3) Funkcja rekurencyjna do przeglądania wszystkich węzłów
+            def update_values(node_id):
+                vals = list(self.tree.item(node_id, "values"))
+                if len(vals) < 3:
+                    # węzeł nadrzędny -> idź do dzieci
+                    for child in self.tree.get_children(node_id):
+                        update_values(child)
+                    return
+
                 variable = vals[1]
                 for idx, filename in enumerate(list(full_df.columns[1:]), start=2):
                     new_val = vals[idx]
                     file_value_maps[filename][variable] = str(new_val)
 
-            # 4) Zapisz każdą mapę do pliku CSV (bez dodawania prefixu!)
+            # wywołanie dla wszystkich korzeni
+            for root in self.tree.get_children():
+                update_values(root)
+
+            # 4) Zapis do CSV
             folder = FOLDER_PATH
             os.makedirs(folder, exist_ok=True)
 
             for filename, mapping in file_value_maps.items():
-                to_write = {var_key: val for var_key, val in mapping.items()}
                 file_path = os.path.join(folder, filename)
-                write_dict_to_csv(to_write, file_path)
+                write_dict_to_csv(mapping, file_path)
 
             messagebox.showinfo("Zapis zakończony", f"✅ Zapisano zmiany do {len(self.selected_files)} plików CSV.")
 

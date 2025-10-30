@@ -132,7 +132,7 @@ class CSVCompareApp:
         self.tree = ttk.Treeview(
             self.table_container,
             columns=cols,
-            show="headings",
+            show="tree headings",
             selectmode="none",
             yscrollcommand=self.scrollbar_y.set
         )
@@ -148,9 +148,32 @@ class CSVCompareApp:
         self.tree.tag_configure("diff", background="#ffcccc")
         self.tree.tag_configure("checked", background="#ccffcc")
 
+        # --- Checkboxy i dane z hierarchią ---
         self.checkbox_states = {}
+        tree_nodes = {}  # cache do przechowywania ścieżek
+
         for _, row in df.iterrows():
             values = list(row)
+            var_path = values[0].split(".")  # dzielimy nazwę na części
+            parent = ""
+            full_path = ""
+
+            # w pętli tworzącej hierarchię
+            for level in var_path[:-1]:
+                full_path = full_path + "." + level if full_path else level
+                if full_path not in tree_nodes:
+                    node_id = self.tree.insert(parent, "end", text=level, values=["☐", ""], open=True)
+                    tree_nodes[full_path] = node_id
+                    self.checkbox_states[node_id] = False  # stan checkboxa nadrzędnego
+                parent = tree_nodes[full_path]
+
+            # dla zmiennej końcowej
+            # item_id = self.tree.insert(parent, "end", text=var_name, values=[select_symbol] + values,
+            #                            tags=("diff",) if diff else ())
+            # self.checkbox_states[item_id] = False
+
+            # ostatni element (zmienna końcowa)
+            var_name = var_path[-1]
             ref_value = None
             diff = False
             for val in values[1:]:
@@ -159,10 +182,12 @@ class CSVCompareApp:
                 elif str(val) != str(ref_value):
                     diff = True
                     break
+
             select_symbol = "☐"
             item_id = self.tree.insert(
-                "",
-                tk.END,
+                parent,
+                "end",
+                text=var_name,
                 values=[select_symbol] + values,
                 tags=("diff",) if diff else ()
             )
@@ -219,26 +244,38 @@ class CSVCompareApp:
             df = pd.DataFrame(df_filtered, columns=df.columns)
 
     def toggle_checkbox(self, event):
-        """Kliknięcie w kolumnę Select przełącza stan checkboxa."""
         region = self.tree.identify_region(event.x, event.y)
         if region != "cell":
             return
 
         col = self.tree.identify_column(event.x)
-        if col != "#1":  # tylko pierwsza kolumna ("Select")
+        if col != "#1":
             return
 
         row_id = self.tree.identify_row(event.y)
         if not row_id:
             return
 
+        # przełącz stan checkboxa
         current = self.checkbox_states.get(row_id, False)
         new_state = not current
         self.checkbox_states[row_id] = new_state
 
+        # Zaktualizuj symbol
         values = list(self.tree.item(row_id, "values"))
         values[0] = "☑" if new_state else "☐"
-        self.tree.item(row_id, values=values, tags=("checked",) if new_state else ())
+        self.tree.item(row_id, values=values)
+
+        # Jeśli węzeł ma dzieci, zaznacz/odznacz wszystkie dzieci rekurencyjnie
+        def set_children(node, state):
+            for child in self.tree.get_children(node):
+                self.checkbox_states[child] = state
+                child_vals = list(self.tree.item(child, "values"))
+                child_vals[0] = "☑" if state else "☐"
+                self.tree.item(child, values=child_vals)
+                set_children(child, state)
+
+        set_children(row_id, new_state)
 
     def copy_selected(self):
         """Kopiuj dane z kolumny 1 (pierwszy plik) do pozostałych dla zaznaczonych zmiennych."""
@@ -255,6 +292,10 @@ class CSVCompareApp:
                 continue
 
             values = list(self.tree.item(row_id, "values"))
+            # pomiń węzły nadrzędne, które nie mają wszystkich kolumn
+            if len(values) < 3:
+                continue
+
             var_name = values[1]
             base_value = values[2]  # kolumna po Variable
 
@@ -318,26 +359,31 @@ class CSVCompareApp:
             messagebox.showerror("Błąd zapisu", f"❌ Wystąpił błąd podczas zapisu:\n{e}")
 
     def edit_cell(self, event):
-        """Pozwala edytować wartość w tabeli po dwukliku."""
-        row_id = self.tree.identify_row(event.y)
-        col = self.tree.identify_column(event.x)
+        """Pozwala edytować wartość po dwukliku w komórkę (ale nie kolumnę #0 ani checkbox)."""
+        region = self.tree.identify_region(event.x, event.y)
+        if region != "cell":
+            return
 
-        if not row_id or col == "#1":  # Nie edytujemy kolumny Select
+        col = self.tree.identify_column(event.x)
+        if col in ("#0", "#1"):  # <--- NIE EDYTUJ kolumny hierarchii ani checkboxa
+            return
+
+        row_id = self.tree.identify_row(event.y)
+        if not row_id:
             return
 
         x, y, width, height = self.tree.bbox(row_id, col)
         value = self.tree.set(row_id, column=col)
 
-        # Entry do edycji
         entry = tk.Entry(self.tree)
         entry.place(x=x, y=y, width=width, height=height)
         entry.insert(0, value)
         entry.focus()
 
-        def save_edit(event=None):
-            new_val = entry.get()
-            self.tree.set(row_id, column=col, value=new_val)
+        def save_edit(event):
+            new_value = entry.get()
+            self.tree.set(row_id, column=col, value=new_value)
             entry.destroy()
 
         entry.bind("<Return>", save_edit)
-        entry.bind("<FocusOut>", save_edit)
+        entry.bind("<FocusOut>", lambda e: entry.destroy())

@@ -25,10 +25,28 @@ class CSVCompareApp:
         self.file_combo = ttk.Combobox(top_frame, values=list(self.all_data.keys()), state="readonly")
         self.file_combo.pack(side=tk.LEFT, padx=5)
 
-        tk.Button(top_frame, text="➕ Dodaj plik", command=self.add_file, bg="#007bff", fg="white").pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="➖ Usuń plik", command=self.remove_file, bg="#dc3545", fg="white").pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="🔄 Odśwież", command=self.show_table, bg="#17a2b8", fg="white").pack(side=tk.LEFT, padx=5)
-        tk.Button(top_frame, text="💾 Zapisz zmiany", command=self.save_changes, bg="#28a745", fg="white").pack(side=tk.LEFT, padx=5)
+        tk.Button(top_frame, text="➕ Dodaj plik", command=self.add_file, bg="#007bff", fg="white").pack(side=tk.LEFT,
+                                                                                                        padx=5)
+        tk.Button(top_frame, text="➖ Usuń plik", command=self.remove_file, bg="#dc3545", fg="white").pack(side=tk.LEFT,
+                                                                                                          padx=5)
+        tk.Button(top_frame, text="🔄 Odśwież", command=self.show_table, bg="#17a2b8", fg="white").pack(side=tk.LEFT,
+                                                                                                       padx=5)
+        tk.Button(top_frame, text="💾 Zapisz zmiany", command=self.save_changes, bg="#28a745", fg="white").pack(
+            side=tk.LEFT, padx=5)
+
+        # ✅ Checkbox: Ukryj identyczne wartości
+        self.hide_identical_var = tk.BooleanVar(value=False)
+        self.hide_identical_check = tk.Checkbutton(
+            top_frame,
+            text="Ukryj identyczne wartości",
+            variable=self.hide_identical_var,
+            bg="#343a40",
+            fg="white",
+            selectcolor="#343a40",
+            activebackground="#343a40",
+            command=self.show_table
+        )
+        self.hide_identical_check.pack(side=tk.LEFT, padx=10)
 
         self.status_label = tk.Label(top_frame, text="", fg="white", bg="#343a40")
         self.status_label.pack(side=tk.RIGHT, padx=10)
@@ -90,20 +108,26 @@ class CSVCompareApp:
             df = pd.merge(df, df_temp, on="Variable", how="outer")
 
         df = df.fillna("")
+
+        # --- 🔹 FILTROWANIE: ukryj identyczne wartości ---
+        if self.hide_identical_var.get():
+            mask = df.apply(
+                lambda row: len(set(str(v) for v in row[1:])) > 1, axis=1
+            )
+            df = df[mask]
+
         self.df = df
 
-        # Usuń starą tabelę i starą ramkę z tabelą
+        # Usuń starą tabelę
         if hasattr(self, "table_container"):
             self.table_container.destroy()
 
         self.table_container = tk.Frame(self.table_frame)
         self.table_container.pack(fill=tk.BOTH, expand=True)
 
-        # Scrollbar (tylko jeden)
         self.scrollbar_y = ttk.Scrollbar(self.table_container, orient="vertical")
         self.scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # --- Kolumny ---
         cols = ["Select"] + list(df.columns)
         self.tree = ttk.Treeview(
             self.table_container,
@@ -121,11 +145,9 @@ class CSVCompareApp:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=200, anchor="w")
 
-        # --- Style ---
-        self.tree.tag_configure("diff", background="#ffcccc")  # czerwony – różnice
-        self.tree.tag_configure("checked", background="#ccffcc")  # zielony – zaznaczone
+        self.tree.tag_configure("diff", background="#ffcccc")
+        self.tree.tag_configure("checked", background="#ccffcc")
 
-        # --- Checkboxy i dane ---
         self.checkbox_states = {}
         for _, row in df.iterrows():
             values = list(row)
@@ -149,34 +171,50 @@ class CSVCompareApp:
         self.tree.bind("<Button-1>", self.toggle_checkbox)
         self.tree.pack(fill=tk.BOTH, expand=True)
 
+        # Aktualizacja statusu
+        total = len(flatten_dict(self.all_data.get(base_file, {})))
+        visible = len(df)
         self.status_label.config(
-            text=f"Porównano {len(self.selected_files)} plików, {len(df)} zmiennych."
+            text=f"Porównano {len(self.selected_files)} plików, wyświetlono {visible}/{total} zmiennych."
         )
 
         # --- Przyciski akcji (kopiuj + zapisz) ---
-        if not hasattr(self, "buttons_frame"):
-            self.buttons_frame = tk.Frame(self.master)
-            self.buttons_frame.pack(pady=10)
+        # Usuwamy stare przyciski, jeśli istnieją
+        if hasattr(self, "buttons_frame"):
+            self.buttons_frame.destroy()
 
-            self.copy_button = tk.Button(
-                self.buttons_frame,
-                text="📋 Kopiuj zaznaczone zmienne →",
-                bg="#007bff",
-                fg="white",
-                font=("Arial", 10, "bold"),
-                command=self.copy_selected
-            )
-            self.copy_button.pack(side=tk.LEFT, padx=10)
+        self.buttons_frame = tk.Frame(self.master)
+        self.buttons_frame.pack(pady=10)
 
-            self.save_button = tk.Button(
-                self.buttons_frame,
-                text="💾 Zapisz zmiany do CSV",
-                bg="#28a745",
-                fg="white",
-                font=("Arial", 10, "bold"),
-                command=self.save_changes
-            )
-            self.save_button.pack(side=tk.LEFT, padx=10)
+        self.copy_button = tk.Button(
+            self.buttons_frame,
+            text="📋 Kopiuj zaznaczone zmienne →",
+            bg="#007bff",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            command=self.copy_selected
+        )
+        self.copy_button.pack(side=tk.LEFT, padx=10)
+
+        self.save_button = tk.Button(
+            self.buttons_frame,
+            text="💾 Zapisz zmiany do CSV",
+            bg="#28a745",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            command=self.save_changes
+        )
+        self.save_button.pack(side=tk.LEFT, padx=10)
+
+        if self.hide_identical_var.get():
+            # filtruj tylko wiersze z różnicami
+            df_filtered = []
+            for _, row in df.iterrows():
+                vals = row[1:].astype(str).tolist()
+                if len(set(vals)) > 1:
+                    df_filtered.append(row)
+            df = pd.DataFrame(df_filtered, columns=df.columns)
+
     def toggle_checkbox(self, event):
         """Kliknięcie w kolumnę Select przełącza stan checkboxa."""
         region = self.tree.identify_region(event.x, event.y)

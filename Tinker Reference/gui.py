@@ -265,39 +265,51 @@ class CSVCompareApp:
                             f"Skopiowano {copied} zmiennych z {base_col} do pozostałych plików.")
 
     def save_changes(self):
-        """Zapisuje bieżące dane z tabeli do plików CSV z użyciem write_dict_to_csv()."""
+        """
+        Zapisuje pełne pliki CSV: zachowujemy wszystkie zmienne w self.all_data,
+        ale aktualizujemy wartości na podstawie tego, co jest obecnie w Treeview.
+        Dzięki temu ukryte wiersze (filtr 'ukryj identyczne') nie zostaną utracone.
+        """
         if not self.selected_files:
             messagebox.showwarning("Brak plików", "Nie wybrano żadnych plików do zapisu.")
             return
 
         try:
-            # Pobierz wszystkie wiersze z Treeview
-            rows = []
+            # 1) Odbuduj "pełny" DataFrame (bez filtrów) z self.all_data dla wybranych plików
+            base_file = self.selected_files[0]
+            base_flat_full = flatten_dict(self.all_data.get(base_file, {}))
+            full_df = pd.DataFrame(list(base_flat_full.items()), columns=["Variable", base_file])
+
+            for filename in self.selected_files[1:]:
+                flat = flatten_dict(self.all_data.get(filename, {}))
+                df_temp = pd.DataFrame(list(flat.items()), columns=["Variable", filename])
+                full_df = pd.merge(full_df, df_temp, on="Variable", how="outer")
+
+            full_df = full_df.fillna("")
+
+            # 2) Przygotuj słowniki do zapisu (inicjalizowane z pełnego DF)
+            file_value_maps = {}  # filename -> {variable: value}
+            for col in full_df.columns[1:]:
+                file_value_maps[col] = dict(zip(full_df["Variable"], full_df[col].astype(str)))
+
+            # 3) Przejdź po wierszach obecnych w Treeview i zaktualizuj tylko te zmienne
             for row_id in self.tree.get_children():
-                row_values = list(self.tree.item(row_id, "values"))
-                rows.append(row_values)
+                vals = list(self.tree.item(row_id, "values"))
+                variable = vals[1]
+                for idx, filename in enumerate(list(full_df.columns[1:]), start=2):
+                    new_val = vals[idx]
+                    file_value_maps[filename][variable] = str(new_val)
 
-            # Kolumny (pomijamy "Select")
-            columns = self.tree["columns"][1:]  # ["Variable", "file1", "file2", ...]
-
-            df = pd.DataFrame(rows, columns=["Select"] + list(columns))
-            df = df.drop(columns=["Select"])
-
-            # Folder z plikami CSV
-            folder = "./csv_data"
+            # 4) Zapisz każdą mapę do pliku CSV (bez dodawania prefixu!)
+            folder = FOLDER_PATH
             os.makedirs(folder, exist_ok=True)
 
-            # Zapisz zmiany dla każdego pliku
-            for col in df.columns[1:]:
-                file_path = os.path.join(folder, col)
+            for filename, mapping in file_value_maps.items():
+                to_write = {var_key: val for var_key, val in mapping.items()}
+                file_path = os.path.join(folder, filename)
+                write_dict_to_csv(to_write, file_path)
 
-                # Zamiana dataframe na słownik {zmienna: wartość}
-                data_dict = dict(zip(df["Variable"], df[col]))
-
-                # Użycie Twojej funkcji z data_utils
-                write_dict_to_csv(data_dict, file_path)
-
-            messagebox.showinfo("Zapis zakończony", f"✅ Zapisano zmiany do {len(df.columns) - 1} plików CSV.")
+            messagebox.showinfo("Zapis zakończony", f"✅ Zapisano zmiany do {len(self.selected_files)} plików CSV.")
 
         except Exception as e:
             messagebox.showerror("Błąd zapisu", f"❌ Wystąpił błąd podczas zapisu:\n{e}")

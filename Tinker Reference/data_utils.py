@@ -81,34 +81,39 @@ def flatten_dict(d, parent_key="", sep="."):
             items.append((new_key, v))
     return dict(items)
 
-def write_dict_to_csv(data, file_path, prefix="GVL_Reference.MAP."):
-    def flatten_dict(prefix_path, value, rows):
-        """Recursively flatten nested dicts and arrays."""
-        if isinstance(value, dict):
-            for k, v in value.items():
-                flatten_dict(f"{prefix_path}{k}.", v, rows)
-        elif isinstance(value, list):
-            if all(isinstance(row, list) for row in value):  # 2D list
-                for i, row in enumerate(value):
-                    for j, cell in enumerate(row):
-                        rows.append([f"{prefix_path[:-1]}[{i+1}, {j}]", cell])
-            else:  # 1D list
-                for i, cell in enumerate(value):
-                    rows.append([f"{prefix_path[:-1]}[{i}]", cell])
-        else:
-            rows.append([prefix_path[:-1], value])
-
-    rows = []
-    for key, value in data.items():
-        flatten_dict(prefix + key + ".", value, rows)
-
-    # Save to CSV
-    with open(file_path, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file, delimiter=';')
-        for row in rows:
-            writer.writerow(row)
-
-    print(f"✅ Data successfully saved to '{file_path}'")
+# def write_dict_to_csv(data, file_path, prefix="GVL_Reference.MAP."):
+    # def flatten_dict(prefix_path, value, rows):
+    #     if isinstance(value, dict):
+    #         for k, v in value.items():
+    #             flatten_dict(f"{prefix_path}{k}.", v, rows)
+    #     elif isinstance(value, list):
+    #         if all(isinstance(row, list) for row in value):
+    #             for i, row in enumerate(value):
+    #                 for j, cell in enumerate(row):
+    #                     rows.append([f"{prefix_path[:-1]}[{i+1}, {j}]", cell])
+    #         else:
+    #             for i, cell in enumerate(value):
+    #                 rows.append([f"{prefix_path[:-1]}[{i}]", cell])
+    #     else:
+    #         rows.append([prefix_path[:-1], value])
+    #
+    # rows = []
+    # for key, value in data.items():
+    #     flatten_dict(prefix + key + ".", value, rows)
+    #
+    # # Zapis do pliku CSV
+    # with open(file_path, "w", encoding="utf-8", newline="") as f:
+    #     writer = csv.writer(f, delimiter=";")
+    #     writer.writerows(rows)
+def write_dict_to_csv(data, file_path):
+    """
+    Zapisuje dane w formacie:
+    GVL_Reference.MAP.iRobotPlasmaSteps[1, 0];3
+    """
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f, delimiter=';')
+        for key, value in data.items():
+            writer.writerow([key, value])
 
 def save_dict_to_csv(data_dict, file_path):
     """

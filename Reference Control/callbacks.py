@@ -1,36 +1,36 @@
-from dash import Output, Input, State, html, dash_table, ctx, no_update
-from data_utils import flatten_dict
+# callbacks.py
+from dash import Output, Input, State, html, dash_table
+from data_utils import flatten_dict, save_dict_to_csv
 import pandas as pd
-import numpy as np
 import json
+import os
 
+FOLDER_PATH = "./csv_data"
 
 def safe_value(value):
+    # convert complex values to JSON string for table display
     if isinstance(value, (dict, list)):
         return json.dumps(value, ensure_ascii=False)
-    elif isinstance(value, (np.generic,)):
-        return value.item()
-    elif value is None:
+    if value is None:
         return ""
-    else:
-        return value
-
+    return value
 
 def register_callbacks(app, all_data):
 
-    # --- GENERATOR TABELI ---
+    # ---------- 1) GENEROWANIE TABELI ----------
     @app.callback(
         Output("tables-container", "children"),
-        Input("file-multi-dropdown", "value")
+        Input("file-multi-dropdown", "value"),
+        prevent_initial_call=True
     )
     def update_tables(selected_files):
         if not selected_files:
             return html.P("Select one or more CSV files to view.",
                           style={"color": "gray", "textAlign": "center"})
 
+        # build comparison dataframe
         base_filename = selected_files[0]
-        base_data = all_data.get(base_filename, {})
-        base_flat = flatten_dict(base_data)
+        base_flat = flatten_dict(all_data.get(base_filename, {}))
         df = pd.DataFrame(list(base_flat.items()), columns=["Variable", base_filename])
 
         for filename in selected_files[1:]:
@@ -39,31 +39,18 @@ def register_callbacks(app, all_data):
             df = pd.merge(df, df_temp, on="Variable", how="outer")
 
         df = df.fillna("")
-        df = df.map(safe_value)
+        df = df.applymap(safe_value)
 
-        df.insert(0, "Overwrite?", ["⬜"] * len(df))
-
-        style_data_conditional = []
-        if len(selected_files) > 1:
-            ref_col = base_filename
-            for col in selected_files[1:]:
-                style_data_conditional.append({
-                    "if": {"filter_query": f"{{{col}}} != {{{ref_col}}}", "column_id": col},
-                    "backgroundColor": "#ffcccc"
-                })
-
-        columns = (
-            [{"name": "Overwrite?", "id": "Overwrite?", "presentation": "markdown"}] +
-            [{"name": "Variable", "id": "Variable"}] +
-            [{"name": col, "id": col} for col in selected_files]
-        )
+        # Use row_selectable to select rows — simpler and robust
+        columns = [{"name": "Variable", "id": "Variable"}] + [{"name": col, "id": col} for col in selected_files]
 
         table = dash_table.DataTable(
             id="comparison-table",
             columns=columns,
             data=df.to_dict("records"),
-            row_selectable="multi",
-            editable=True,
+            row_selectable="multi",    # user can select rows (works reliably)
+            selected_rows=[],          # ensure property exists
+            editable=True,             # allow editing cells if needed
             style_table={"overflowY": "visible", "maxHeight": "none"},
             style_cell={
                 "textAlign": "left",
@@ -77,13 +64,12 @@ def register_callbacks(app, all_data):
                 "fontWeight": "bold",
                 "textAlign": "center"
             },
-            style_data_conditional=style_data_conditional,
-            page_action="none",
+            page_action="none"
         )
 
         return html.Div([
             html.H3(f"Comparison based on: {base_filename}",
-                    style={"textAlign": "center", "marginBottom": "15px"}),
+                    style={"textAlign": "center", "marginBottom": "12px"}),
             table
         ], style={
             "flex": "1 0 100%",
@@ -95,27 +81,72 @@ def register_callbacks(app, all_data):
             "boxShadow": "0 2px 6px rgba(0,0,0,0.1)"
         })
 
-    # --- KOPIOWANIE WARTOŚCI Z TABELI 1 DO POZOSTAŁYCH ---
+
+    # ---------- 2) COPY SELECTED: kopiuj wartości z kolumny 0 do innych kolumn ----------
     @app.callback(
         Output("comparison-table", "data"),
         Output("copy-output", "children"),
         Input("copy-button", "n_clicks"),
-        State("comparison-table", "derived_virtual_selected_rows"),
+        State("comparison-table", "selected_rows"),
         State("comparison-table", "data"),
         State("file-multi-dropdown", "value"),
         prevent_initial_call=True
     )
-    def copy_values_between_files(n_clicks, selected_rows, table_data, selected_files):
-        if not selected_rows or not table_data or len(selected_files) < 2:
-            return table_data, "⚠️ No rows or target files selected."
+    def copy_selected_to_targets(n_clicks, selected_rows, table_data, selected_files):
+        # safety guards
+        if not table_data:
+            return dash_table.DataTable().data, "⚠️ Table empty."
+        if not selected_files or len(selected_files) < 2:
+            return table_data, "⚠️ Select at least 2 files (one source + targets)."
+        if not selected_rows:
+            return table_data, "⚠️ No rows selected."
 
         base_col = selected_files[0]
         target_cols = selected_files[1:]
 
-        # kopiujemy wartości
-        for i in selected_rows:
-            base_value = table_data[i][base_col]
-            for col in target_cols:
-                table_data[i][col] = base_value
+        # Work on a copy to avoid mutation surprises
+        new_data = [row.copy() for row in table_data]
 
-        return table_data, f"✅ Copied {len(selected_rows)} rows from '{base_col}' to {len(target_cols)} table(s)."
+        for r_idx in selected_rows:
+            # guard row index range
+            if r_idx < 0 or r_idx >= len(new_data):
+                continue
+            base_value = new_data[r_idx].get(base_col, "")
+            # copy into every target column
+            for tcol in target_cols:
+                new_data[r_idx][tcol] = base_value
+
+        return new_data, f"✅ Copied {len(selected_rows)} row(s) from '{base_col}' to {len(target_cols)} target file(s)."
+
+
+    # ---------- 3) SAVE CHANGES: zapisz bieżące dane tabeli do CSV ----------
+    @app.callback(
+        Output("copy-output", "children", allow_duplicate=True),
+        Input("save-button", "n_clicks"),
+        State("comparison-table", "data"),
+        State("file-multi-dropdown", "value"),
+        prevent_initial_call=True
+    )
+    def save_table_to_csv(n_clicks, table_data, selected_files):
+        if not table_data:
+            return "⚠️ No data to save."
+        if not selected_files:
+            return "⚠️ No files selected."
+
+        try:
+            # rebuild per-file dictionaries and save
+            for filename in selected_files:
+                new_dict = {}
+                for row in table_data:
+                    var = row.get("Variable")
+                    if var is None:
+                        continue
+                    # read value for this filename (if missing -> empty string)
+                    value = row.get(filename, "")
+                    new_dict[var] = value
+                file_path = os.path.join(FOLDER_PATH, filename)
+                save_dict_to_csv(new_dict, file_path)
+
+            return f"✅ Saved changes to {len(selected_files)} file(s)."
+        except Exception as e:
+            return f"❌ Error saving: {e}"

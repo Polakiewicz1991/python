@@ -3,7 +3,7 @@ from dash import html, dcc
 def serve_layout(all_data):
     return html.Div([
 
-        # --- 🔹 Pasek nawigacyjny (sticky header) ---
+        # --- Sticky Navbar ---
         html.Div([
             html.H2("CSV Comparison Tool", style={
                 "color": "white",
@@ -40,6 +40,22 @@ def serve_layout(all_data):
                 },
             ),
 
+            html.Button(
+                "Save Changes",
+                id="save-button",
+                n_clicks=0,
+                style={
+                    "display": "inline-block",
+                    "backgroundColor": "#28a745",
+                    "color": "white",
+                    "border": "none",
+                    "padding": "8px 15px",
+                    "borderRadius": "5px",
+                    "cursor": "pointer",
+                    "marginLeft": "10px"
+                },
+            ),
+
             html.Div(id="copy-output", style={
                 "marginLeft": "20px",
                 "color": "#d4edda",
@@ -49,7 +65,7 @@ def serve_layout(all_data):
         ],
             id="navbar",
             style={
-                "position": "fixed",       # <- zawsze na górze
+                "position": "fixed",
                 "top": "0",
                 "left": "0",
                 "right": "0",
@@ -64,7 +80,6 @@ def serve_layout(all_data):
             }
         ),
 
-        # --- 🔹 Główna sekcja (tabele) ---
         html.Div(
             id="tables-container",
             style={
@@ -72,7 +87,7 @@ def serve_layout(all_data):
                 "flexWrap": "wrap",
                 "justifyContent": "center",
                 "gap": "20px",
-                "paddingTop": "80px",  # <- odsuń zawartość, żeby pasek nie zasłaniał
+                "paddingTop": "80px",
                 "paddingBottom": "40px"
             }
         )

@@ -7,7 +7,7 @@ import dash
 FOLDER_PATH = "./csv_data"
 all_data = read_all_csv_in_folder(FOLDER_PATH)
 
-app = Dash(__name__)
+app = Dash(__name__, suppress_callback_exceptions=True)
 app.title = "CSV Compare Tool"
 app.layout = serve_layout(all_data)
 

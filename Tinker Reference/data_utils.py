@@ -12,7 +12,7 @@ def read_csv_to_nested_dict(file_path):
     }
     """
     data = {}
-    with open(file_path, newline='', encoding='utf-8') as file:
+    with open(file_path, newline='',  encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=';')
         for row in reader:
             if len(row) != 2:

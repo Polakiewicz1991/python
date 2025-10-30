@@ -1,15 +1,25 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import pandas as pd
 import os
+import re
+import sys
 from data_utils import read_all_csv_in_folder, flatten_dict, write_dict_to_csv
 
-FOLDER_PATH = "./csv_data"
+if getattr(sys, 'frozen', False):
+    BASE_PATH = sys._MEIPASS  # folder tymczasowy PyInstaller
+else:
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+# Domyślnie brak folderu CSV – użytkownik wybiera go ręcznie
+FOLDER_PATH = None
+
+print("BASE_PATH:", BASE_PATH)
 
 class CSVCompareApp:
     def __init__(self, master):
         self.master = master
-        self.all_data = read_all_csv_in_folder(FOLDER_PATH)
+        self.all_data = read_all_csv_in_folder(FOLDER_PATH) if FOLDER_PATH and os.path.isdir(FOLDER_PATH) else {}
         self.selected_files = []
         self.df = None
         self.tree = None
@@ -33,6 +43,8 @@ class CSVCompareApp:
                                                                                                        padx=5)
         tk.Button(top_frame, text="💾 Zapisz zmiany", command=self.save_changes, bg="#28a745", fg="white").pack(
             side=tk.LEFT, padx=5)
+        tk.Button(top_frame, text="📂 Wybierz folder CSV", command=self.select_folder,
+                  bg="#ffc107", fg="black").pack(side=tk.LEFT, padx=5)
 
         # ✅ Checkbox: Ukryj identyczne wartości
         self.hide_identical_var = tk.BooleanVar(value=False)
@@ -92,6 +104,13 @@ class CSVCompareApp:
         self.show_table()
 
     def show_table(self):
+        if not FOLDER_PATH or not os.path.isdir(FOLDER_PATH):
+            messagebox.showwarning("Brak folderu", "Najpierw wybierz folder z plikami CSV.")
+            return       # --- odśwież listę plików ---
+
+        self.all_data = read_all_csv_in_folder(FOLDER_PATH)
+        self.file_combo['values'] = list(self.all_data.keys())
+
         if not self.selected_files:
             if self.tree:
                 self.tree.destroy()
@@ -154,26 +173,35 @@ class CSVCompareApp:
 
         for _, row in df.iterrows():
             values = list(row)
-            var_path = values[0].split(".")  # dzielimy nazwę na części
+            variable_full = values[0]
+
+            # 🔹 Rozbij po kropkach, ale zachowaj indeksy [x,y] jako osobne poziomy
+            parts = re.split(r'\.(?![^[]*\])', variable_full)  # dzieli po '.' ale nie wewnątrz nawiasów
+            expanded_parts = []
+
+            for p in parts:
+                # jeżeli zawiera indeks np. "iRobotMIGSteps[1,0]"
+                match = re.match(r"([^\[]+)(\[.*\])", p)
+                if match:
+                    expanded_parts.append(match.group(1))  # np. "iRobotMIGSteps"
+                    expanded_parts.append(match.group(2))  # np. "[1,0]"
+                else:
+                    expanded_parts.append(p)
+
             parent = ""
             full_path = ""
 
-            # w pętli tworzącej hierarchię
-            for level in var_path[:-1]:
+            # --- hierarchiczne tworzenie węzłów ---
+            for level in expanded_parts[:-1]:
                 full_path = full_path + "." + level if full_path else level
                 if full_path not in tree_nodes:
-                    node_id = self.tree.insert(parent, "end", text=level, values=["☐", ""], open=True)
+                    node_id = self.tree.insert(parent, "end", text=level, values=["☐", ""], open=False)
                     tree_nodes[full_path] = node_id
-                    self.checkbox_states[node_id] = False  # stan checkboxa nadrzędnego
+                    self.checkbox_states[node_id] = False
                 parent = tree_nodes[full_path]
 
-            # dla zmiennej końcowej
-            # item_id = self.tree.insert(parent, "end", text=var_name, values=[select_symbol] + values,
-            #                            tags=("diff",) if diff else ())
-            # self.checkbox_states[item_id] = False
-
-            # ostatni element (zmienna końcowa)
-            var_name = var_path[-1]
+            # --- ostatni poziom (zmienna końcowa) ---
+            var_name = expanded_parts[-1]
             ref_value = None
             diff = False
             for val in values[1:]:
@@ -391,3 +419,16 @@ class CSVCompareApp:
 
         entry.bind("<Return>", save_edit)
         entry.bind("<FocusOut>", lambda e: entry.destroy())
+
+    def select_folder(self):
+        folder_selected = filedialog.askdirectory(title="Wybierz folder z plikami CSV")
+        if folder_selected:
+            global FOLDER_PATH
+            FOLDER_PATH = folder_selected  # aktualizujemy ścieżkę
+            self.all_data = read_all_csv_in_folder(FOLDER_PATH)
+            self.file_combo['values'] = list(self.all_data.keys())
+            self.status_label.config(text=f"Wybrano folder: {FOLDER_PATH}")
+            self.show_table()
+
+            print("BASE_PATH:", BASE_PATH)
+            print("FOLDER_PATH:", FOLDER_PATH)

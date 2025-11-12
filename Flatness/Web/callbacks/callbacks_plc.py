@@ -1,13 +1,18 @@
 from dash import Input, Output, State, ctx, no_update
 
-import time
 import threading
+import time
 import pyads
+import numpy as np
 
 def register_callbacks(app):
-    #PLC_AMS_ID = '192.168.1.50.1.1'
+    # --- Konfiguracja PLC ---
     PLC_AMS_ID = '192.168.1.254.1.1'
     PLC_PORT = pyads.PORT_TC3PLC1
+
+    # --- Globalna zmienna i blokada ---
+    stGrind_data = {"pReferencePlate": np.zeros((10, 10, 3), dtype=float)}
+    stGrind_lock = threading.Lock()
 
     def momentary_write(plc_var):
         print("plc_var: ", plc_var)
@@ -131,3 +136,55 @@ def register_callbacks(app):
         if n_clicks:
             threading.Thread(target=momentary_write, args=('GVL_Reference.CONTROL.bDisplayDown',), daemon=True).start()
         return 0  # reset clicks
+
+    def read_grind_structure(ams_id, port):
+        """
+        Wątek w tle – cyklicznie odczytuje dane z GVL_Calc.stGrind i zapisuje do globalnej zmiennej.
+        """
+        nonlocal stGrind_data
+        try:
+            with pyads.Connection(ams_id, port) as plc:
+                print("✅ Połączono z PLC do odczytu stGrind...")
+
+                while True:
+                    start_time = time.time()
+                    try:
+                        # Odczyt 10x10 punktów (dla testu)
+                        block = []
+                        for x in range(1, 101):
+                            row = []
+                            for y in range(1, 101):
+                                base = f"GVL_Calc.stGrind.pReferencePlate[{x}][{y}]"
+                                try:
+                                    px = plc.read_by_name(f"{base}.rX", pyads.PLCTYPE_REAL)
+                                    py = plc.read_by_name(f"{base}.rY", pyads.PLCTYPE_REAL)
+                                    pz = plc.read_by_name(f"{base}.rZ", pyads.PLCTYPE_REAL)
+                                except pyads.ADSError as ads_err:
+                                    print(f"⚠️ Błąd ADS przy {base}: {ads_err}")
+                                    px, py, pz = 0.0, 0.0, 0.0
+                                row.append((px, py, pz))
+                            block.append(row)
+
+                        # Zapis do zmiennej globalnej w sekcji krytycznej
+                        with stGrind_lock:
+                            stGrind_data["pReferencePlate"] = np.array(block, dtype=float)
+
+                        print(f"✅ Odczytano blok 10x10 w {time.time() - start_time:.2f}s")
+
+                    except Exception as e:
+                        print("❌ Błąd podczas odczytu stGrind:", e)
+
+                    time.sleep(30.0)  # odczyt co 2 sekundy
+
+        except Exception as e:
+            print("❌ Nie udało się połączyć z PLC:", e)
+
+    # --- Wystartowanie wątku ---
+    thread = threading.Thread(
+        target=read_grind_structure,
+        args=(PLC_AMS_ID, PLC_PORT),
+        daemon=True
+    )
+    thread.start()
+
+    print("🚀 Wątek odczytu stGrind wystartował.")

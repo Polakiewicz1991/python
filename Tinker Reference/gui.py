@@ -342,53 +342,28 @@ class CSVCompareApp:
             return
 
         try:
-            # 1) Odbuduj pełny DataFrame z self.all_data
-            base_file = self.selected_files[0]
-            base_flat_full = flatten_dict(self.all_data.get(base_file, {}))
-            full_df = pd.DataFrame(list(base_flat_full.items()), columns=["Variable", base_file])
+            # Utworzenie mapy: plik -> {key:value}
+            updated_values = {file: {} for file in self.selected_files}
 
-            for filename in self.selected_files[1:]:
-                flat = flatten_dict(self.all_data.get(filename, {}))
-                df_temp = pd.DataFrame(list(flat.items()), columns=["Variable", filename])
-                full_df = pd.merge(full_df, df_temp, on="Variable", how="outer")
+            # Zaczytanie aktualnych wartości z GUI
+            for row_id in self.tree.get_children():
+                self._collect_values_recursive(row_id, updated_values)
 
-            full_df = full_df.fillna("")
+            from data_utils import read_csv_preserve_order, save_csv_preserve_structure
 
-            # 2) Przygotuj słowniki do zapisu
-            file_value_maps = {}
-            for col in full_df.columns[1:]:
-                file_value_maps[col] = dict(zip(full_df["Variable"], full_df[col].astype(str)))
+            # Zapis dla każdego pliku
+            for filename in self.selected_files:
+                file_path = os.path.join(FOLDER_PATH, filename)
 
-            # 3) Funkcja rekurencyjna do przeglądania wszystkich węzłów
-            def update_values(node_id):
-                vals = list(self.tree.item(node_id, "values"))
-                if len(vals) < 3:
-                    # węzeł nadrzędny -> idź do dzieci
-                    for child in self.tree.get_children(node_id):
-                        update_values(child)
-                    return
+                original_rows = read_csv_preserve_order(file_path)  # zachowana kolejność
+                new_values_dict = updated_values[filename]  # tylko nowe wartości
 
-                variable = vals[1]
-                for idx, filename in enumerate(list(full_df.columns[1:]), start=2):
-                    new_val = vals[idx]
-                    file_value_maps[filename][variable] = str(new_val)
+                save_csv_preserve_structure(file_path, original_rows, new_values_dict)
 
-            # wywołanie dla wszystkich korzeni
-            for root in self.tree.get_children():
-                update_values(root)
-
-            # 4) Zapis do CSV
-            folder = FOLDER_PATH
-            os.makedirs(folder, exist_ok=True)
-
-            for filename, mapping in file_value_maps.items():
-                file_path = os.path.join(folder, filename)
-                write_dict_to_csv(mapping, file_path)
-
-            messagebox.showinfo("Zapis zakończony", f"✅ Zapisano zmiany do {len(self.selected_files)} plików CSV.")
+            messagebox.showinfo("Zapis zakończony", f"Zapisano zmiany do: {len(self.selected_files)} plików.")
 
         except Exception as e:
-            messagebox.showerror("Błąd zapisu", f"❌ Wystąpił błąd podczas zapisu:\n{e}")
+            messagebox.showerror("Błąd zapisu", f"Błąd podczas zapisu:\n{e}")
 
     def edit_cell(self, event):
         """Pozwala edytować wartość po dwukliku w komórkę (ale nie kolumnę #0 ani checkbox)."""
@@ -432,3 +407,16 @@ class CSVCompareApp:
 
             print("BASE_PATH:", BASE_PATH)
             print("FOLDER_PATH:", FOLDER_PATH)
+
+    def _collect_values_recursive(self, node_id, updated_values):
+        vals = list(self.tree.item(node_id, "values"))
+
+        # jeśli to liść (zmienna)
+        if len(vals) > 2:
+            variable = vals[1]
+            for i, filename in enumerate(self.selected_files, start=2):
+                updated_values[filename][variable] = vals[i]
+
+        # rekurencja w dół
+        for child in self.tree.get_children(node_id):
+            self._collect_values_recursive(child, updated_values)

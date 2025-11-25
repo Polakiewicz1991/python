@@ -73,3 +73,28 @@ def save_dict_to_csv(data_dict, file_path):
         writer = csv.writer(f, delimiter=";")
         for key, value in data_dict.items():
             writer.writerow([key, value])
+
+def read_csv_preserve_order(file_path):
+    """
+    Wczytuje CSV w oryginalnej kolejności jako listę:
+    [("key", "value"), ...]  # value jako str, nic nie konwertujemy
+    """
+    rows = []
+    with open(file_path, newline='', encoding='utf-8') as file:
+        reader = csv.reader(file, delimiter=';')
+        for row in reader:
+            if len(row) == 2:
+                rows.append((row[0], row[1]))
+    return rows
+
+def save_csv_preserve_structure(file_path, original_rows, new_values_dict):
+    """
+    Zapisuje CSV w oryginalnej kolejności i formacie.
+    Nadpisuje tylko wartości.
+    """
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter=';')
+
+        for key, old_val in original_rows:
+            new_val = new_values_dict.get(key, old_val)
+            writer.writerow([key, new_val])

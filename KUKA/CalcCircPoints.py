@@ -6,7 +6,7 @@ import math
 
 # Środek okręgu
 Xc = 123.000000
-Yc = 99.500000
+Yc = 100.500000
 Zc = -97.0
 
 # Średnica
@@ -20,8 +20,8 @@ N = 13
 A_const = -90.0
 
 # Maksymalne wartości zmian
-B_max = 15
-C_max = 15
+B_max = 25
+C_max = 25
 
 # ---------------------------------------------
 # GENEROWANIE PUNKTÓW
@@ -34,8 +34,11 @@ for i in range(N):
     Y = Yc + R * math.sin(theta)
     Z = Zc
 
-    B = B_max * math.sin(theta)
-    C = C_max * math.cos(theta)
+    B = -B_max * math.cos(theta)
+    C = C_max * math.sin(theta)
+
+    wireFeed = 4.000
+    robotVelocity = 0.25/60
 
     decl = (f"DECL E6POS XP{i+1}={{X {X:.3f}, Y {Y:.3f}, Z {Z:.3f}, "
           f"A {A_const:.3f}, B {B:.4f}, C {C:.4f}, S 2, T 10}}\n"
@@ -45,20 +48,20 @@ for i in range(N):
           f"DECL stArcDat_T WP{i+1}={{WdatId[] "f"\"WP{i+1}\""",Info {Version 303030366}}\n")
 
     strile = (f"DECL stArcDat_T WDAT{i+1}={{WdatId[] "f"\"WDAT{i+1}\""",Strike {JobModeId[] \"GMAW synergic S2-Step\","
-              "ParamSetId[] "f"\"Set1\""",StartTime 0.500000,PreFlowTime 1.00000,Channel1 3449.00,Channel2 6.00000,Channel3 0.0,"
+              "ParamSetId[] "f"\"Set1\""f",StartTime 0.500000,PreFlowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,"
               "Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,PurgeTime 0.0},"
               "Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "f"\"Set2\""","
-              "Velocity 0.00330000,Channel1 3449.00,Channel2 6.00000,Channel3 0.0,Channel4 0.0,Channel5 0.0,"
+              f"Velocity {robotVelocity},Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,Channel4 0.0,Channel5 0.0,"
               "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,"
               "Angle 0.0,LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
 
     weld = (f"DECL stArcDat_T WDAT{i+1}={{WdatId[] "f"\"WDAT{i+1}\""",Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "
-            ""f"\"Set2\""",Velocity 0.00330000,Channel1 3449.00,Channel2 6.00000,Channel3 0.0,Channel4 0.0,Channel5 0.0,"
+            ""f"\"Set2\""f",Velocity {robotVelocity},Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,Channel4 0.0,Channel5 0.0,"
             "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,Angle 0.0,"
             "LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
 
     crater = (f"DECL stArcDat_T WDAT{i+1}={{WdatId[] "f"\"WDAT{i+1}\""",Crater {JobModeId[] \"GMAW synergic S2-Step\","
-              "ParamSetId[] "f"\"Set1\""",CraterTime 0.500000,PostflowTime 1.00000,Channel1 3449.00,Channel2 6.00000,"
+              "ParamSetId[] "f"\"Set1\""f",CraterTime 0.500000,PostflowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},"
               "Channel3 0.0,Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,BurnBackTime 0.0}}\n")
 
     if i == 0:

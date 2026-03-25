@@ -8,7 +8,7 @@ import os
 # GENEROWANIE PUNKTÓW I DEKLARACJI
 # --------------------------------------------------------
 
-def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max):
+def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max, Ch1, Ch2, Ch3, Ch4, Vrobot):
     R = D / 2.0
     decl_output = ""
     points = []
@@ -21,10 +21,12 @@ def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max):
         Z = Zc
 
         B = -B_max * math.cos(theta)
-        C = C_max * math.sin(theta)
+        C =  180 + C_max * math.sin(theta)
+        if C > 180:
+            C = -C
 
-        wireFeed = 4.000
-        robotVelocity = 0.25 / 60
+        wireFeed = Ch2
+        robotVelocity = Vrobot / 60
 
         Pname = f"P{i+1}"
         points.append(Pname)
@@ -41,20 +43,21 @@ def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max):
             "ParamSetId[] "f"\"Set1\""f",StartTime 0.500000,PreFlowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,"
             "Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,PurgeTime 0.0},"
             "Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "f"\"Set2\""","
-            f"Velocity {robotVelocity},Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,Channel4 0.0,Channel5 0.0,"
+            f"Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,"
             "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,"
             "Angle 0.0,LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
 
         weld = (
             f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "
-            ""f"\"Set2\""f",Velocity {robotVelocity},Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,Channel4 0.0,Channel5 0.0,"
+            ""f"\"Set2\""f",Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,"
             "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,Angle 0.0,"
             "LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
 
         crater = (
             f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Crater {JobModeId[] \"GMAW synergic S2-Step\","
-            "ParamSetId[] "f"\"Set1\""f",CraterTime 0.500000,PostflowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},"
-            "Channel3 0.0,Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,BurnBackTime 0.0}}\n")
+            "ParamSetId[] "f"\"Set1\""f",CraterTime 0.500000,PostflowTime 1.00000,Channel1 {Ch1},Channel2 {wireFeed},"
+            f"Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,"
+            "BurnBackTime 0.0}}\n")
 
         if i == 0:
             decl += (strike)
@@ -162,7 +165,12 @@ def save_settings():
         "N": entry_N.get(),
         "A_const": entry_A.get(),
         "B_max": entry_B.get(),
-        "C_max": entry_C.get()
+        "C_max": entry_C.get(),
+        "Ch1": entry_Ch1.get(),
+        "Ch2": entry_Ch2.get(),
+        "Ch3": entry_Ch3.get(),
+        "Ch4": entry_Ch4.get(),
+        "Vrobot": entry_Vrobot.get()
     }
     with open(SETTINGS_FILE, "w") as f:
         json.dump(data, f)
@@ -199,7 +207,20 @@ def load_settings():
     entry_C.delete(0, tk.END)
     entry_C.insert(0, data.get("C_max", ""))
 
+    entry_Ch1.delete(0, tk.END)
+    entry_Ch1.insert(0, data.get("Ch1", ""))
 
+    entry_Ch2.delete(0, tk.END)
+    entry_Ch2.insert(0, data.get("Ch2", ""))
+
+    entry_Ch3.delete(0, tk.END)
+    entry_Ch3.insert(0, data.get("Ch3", ""))
+
+    entry_Ch4.delete(0, tk.END)
+    entry_Ch4.insert(0, data.get("Ch4", ""))
+
+    entry_Vrobot.delete(0, tk.END)
+    entry_Vrobot.insert(0, data.get("Vrobot", ""))
 
 # --------------------------------------------------------
 # FUNKCJA WYWOŁYWANA PO KLIKNIĘCIU PRZYCISKU
@@ -214,8 +235,13 @@ def on_generate():
     A_const = float(entry_A.get())
     B_max = float(entry_B.get())
     C_max = float(entry_C.get())
+    Ch1 = float(entry_Ch1.get())
+    Ch2 = float(entry_Ch2.get())
+    Ch3 = float(entry_Ch3.get())
+    Ch4= float(entry_Ch4.get())
+    Vrobot= float(entry_Vrobot.get())
 
-    declarations, points = generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max)
+    declarations, points = generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max, Ch1, Ch2, Ch3, Ch4, Vrobot)
     program = generate_program(points)
 
     text_decl.delete("1.0", tk.END)
@@ -237,31 +263,85 @@ root.title("Generator KUKA ARC — GUI")
 frame_cfg = ttk.Frame(root, padding=10)
 frame_cfg.grid(row=0, column=0, sticky="nw")
 
-labels = ["Xc", "Yc", "Zc", "Średnica D", "Liczba punktów N", "A_const", "B_max", "C_max"]
-defaults = ["123", "100.5", "-97", "20", "13", "-90", "25", "25"]
+labels = [
+    "Xc", "Yc", "Zc", "Średnica D", "Liczba punktów N",
+    "A_const", "B_max", "C_max",
+    "Linia synergiczna (Channel1)",
+    "Prędkość drutu [m/min] (Channel2)",
+    "Korekta napięcia (Channel3)",
+    "Korekta dynamiki (Channel4)",
+    "Prędkość robota:"
+]
+defaults = ["123", "100.5", "-97", "20", "13", "-90", "25", "25",
+            "3449.00",  # Channel1
+            "6.0",      # Channel2
+            "-2.0",     # Channel3
+            "2.0",       # Channel4
+            "0.25"
+            ]
 entries = []
 
+buttonRow = 0
 for i, (lbl, val) in enumerate(zip(labels, defaults)):
     ttk.Label(frame_cfg, text=lbl).grid(row=i, column=0, sticky="w")
     e = ttk.Entry(frame_cfg)
     e.insert(0, val)
     e.grid(row=i, column=1)
     entries.append(e)
+    buttonRow = i + 1
 
-entry_Xc, entry_Yc, entry_Zc, entry_D, entry_N, entry_A, entry_B, entry_C = entries
+(entry_Xc, entry_Yc, entry_Zc, entry_D, entry_N,
+ entry_A, entry_B, entry_C,
+ entry_Ch1, entry_Ch2, entry_Ch3,entry_Ch4,
+ entry_Vrobot) = entries
 load_settings()
 
-ttk.Button(frame_cfg, text="GENERUJ", command=on_generate).grid(row=8, column=0, columnspan=2, pady=10)
+ttk.Button(frame_cfg, text="GENERUJ", command=on_generate).grid(row=buttonRow, column=0, columnspan=2, pady=10)
 
 # ----- FRAME WYNIKÓW (pack) -----
 frame_out = ttk.Frame(root)
-frame_out.grid(row=0, column=1, sticky="ne")
+frame_out.grid(row=0, column=1, sticky="nsew")
 
-text_decl = tk.Text(frame_out, width=220, height=25)
-text_decl.pack(side="top", padx=10, pady=5)
+# 🔴 TO JEST KLUCZOWE
+root.grid_columnconfigure(1, weight=1)
+root.grid_rowconfigure(0, weight=1)
+frame_out.grid_rowconfigure(0, weight=1)
+frame_out.grid_rowconfigure(1, weight=1)
+frame_out.grid_columnconfigure(0, weight=1)
 
-text_prog = tk.Text(frame_out, width=220, height=25)
-text_prog.pack(side="bottom", padx=10, pady=5)
+# ----- DECLARATIONS -----
+frame_decl = ttk.Frame(frame_out)
+frame_decl.pack(fill="both", expand=True, padx=10, pady=5)
+
+scroll_decl = ttk.Scrollbar(frame_decl, orient="vertical")
+scroll_decl.pack(side="right", fill="y")
+
+text_decl = tk.Text(
+    frame_decl,
+    width=220,
+    height=25,
+    yscrollcommand=scroll_decl.set
+)
+text_decl.pack(side="left", fill="both", expand=True)
+
+scroll_decl.config(command=text_decl.yview)
+
+# ----- PROGRAM -----
+frame_prog = ttk.Frame(frame_out)
+frame_prog.pack(fill="both", expand=True, padx=10, pady=5)
+
+scroll_prog = ttk.Scrollbar(frame_prog, orient="vertical")
+scroll_prog.pack(side="right", fill="y")
+
+text_prog = tk.Text(
+    frame_prog,
+    width=220,
+    height=25,
+    yscrollcommand=scroll_prog.set
+)
+text_prog.pack(side="left", fill="both", expand=True)
+
+scroll_prog.config(command=text_prog.yview)
 
 
 def on_closing():

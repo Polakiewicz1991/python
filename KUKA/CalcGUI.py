@@ -21,7 +21,7 @@ def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max, Ch1, Ch2, Ch3
         Z = Zc
 
         B = -B_max * math.cos(theta)
-        C =  180 + C_max * math.sin(theta)
+        C =  180 - C_max * math.sin(theta)
         if C > 180:
             C = -C
 
@@ -31,34 +31,81 @@ def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max, Ch1, Ch2, Ch3
         Pname = f"P{i+1}"
         points.append(Pname)
 
-        decl = (f"DECL E6POS XP{i + 1}={{X {X:.3f}, Y {Y:.3f}, Z {Z:.3f}, "
-                f"A {A_const:.3f}, B {B:.4f}, C {C:.4f}, S 2, T 10}}\n"
-                f"DECL FDAT FP{i + 1}={{TOOL_NO 6,BASE_NO 20,IPO_FRAME #BASE,POINT2[] \" \"}}\n"
-                f"DECL LDAT LCPDAT{i + 1}={{VEL 0.200000,ACC 100.000,APO_DIST 500.000,APO_FAC 50.0000,AXIS_VEL 100.000,"
-                f"AXIS_ACC 100.000,ORI_TYP #VAR,CIRC_TYP #BASE,JERK_FAC 50.0000,GEAR_JERK 100.000,EXAX_IGN 0}}\n"
-                f"DECL stArcDat_T WP{i + 1}={{WdatId[] \"WP{i + 1}\",Info {{Version 303030366}}}}\n")
+        # decl = (f"DECL E6POS XP{i + 1}={{X {X:.3f}, Y {Y:.3f}, Z {Z:.3f}, "
+        #         f"A {A_const:.3f}, B {B:.4f}, C {C:.4f}, S 2, T 10}}\n"
+        #         f"DECL FDAT FP{i + 1}={{TOOL_NO 6,BASE_NO 20,IPO_FRAME #BASE,POINT2[] \" \"}}\n"
+        #         f"DECL LDAT LCPDAT{i + 1}={{VEL 0.200000,ACC 100.000,APO_DIST 500.000,APO_FAC 50.0000,AXIS_VEL 100.000,"
+        #         f"AXIS_ACC 100.000,ORI_TYP #VAR,CIRC_TYP #BASE,JERK_FAC 50.0000,GEAR_JERK 100.000,EXAX_IGN 0}}\n"
+        #         f"DECL stArcDat_T WP{i + 1}={{WdatId[] \"WP{i + 1}\",Info {{Version 303030366}}}}\n")
+        decl = (
+            f"DECL E6POS XP{i + 1}={{X {X:.7f},Y {Y:.7f},Z {Z:.7f},"
+            f"A {A_const:.7f},B {B:.7f},C {C:.7f},S 6,T 27,"
+            f"E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}}\n"
 
+            f"DECL FDAT FP{i + 1}={{TOOL_NO 2,BASE_NO 20,IPO_FRAME #BASE,POINT2[] \" \"}}\n"
+
+            f"DECL LDAT LCPDAT{i + 1}={{VEL 0.500000,ACC 100.000,APO_DIST 500.000,"
+            f"APO_FAC 50.0000,AXIS_VEL 20.0000,AXIS_ACC 20.0000,ORI_TYP #VAR,CIRC_TYP #BASE,"
+            f"JERK_FAC 50.0000,GEAR_JERK 100.000,EXAX_IGN 0,"
+            f"CB {{AUX_PT {{ORI #CONSIDER,E1 #CONSIDER,E2 #CONSIDER,E3 #CONSIDER,E4 #CONSIDER,E5 #CONSIDER,E6 #CONSIDER}},"
+            f"TARGET_PT {{ORI #INTERPOLATE,E1 #INTERPOLATE,E2 #INTERPOLATE,E3 #INTERPOLATE,E4 #INTERPOLATE,E5 #INTERPOLATE,E6 #INTERPOLATE}}}}}}\n"
+
+            f"DECL stArcDat_T WP{i + 1}={{WdatId[] \"WP{i + 1}\",Info {{Version 306040420}},Strike {{SeamName[] \" \",PartName[] \" \",SeamNumber 1,PartNumber 1,DesiredLength 0.0,LengthTolNeg 0.0,LengthTolPos 0.0,LengthCtrlActive FALSE}},Advanced {{BitCodedRobotMark 0}}}}\n"
+        )
+        # strike = (
+        #     f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Strike {JobModeId[] \"GMAW synergic S2-Step\","
+        #     "ParamSetId[] "f"\"Set1\""f",StartTime 0.500000,PreFlowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,"
+        #     "Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,PurgeTime 0.0},"
+        #     "Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "f"\"Set2\""","
+        #     f"Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,"
+        #     "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,"
+        #     "Angle 0.0,LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
         strike = (
-            f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Strike {JobModeId[] \"GMAW synergic S2-Step\","
-            "ParamSetId[] "f"\"Set1\""f",StartTime 0.500000,PreFlowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},Channel3 0.0,"
-            "Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,PurgeTime 0.0},"
-            "Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "f"\"Set2\""","
-            f"Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,"
-            "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,"
-            "Angle 0.0,LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
+            f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] \"WDAT{i + 1}\","
+            f"Info {{Version 306040420,WId 1,WName[] \"Fronius TPSi cmd value\"}},"
 
+            f"Strike {{JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] \"Set1\","
+            f"StartTime 0.500000,PreFlowTime 1.00000,Channel1 3449.00,Channel2 {wireFeed},"
+            f"Channel3 0.0,Channel4 0.0,Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,"
+            f"PurgeTime 0.0}},"
+
+            f"Weld {{JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] \"Set2\","
+            f"Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},"
+            f"Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0}},"
+
+            f"Weave {{Pattern #None,Length 4.00000,Amplitude 2.00000,Angle 0.0,"
+            f"Frequency 2.00000,LeftSideDelay 0.0,RightSideDelay 0.0}}}}\n"
+        )
+        # weld = (
+        #     f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "
+        #     ""f"\"Set2\""f",Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,"
+        #     "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,Angle 0.0,"
+        #     "LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
         weld = (
-            f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Weld {JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] "
-            ""f"\"Set2\""f",Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,"
-            "Channel6 0.0,Channel7 0.0,Channel8 0.0},Weave {Pattern #None,Length 4.00000,Amplitude 2.00000,Angle 0.0,"
-            "LeftSideDelay 0.0,RightSideDelay 0.0}}\n")
+            f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] \"WDAT{i + 1}\","
+            f"Info {{Version 306040420,WId 1,WName[] \"Fronius TPSi cmd value\"}},"
 
+            f"Weld {{JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] \"Set2\","
+            f"Velocity {robotVelocity},Channel1 {Ch1},Channel2 {wireFeed},"
+            f"Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0}},"
+
+            f"Weave {{Pattern #None,Length 4.00000,Amplitude 2.00000,Angle 0.0,"
+            f"Frequency 2.00000,LeftSideDelay 0.0,RightSideDelay 0.0}}}}\n"
+        )
+        # crater = (
+        #     f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Crater {JobModeId[] \"GMAW synergic S2-Step\","
+        #     "ParamSetId[] "f"\"Set1\""f",CraterTime 0.500000,PostflowTime 1.00000,Channel1 {Ch1},Channel2 {wireFeed},"
+        #     f"Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,"
+        #     "BurnBackTime 0.0}}\n")
         crater = (
-            f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] "f"\"WDAT{i + 1}\""",Crater {JobModeId[] \"GMAW synergic S2-Step\","
-            "ParamSetId[] "f"\"Set1\""f",CraterTime 0.500000,PostflowTime 1.00000,Channel1 {Ch1},Channel2 {wireFeed},"
-            f"Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,"
-            "BurnBackTime 0.0}}\n")
+            f"DECL stArcDat_T WDAT{i + 1}={{WdatId[] \"WDAT{i + 1}\","
+            f"Info {{Version 306040420,WId 1,WName[] \"Fronius TPSi cmd value\"}},"
 
+            f"Crater {{JobModeId[] \"GMAW synergic S2-Step\",ParamSetId[] \"Set1\","
+            f"CraterTime 0.500000,PostflowTime 1.00000,Channel1 {Ch1},Channel2 {wireFeed},"
+            f"Channel3 {Ch3},Channel4 {Ch4},Channel5 0.0,Channel6 0.0,Channel7 0.0,Channel8 0.0,"
+            f"BurnBackTime 0.0}}}}\n"
+        )
         if i == 0:
             decl += (strike)
         elif i == N - 1:
@@ -74,23 +121,19 @@ def generate_declarations(Xc, Yc, Zc, D, N, A_const, B_max, C_max, Ch1, Ch2, Ch3
 # --------------------------------------------------------
 # SZABLONY PROGRAMU
 # --------------------------------------------------------
-
 template_ARCON = """
-;FOLD ARCON WDAT{I} LIN {P} Vel=0.2 m/s CPDAT{I} Tool[6]:Fajka45 Base[20]:PP_noga ;%{{PE}}
+;FOLD ARCON WDAT{I} LIN {P} Vel=0.5 m/s CPDAT{I} Tool[2]:Pipe Base[20]:LEGS ;%{{PE}}
 ;FOLD Parameters ;%{{h}}
-;Params IlfProvider=kukaroboter.arctech.arconlin; Kuka.IsGlobalPoint=False; 
-;Kuka.PointName={P}; Kuka.BlendingEnabled=False; Kuka.MoveDataName=CPDAT{I};
-;Kuka.VelocityPath=0.2; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True;
-;ArcTech.WdatVarName=WDAT{I}; ArcTech.Basic=3.3.3.366
+;Params IlfProvider=kukaroboter.arctech.arconlin; Kuka.IsGlobalPoint=False; Kuka.PointName={P}; Kuka.BlendingEnabled=False; Kuka.MoveDataName=CPDAT{I}; Kuka.VelocityPath=0.5; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=WDAT{I}; ArcTech.Basic=3.6.4.420
 ;ENDFOLD
 $BWDSTART = FALSE
 LDAT_ACT = LCPDAT{I}
 FDAT_ACT = F{P}
-BAS(#CP_PARAMS, 0.2)
+BAS(#CP_PARAMS, 0.5)
 SET_CD_PARAMS (0)
 TRIGGER WHEN DISTANCE = 1 DELAY = ArcGetDelay(#PreDefinition, WDAT{I}) DO ArcMainNG(#PreDefinition, WDAT{I}, W{P}) PRIO = -1
 TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, WDAT{I}) DELAY = ArcGetDelay(#GasPreflow, WDAT{I}) DO ArcMainNG(#GasPreflow, WDAT{I}, W{P}) PRIO = -1
-TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, WDAT{I}) DELAY = 0 DO ArcMainNG(#ArcOnMoveStd, WDAT{I}, W{P}) PRIO = -1 
+TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, WDAT{I}) DELAY = ArcGetDelay(#ArcPreOn, WDAT{I}) DO ArcMainNG(#ArcOnMoveStd, WDAT{I}, W{P}) PRIO = -1 
 ArcMainNG(#ArcOnBeforeMoveStd, WDAT{I}, W{P})
 LIN X{P}
 ArcMainNG(#ArcOnAfterMoveStd, WDAT{I}, W{P})
@@ -98,45 +141,28 @@ ArcMainNG(#ArcOnAfterMoveStd, WDAT{I}, W{P})
 """
 
 template_ARCSWI = """
-;FOLD ARCSWI WDAT{I} CIRC {Phelp} {P} CPDAT{I} Tool[6]:Fajka45 Base[20]:PP_noga ;%{{PE}}
+;FOLD ARCSWI WDAT{I} SCIRC {Phelp} {P} CPDAT{I} Tool[2]:Pipe Base[20]:LEGS ;%{{PE}}
 ;FOLD Parameters ;%{{h}}
-;Params IlfProvider=kukaroboter.arctech.arcswicirc; Kuka.IsGlobalPoint=False;
-;Kuka.PointName={P}; Kuka.HelpPointName={Phelp}; Kuka.BlendingEnabled=True;
-;Kuka.MoveDataName=CPDAT{I}; Kuka.VelocityPath=0.2; Kuka.CurrentCDSetIndex=0;
-;Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=WDAT{I};
-;ArcTech.Basic=3.3.3.366
+;Params IlfProvider=kukaroboter.arctech.arcswistandardscirc; Kuka.IsGlobalPoint=False; Kuka.PointName={P}; Kuka.HelpPointName={Phelp}; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDAT{I}; Kuka.VelocityPath=0.5; Kuka.VelocityFieldEnabled=True; Kuka.ColDetectFieldEnabled=True; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=SCIRC; ArcTech.WdatVarName=WDAT{I}; ArcTech.Basic=3.6.4.420
 ;ENDFOLD
-$BWDSTART = FALSE
-LDAT_ACT = LCPDAT{I}
-FDAT_ACT = F{P}
-BAS(#CP_PARAMS, gArcBasVelDefinition)
-SET_CD_PARAMS (0)
-TRIGGER WHEN DISTANCE = 1 DELAY = 0 DO ArcMainNG(#ArcSwiMoveStd, WDAT{I}, W{P}, W{Phelp}) PRIO = -1
-ArcMainNG(#ArcSwiBeforeMoveStd, WDAT{I}, W{P}, W{Phelp})
-CIRC X{Phelp}, X{P} C_Dis C_Dis
-ArcMainNG(#ArcSwiAfterMoveStd, WDAT{I}, W{P}, W{Phelp})
+TRIGGER WHEN DISTANCE = 1 DELAY = 0 DO ArcMainNG(#ArcSwiSplSingle, WDAT{I}, W{P}, W{Phelp}) PRIO = -1
+ArcMainNG(#ArcSwiBeforeSplSingle, WDAT{I}, W{P}, W{Phelp})
+SCIRC X{Phelp}, X{P} WITH $VEL = SVEL_CP(gArcBasVelDefinition, , LCPDAT{I}), $TOOL = STOOL2(F{P}), $BASE = SBASE(F{P}.BASE_NO), $IPO_MODE = SIPO_MODE(F{P}.IPO_FRAME), $LOAD = SLOAD(F{P}.TOOL_NO), $ACC = SACC_CP(LCPDAT{I}), $ORI_TYPE = SORI_TYP(LCPDAT{I}), $CIRC_TYPE = SCIRC_TYP(LCPDAT{I}), $APO = SAPO(LCPDAT{I}), $APO.CDIS = wArcApoDistance, $CIRC_MODE = SCIRC_M(LCPDAT{I}), $JERK = SJERK(LCPDAT{I}), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0) C_Spl
+ArcMainNG(#ArcSwiAfterSplSingle, WDAT{I}, W{P}, W{Phelp})
 ;ENDFOLD
 """
 
 template_ARCOFF = """
-;FOLD ARCOFF WDAT{I} CIRC {Phelp} {P} CPDAT{I} Tool[6]:Fajka45 Base[20]:PP_noga ;%{{PE}}
+;FOLD ARCOFF WDAT{I} SCIRC {Phelp} {P} CPDAT{I} Tool[2]:Pipe Base[20]:LEGS ;%{{PE}}
 ;FOLD Parameters ;%{{h}}
-;Params IlfProvider=kukaroboter.arctech.arcoffcirc; Kuka.IsGlobalPoint=False;
-;Kuka.PointName={P}; Kuka.HelpPointName={Phelp}; Kuka.BlendingEnabled=False;
-;Kuka.MoveDataName=CPDAT{I}; Kuka.VelocityPath=0.2; Kuka.CurrentCDSetIndex=0;
-;Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=WDAT{I}; 
-;ArcTech.Basic=3.3.3.366
+;Params IlfProvider=kukaroboter.arctech.arcoffstandardscirc; Kuka.IsGlobalPoint=False; Kuka.PointName={P}; Kuka.HelpPointName={Phelp}; Kuka.BlendingEnabled=False; Kuka.MoveDataName=CPDAT{I}; Kuka.VelocityPath=0.5; Kuka.VelocityFieldEnabled=True; Kuka.ColDetectFieldEnabled=True; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=SCIRC; ArcTech.WdatVarName=WDAT{I}; ArcTech.Basic=3.6.4.420
 ;ENDFOLD
-$BWDSTART = FALSE
-LDAT_ACT = LCPDAT{I}
-FDAT_ACT = F{P}
-BAS(#CP_PARAMS, gArcBasVelDefinition)
-SET_CD_PARAMS (0)
-TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore, WDAT{I}) DELAY = 0 DO ArcMainNG(#ArcOffBeforeOffStd, WDAT{I}, W{P}, W{Phelp}) PRIO = -1
-TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOff, WDAT{I}) DELAY = 0 DO ArcMainNG(#ArcOffMoveStd, WDAT{I}, W{P}, W{Phelp}) PRIO = -1 
-ArcMainNG(#ArcOffBeforeMoveStd, WDAT{I}, W{P}, W{Phelp})
-CIRC X{Phelp}, X{P}
-ArcMainNG(#ArcOffAfterMoveStd, WDAT{I}, W{P}, W{Phelp})
+TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore, WDAT{I}) DELAY = 0 DO ArcMainNG(#ArcOffBeforeOffSplSingle, WDAT{I}, W{P}, W{Phelp}) PRIO = -1
+TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore2, WDAT{I}) DELAY = 0 DO ArcMainNG(#ArcOffBefOffSplSingle2, WDAT{I}, W{P}, W{Phelp}) PRIO = -1
+TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOff, WDAT{I}) DELAY = 0 DO ArcMainNG(#ArcOffSplSingle, WDAT{I}, W{P}, W{Phelp}) PRIO = -1 
+ArcMainNG(#ArcOffBeforeSplSingle, WDAT{I}, W{P}, W{Phelp})
+SCIRC X{Phelp}, X{P} WITH $VEL = SVEL_CP(gArcBasVelDefinition, , LCPDAT{I}), $TOOL = STOOL2(F{P}), $BASE = SBASE(F{P}.BASE_NO), $IPO_MODE = SIPO_MODE(F{P}.IPO_FRAME), $LOAD = SLOAD(F{P}.TOOL_NO), $ACC = SACC_CP(LCPDAT{I}), $ORI_TYPE = SORI_TYP(LCPDAT{I}), $CIRC_TYPE = SCIRC_TYP(LCPDAT{I}), $APO = SAPO(LCPDAT{I}), $APO.CDIS = wArcApoDistance, $CIRC_MODE = SCIRC_M(LCPDAT{I}), $JERK = SJERK(LCPDAT{I}), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+ArcMainNG(#ArcOffAfterSplSingle, WDAT{I}, W{P}, W{Phelp})
 ;ENDFOLD
 """
 

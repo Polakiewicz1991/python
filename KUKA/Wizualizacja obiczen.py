@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+
 # ====== PARAMETRY ======
 R = 31
 X, Y = 75, 52
@@ -133,7 +134,7 @@ for i in range(n):
 for i, p in enumerate(points):
     print(f"P{i+1} = {{{p['x']:.4f}, {p['y']:.4f}, {p['z']:.4f}, "
           f"{p['A']:.2f}, {p['B']:.2f}, {p['C']:.2f}}}")
-
+x
 # ====== WIZUALIZACJA ======
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')

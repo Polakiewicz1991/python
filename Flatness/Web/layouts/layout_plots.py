@@ -3,7 +3,14 @@ from Flatness.Web.layouts.translations import translations
 
 def get_3d_plots_layout(lang='pl'):
     tr = translations.get(lang, translations['pl'])
+
     DEFAULT_FOLDER_PATH = r"E:\PP\23_0005_0000 - Portal pomiarowy do stołów\Dokumentacja"
+    selected_folder = dcc.Store(id='selected-folder', data=DEFAULT_FOLDER_PATH)
+
+    current_folder_label = html.Div(
+        id='current-folder-label',
+        children=DEFAULT_FOLDER_PATH
+    )
 
     card_style = {
         'backgroundColor': '#ffffff',
@@ -126,7 +133,7 @@ def get_3d_plots_layout(lang='pl'):
         ], style={'flex': '1', 'display': 'flex', 'flexDirection': 'column', 'marginLeft': '15px'}),
     ], style={'display': 'flex', 'width': '100%', 'alignItems': 'flex-start'})
 
-    return html.Div([header, interval, top_row, folder_row, flatness_output, plots],
+    return html.Div([selected_folder,current_folder_label, header, interval, top_row, folder_row, flatness_output, plots],
                     style={'padding': '30px', 'maxWidth': '1500px', 'margin': '0 auto',
                            'fontFamily': 'Segoe UI, Arial, sans-serif', 'backgroundColor': '#fafafa',
                            'borderRadius': '12px'})

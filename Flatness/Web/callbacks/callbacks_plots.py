@@ -34,12 +34,13 @@ def register_callbacks(app):
 
     @app.callback(
         Output('current-folder-label', 'children'),
+        Output('selected-folder', 'data'),
         Input('select-folder-btn', 'n_clicks'),
         State('folder-input', 'value'),
         prevent_initial_call=True
     )
     def select_folder(n_clicks, folder_input):
-        return folder_input
+        return folder_input, folder_input
 
     @app.callback(
         Output('interval-update', 'disabled'),
@@ -74,9 +75,10 @@ def register_callbacks(app):
         State('chart_plate', 'figure'),
         State('chart_side_Y1', 'figure'),
         State('tabs', 'value'),
+        State('selected-folder', 'data'),
         prevent_initial_call=True
     )
-    def update_or_reset(contents, n_clicks, n_intervals, lang, chart_plate, current_fig2, current_tab):
+    def update_or_reset(contents, n_clicks, n_intervals, lang, chart_plate, current_fig2, current_tab,selected_folder):
         tr = translations.get(lang, translations['pl'])
 
         # Callback działa TYLKO gdy aktywna jest zakładka wykresów
@@ -107,7 +109,7 @@ def register_callbacks(app):
         # --- 3️⃣ Wywołanie przez Interval (automatyczne) ---
         elif triggered_id == 'interval-update':
             # Ścieżka do folderu z CSV
-            folder_path = r"E:\PP\23_0005_0000 - Portal pomiarowy do stołów\Dokumentacja"
+            folder_path = selected_folder or DEFAULT_FOLDER_PATH
 
             # Znajdź wszystkie pliki CSV w folderze
             csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
